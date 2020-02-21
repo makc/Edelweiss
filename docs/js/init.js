@@ -12,7 +12,7 @@ function init() {
 	scene.add( ambientLight );
 
     //cubemap
-    var path = 'https://edelweiss-game.s3.eu-west-3.amazonaws.com/skybox/';
+    var path = 'assets/skybox/';
     var format = '.jpg';
     var urls = [
         path + 'px' + format, path + 'nx' + format,

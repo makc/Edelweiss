@@ -124,7 +124,7 @@ function AssetManager() {
 
 	//// ASSETS LOADING /////
 
-	gltfLoader.load('https://edelweiss-game.s3.eu-west-3.amazonaws.com/models/alpinist.glb', (glb)=> {
+	gltfLoader.load('assets/models/alpinist.glb', (glb)=> {
 
 		createMultipleModels(
 			glb,
@@ -137,7 +137,7 @@ function AssetManager() {
 
 	});
 
-	gltfLoader.load('https://edelweiss-game.s3.eu-west-3.amazonaws.com/models/lady.glb', (glb)=> {
+	gltfLoader.load('assets/models/lady.glb', (glb)=> {
 
 		createMultipleModels(
 			glb,
@@ -150,7 +150,7 @@ function AssetManager() {
 
 	});
 
-	gltfLoader.load('https://edelweiss-game.s3.eu-west-3.amazonaws.com/models/edelweiss.glb', (glb)=> {
+	gltfLoader.load('assets/models/edelweiss.glb', (glb)=> {
 
 		createMultipleModels(
 			glb,

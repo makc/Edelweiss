@@ -11,7 +11,7 @@ function SocketIO() {
 
 	var socket = {
 		emit: function( event, data ) {
-			console.log( 'SocketIO', event, data );
+			//console.log( 'SocketIO', event, data );
 		}
 	};
 

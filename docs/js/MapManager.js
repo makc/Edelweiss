@@ -99,7 +99,7 @@ function MapManager() {
 
 	function loadMap( mapName, resolve ) {
 
-		gltfLoader.load( `https://edelweiss-game.s3.eu-west-3.amazonaws.com/map/${ mapName }.glb`, (glb)=> {
+		gltfLoader.load( `assets/map/${ mapName }.glb`, (glb)=> {
 
 			// console.log( '///// MAP LOADED : ' + mapName );
 

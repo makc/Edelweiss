@@ -13,9 +13,9 @@ function SoundMixer() {
 	const NORMAL_FADE_SPEED = 0.004 ;
 	var fadeSpeed = NORMAL_FADE_SPEED ;
 
-	const SFXURL = 'https://edelweiss-game.s3.eu-west-3.amazonaws.com/sounds/sfx/' ;
+	const SFXURL = 'assets/sounds/sfx/' ;
 
-	const MUSIC_URL = "https://edelweiss-game.s3.eu-west-3.amazonaws.com/sounds/music/" ;
+	const MUSIC_URL = "assets/sounds/music/" ;
 
 	const TRACKS_URLS = {
 		AK_Pulses: MUSIC_URL + "AK+-+Pulses.ogg",

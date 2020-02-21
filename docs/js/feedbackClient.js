@@ -42,7 +42,7 @@ function Feedback() {
 	var domBananaButton = document.createElement('IMG');
 	document.body.appendChild( domBananaButton );
 
-	domBananaButton.src = 'https://felixmariotto.s3.eu-west-3.amazonaws.com/banana.jpg';
+	domBananaButton.src = 'assets/banana.jpg';
 
 	domBananaButton.style.display = 'none';
 	domBananaButton.style.position = 'fixed' ;
@@ -78,24 +78,8 @@ function Feedback() {
 	domMessageContainer = document.createElement('DIV');
 	domContainer.appendChild( domMessageContainer );
 
-	// domMessageContainer.style.display = 'flex';
-	// domMessageContainer.style.flexDirection = window.innerWidth > window.innerHeight ? 'row' : 'column' ;
 	domMessageContainer.style.height = '100%';
 	domMessageContainer.style.width = '100%';
-
-		/*
-
-		// PICTURE
-
-		domMessagePicture = document.createElement('IMG');
-		domMessageContainer.appendChild( domMessagePicture );
-
-		domMessagePicture.src = 'https://felixmariotto.s3.eu-west-3.amazonaws.com/my_picture.jpg';
-		domMessagePicture.style.width = '30vw' ;
-		domMessagePicture.style.maxWidth = '500px' ;
-		domMessagePicture.style.borderRadius = '5px';
-
-		*/
 
 		// MESSAGE CONTENT
 

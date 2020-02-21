@@ -452,7 +452,7 @@ function Atlas() {
 
 
 
-		gltfLoader.load('https://edelweiss-game.s3.eu-west-3.amazonaws.com/hero.glb', (glb)=> {
+		gltfLoader.load('assets/models/hero.glb', (glb)=> {
 
 
 			let model = glb.scene ;

@@ -25,7 +25,7 @@ function DynamicItems() {
 	///// INIT
 
 
-	var spriteMap = textureLoader.load( "https://edelweiss-game.s3.eu-west-3.amazonaws.com/assets/bubble.png" );
+	var spriteMap = textureLoader.load( "assets/bubble.png" );
 	var spriteMaterial = new THREE.SpriteMaterial( { map: spriteMap, color: 0xffffff } );
 	
 	sprite = new THREE.Sprite( spriteMaterial );

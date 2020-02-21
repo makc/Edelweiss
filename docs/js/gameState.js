@@ -153,7 +153,7 @@ function GameState() {
 
 		domStartMenu.style.display = 'flex';
 
-		fileLoader.load( 'https://edelweiss-game.s3.eu-west-3.amazonaws.com/mountain.json', ( file )=> {
+		fileLoader.load( 'assets/map/mountain.json', ( file )=> {
 
             generateWorld( file );
 
@@ -387,7 +387,7 @@ function GameState() {
 
 	        if ( !sceneGraphs[ graphName ] ) {
 
-	            load( `https://edelweiss-game.s3.eu-west-3.amazonaws.com/${ graphName }.json` );
+	            load( `assets/map/${ graphName }.json` );
 
 	            function load( url ) {
 
