@@ -9,9 +9,13 @@ function SocketIO() {
 
 	var uaResult = uaParser.getResult();
 
-	var socket = io('https://edelweiss.32x.io');
+	var socket = {
+		emit: function( event, data ) {
+			console.log( 'SocketIO', event, data );
+		}
+	};
 
-	socket.on('connect', ()=> {
+	//socket.on('connect', ()=> {
 
 		socket.emit( 'init', {
 			browser: uaResult.browser.name,
@@ -19,7 +23,7 @@ function SocketIO() {
 			time
 		});
 
-	});
+	//});
 
 
 	function sendDeath() {
