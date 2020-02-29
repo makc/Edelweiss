@@ -75,7 +75,9 @@ function init() {
 
     clock = new THREE.Clock();
 
-    gltfLoader = new THREE.GLTFLoader();
+    var manager = new THREE.LoadingManager();
+
+    gltfLoader = new THREE.GLTFLoader(manager);
     var dracoLoader = new THREE.DRACOLoader();
 
     dracoLoader.setDecoderPath( 'libs/draco/' )
@@ -86,21 +88,24 @@ function init() {
 
     //
 
-
-    uaParser = new UAParser();
-    socketIO = SocketIO();
-    atlas = Atlas();
-    input = Input();
-    stamina = Stamina();
-    interaction = Interaction();
-    dynamicItems = DynamicItems();
-    mapManager = MapManager();
-    optimizer = Optimizer();
-    gameState = GameState();
     assetManager = AssetManager();
-    soundMixer = SoundMixer();
 
+    manager.onLoad = function() {
+        manager.onLoad = function() {};
 
-    loop();
+        uaParser = new UAParser();
+        socketIO = SocketIO();
+        atlas = Atlas();
+        input = Input();
+        stamina = Stamina();
+        interaction = Interaction();
+        dynamicItems = DynamicItems();
+        mapManager = MapManager();
+        optimizer = Optimizer();
+        gameState = GameState();
+        soundMixer = SoundMixer();
+
+        loop();
+    };
 
 };

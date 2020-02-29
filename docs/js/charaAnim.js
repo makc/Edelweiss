@@ -2,9 +2,12 @@
 
 function CharaAnim( player ) {
 
-	var glider;
-
+    const actions = player.actions ;
     const group = player.charaGroup ;
+
+    // get the glider object, and give it to the animation
+    // module, the hide it from the scene.
+    const glider = group.getObjectByName( 'glider' ); glider.visible = false;
 
 
     // this variable stock the state waiting to be played
@@ -16,7 +19,6 @@ function CharaAnim( player ) {
 
     // This is called when atlas finished loading all the assets.
     // It configures every action.
-    function initActions() {
 
     	climbingActions = [
     		actions.climbUp,
@@ -66,8 +68,6 @@ function CharaAnim( player ) {
         setLoopOnce( actions.dashRight );
         setLoopOnce( actions.dashDownLeft );
         setLoopOnce( actions.dashDownRight );
-
-    };
 
 
     function setLoopOnce( action ) {
@@ -788,13 +788,6 @@ function CharaAnim( player ) {
 
 
 
-    function setGlider( gliderMesh ) {
-    	glider = gliderMesh ;
-    	glider.visible = false ;
-    };
-
-
-
     ///////////////////////////
     ///  ACTIONS SETTING
     ///////////////////////////
@@ -902,8 +895,6 @@ function CharaAnim( player ) {
 
 
     return {
-    	setGlider,
-    	initActions,
     	update,
         setCharaRot,
         group,

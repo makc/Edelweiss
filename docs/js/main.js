@@ -1,14 +1,12 @@
 
 var scene, camera, stats, input, atlas,
     orbitControls, controler, clock, datGUI, charaAnim,
-    gltfLoader, mixer, cameraControl, stamina, interaction,
+    gltfLoader, cameraControl, stamina, interaction,
     dynamicItems, textureLoader, fileLoader, mapManager,
     socketIO, optimizer, uaParser, gameState, feedback,
     assetManager, soundMixer ;
 
 var renderer, composer, fxaaPass ;
-
-var actions = [];
 
 var utils = Utils();
 var easing = Easing();

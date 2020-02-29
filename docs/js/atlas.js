@@ -24,8 +24,6 @@ function Atlas() {
     const NEEDPLANES = false ; // show helpers for limit planes
     const NEED_WATER_HELPER = false ;
 
-    const SCALECHARA = 0.075 ;
-
     const CUBE_INTERSECTION_OFFSET = 0.001 ;
 
 
@@ -450,50 +448,13 @@ function Atlas() {
 		};
 
 
+		let { model, actions } = assetManager.createCharacter();
 
-
-		gltfLoader.load('assets/models/hero.glb', (glb)=> {
-
-
-			let model = glb.scene ;
-			model.scale.set( SCALECHARA, SCALECHARA, SCALECHARA );
 			charaGroup.add( model );
-
-
-			model.traverse( (obj)=> {
-
-				if ( obj.type == 'Mesh' ||
-					 obj.type == 'SkinnedMesh' ) {
-
-					obj.material = new THREE.MeshLambertMaterial({
-						map: obj.material.map,
-						side: THREE.FrontSide,
-						skinning: true
-					});
-
-					obj.castShadow = true ;
-					obj.receiveShadow = true ;
-
-				};
-
-			});
-
-
-			// get the glider object, and give it to the animation
-			// module, the hide it from the scene.
-			charaAnim.setGlider( model.getObjectByName('glider') );
 
 			/// ANIMATIONS
 
-			mixer = new THREE.AnimationMixer( glb.scene );
-
-			glb.animations.forEach( (animClip)=> {
-				actions[ animClip.name ] = mixer.clipAction( animClip );
-			});
-
-			// start all the actions but set their weight to 0
-			for ( let i of Object.keys( actions ) ) {
-				actions[ i ].play() ;
+			for ( let i in actions ) {
 				actions[ i ].setEffectiveWeight( 0 );
 			};
 
@@ -504,14 +465,10 @@ function Atlas() {
 			// the glider is not visible when not in use
 			actions.gliderAction.setEffectiveWeight( 1 );
 
-			// Set the speed of all the actions
-			charaAnim.initActions();
-
-		});
-
 
 
 		return {
+			actions,
 			group,
 			charaGroup,
 			position
