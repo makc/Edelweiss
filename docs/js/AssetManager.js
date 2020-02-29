@@ -34,6 +34,12 @@ function AssetManager() {
 	var bonuses = [];
 	var characters = [];
 
+	var charSkins = [
+		textureLoader.load( 'assets/models/hero-2.png' ),
+		textureLoader.load( 'assets/models/hero-3.png' ),
+		textureLoader.load( 'assets/models/hero-4.png' ),
+		null
+	];
 
 
 
@@ -216,13 +222,60 @@ function AssetManager() {
 
 
 
+	const textCanvas = document.createElement( 'canvas' );
+	textCanvas.height = 34;
 
-	function createCharacter() {
+	function createCharacterLabel( text ) {
+
+		const ctx = textCanvas.getContext( '2d' );
+		const font = '24px grobold';
+
+		ctx.font = font;
+		textCanvas.width = Math.ceil( ctx.measureText( text ).width + 16 );
+
+		ctx.font = font;
+		ctx.strokeStyle = '#222';
+		ctx.lineWidth = 8;
+		ctx.lineJoin = 'miter';
+		ctx.miterLimit = 3;
+		ctx.strokeText( text, 8, 26 );
+		ctx.fillStyle = 'white';
+		ctx.fillText( text, 8, 26 );
+
+		const spriteMap = new THREE.Texture( ctx.getImageData( 0, 0, textCanvas.width, textCanvas.height ) );
+		spriteMap.minFilter = THREE.LinearFilter;
+		spriteMap.generateMipmaps = false;
+		spriteMap.needsUpdate = true;
+
+		const sprite = new THREE.Sprite( new THREE.SpriteMaterial( { map: spriteMap } ) );
+		sprite.scale.set( 0.12 * textCanvas.width / textCanvas.height, 0.12, 1 );
+		sprite.position.y = 0.7 ;
+
+		return sprite;
+	}
+
+
+
+	function createCharacter( skinIndex, displayName ) {
 
 		for ( let i = 0; i < characters.length; i++ ) {
 
 			if ( !characters[ i ].userData.isUsed ) {
 				  characters[ i ].userData.isUsed = true;
+
+				// assign character skin
+				let skin = charSkins[ skinIndex % charSkins.length ];
+				if( skin ) {
+					let body = characters[ i ].getObjectByName( 'hero001' );
+					if( body ) {
+						body.material.map = skin;
+					}
+				}
+
+				// set up charater display name
+				if( displayName ) {
+					characters[ i ].add( createCharacterLabel( displayName ) );
+				}
 
 				// return both the character and its actions
 				return {
@@ -245,9 +298,28 @@ function AssetManager() {
 			charActions
 		);
 
-		return createCharacter();
+		return createCharacter( skinIndex, displayName );
 	};
 
+
+	function toggleCharacterShadows( enabled ) {
+
+		for ( let character of characters ) {
+
+			character.traverse( function (child) {
+
+				if ( child.type == 'Mesh' ||
+					 child.type == 'SkinnedMesh' ) {
+
+					child.castShadow = enabled ;
+					child.receiveShadow = enabled ;
+				};
+
+			});
+
+		};
+
+	};
 
 
 
@@ -497,6 +569,7 @@ function AssetManager() {
 
 	return {
 		createCharacter,
+		toggleCharacterShadows,
 		createNewLady,
 		createNewAlpinist,
 		createNewEdelweiss,
