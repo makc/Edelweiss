@@ -785,6 +785,51 @@ function CharaAnim( player ) {
 
 
 
+    // setting 'climbing' and 'dashing' states requires these parameters
+
+    var currentFaceDirection = '', currentMoveDirection = 0, currentSpeed = 0;
+
+    function getPlayerState( data ) {
+
+        // position
+
+        data.x = player.position.x;
+        data.y = player.position.y;
+        data.z = player.position.z;
+
+        // rotation
+
+        data.r = group.rotation.y;
+
+        // animation
+
+        data.a = currentState;
+        data.f = currentFaceDirection;
+        data.m = currentMoveDirection;
+        data.s = currentSpeed;
+
+    };
+
+    function setPlayerState( data ) {
+
+        player.position.set( data.x, data.y, data.z );
+        group.rotation.y = data.r;
+
+        switch( data.a ) {
+            case 'climbing':
+                climb( data.f || undefined, data.m, data.s );
+                break;
+            case 'dashing':
+                dash( data.f || undefined, data.m );
+                break;
+            case 'hittingGround':
+                hitGround();
+                break;
+            default:
+                setState( data.a );
+                break;
+        }
+    };
 
 
 
@@ -795,12 +840,19 @@ function CharaAnim( player ) {
 
     
     function climb( faceDirection, moveDirection, speed ) {
+        currentFaceDirection = faceDirection || '';
+        currentMoveDirection = moveDirection;
+        currentSpeed = speed;
+
     	setState( 'climbing' );
         setClimbBalance( faceDirection, moveDirection, speed );
     };
 
 
     function dash( faceDirection, moveDirection ) {
+        currentFaceDirection = faceDirection || '';
+        currentMoveDirection = moveDirection;
+
         setDashBalance( faceDirection, moveDirection );
         // We set the dashing state after, because we want
         // the dash balance to be set only when the dashing
@@ -895,6 +947,8 @@ function CharaAnim( player ) {
 
 
     return {
+        getPlayerState,
+        setPlayerState,
     	update,
         setCharaRot,
         group,
