@@ -397,6 +397,7 @@ function Atlas() {
 
 
 	function Player() {
+		let id = utils.randomString();
 
 		let group = new THREE.Group();
 		scene.add( group );
@@ -448,7 +449,7 @@ function Atlas() {
 		};
 
 
-		let { model, actions } = assetManager.createCharacter();
+		let { model, actions } = assetManager.createCharacter( utils.stringHash( id ) );
 
 			charaGroup.add( model );
 
@@ -468,6 +469,7 @@ function Atlas() {
 
 
 		return {
+			id,
 			actions,
 			group,
 			charaGroup,
