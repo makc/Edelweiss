@@ -112,6 +112,15 @@ function init() {
         animation.setPlayerState( data );
     };
 
+    var removeCharacters = function( id ) {
+
+        var group = scene.getObjectByName( id );
+        if( group ) scene.remove( group ) && assetManager.releaseCharacter( group );
+
+        delete characterAnimations[ id ];
+
+    };
+
     //
 
     manager.onLoad = function() {
@@ -130,6 +139,7 @@ function init() {
         soundMixer = SoundMixer();
 
         socketIO.onPlayerUpdates( updateCharacters );
+        socketIO.onPlayerDisconnects( removeCharacters );
 
         loop();
     };
