@@ -397,6 +397,7 @@ function Atlas() {
 
 
 	function Player() {
+		let id = utils.randomString();
 
 		let group = new THREE.Group();
 		scene.add( group );
@@ -448,26 +449,13 @@ function Atlas() {
 		};
 
 
-		let { model, actions } = assetManager.createCharacter();
+		let { model, actions } = assetManager.createCharacter( utils.stringHash( id ) );
 
 			charaGroup.add( model );
 
-			/// ANIMATIONS
-
-			for ( let i in actions ) {
-				actions[ i ].setEffectiveWeight( 0 );
-			};
-
-			// set start action to 1 ;
-			actions.idle.setEffectiveWeight( 1 );
-
-			// activate the glider animation, because anyway
-			// the glider is not visible when not in use
-			actions.gliderAction.setEffectiveWeight( 1 );
-
-
 
 		return {
+			id,
 			actions,
 			group,
 			charaGroup,

@@ -90,6 +90,39 @@ function init() {
 
     assetManager = AssetManager();
 
+    //
+
+    var updateCharacters = function( data ) {
+
+        var animation = characterAnimations[ data.id ];
+        if(!animation) {
+            var character = assetManager.createCharacter( utils.stringHash( data.id ), data.name );
+            character.model.name = data.id; // for removal
+            scene.add( character.model );
+
+            animation = CharaAnim( {
+                actions: character.actions,
+                charaGroup: character.model,
+                position: character.model.position
+            } );
+
+            characterAnimations[ data.id ] = animation;
+        }
+
+        animation.setPlayerState( data );
+    };
+
+    var removeCharacters = function( id ) {
+
+        var group = scene.getObjectByName( id );
+        if( group ) scene.remove( group ) && assetManager.releaseCharacter( group );
+
+        delete characterAnimations[ id ];
+
+    };
+
+    //
+
     manager.onLoad = function() {
         manager.onLoad = function() {};
 
@@ -104,6 +137,9 @@ function init() {
         optimizer = Optimizer();
         gameState = GameState();
         soundMixer = SoundMixer();
+
+        socketIO.onPlayerUpdates( updateCharacters );
+        socketIO.onPlayerDisconnects( removeCharacters );
 
         loop();
     };

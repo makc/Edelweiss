@@ -6,6 +6,8 @@ var scene, camera, stats, input, atlas,
     socketIO, optimizer, uaParser, gameState, feedback,
     assetManager, soundMixer ;
 
+var characterAnimations = {};
+
 var renderer, composer, fxaaPass ;
 
 var utils = Utils();

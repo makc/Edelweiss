@@ -177,6 +177,9 @@ function AssetManager() {
 
 		charGlb = glb;
 
+		const body = glb.scene.getObjectByName( 'hero001' );
+		if ( body ) charSkins[ 3 ] = body.material.map;
+
 		createMultipleModels(
 			glb,
 			SCALE_CHAR,
@@ -299,6 +302,16 @@ function AssetManager() {
 		);
 
 		return createCharacter( skinIndex, displayName );
+	};
+
+
+	function releaseCharacter( model ) {
+
+		model.userData.isUsed = false;
+
+		const label = model.getObjectByProperty( 'type', 'Sprite' );
+		if ( label ) model.remove( label ) && label.material.map.dispose();
+
 	};
 
 
@@ -569,6 +582,7 @@ function AssetManager() {
 
 	return {
 		createCharacter,
+		releaseCharacter,
 		toggleCharacterShadows,
 		createNewLady,
 		createNewAlpinist,
