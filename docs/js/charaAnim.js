@@ -20,6 +20,18 @@ function CharaAnim( player ) {
     // This is called when atlas finished loading all the assets.
     // It configures every action.
 
+    for ( let i in actions ) {
+        actions[ i ].setEffectiveWeight( 0 );
+    };
+
+    // set start action to 1 ;
+    actions.idle.setEffectiveWeight( 1 );
+
+    // activate the glider animation, because anyway
+    // the glider is not visible when not in use
+    actions.gliderAction.setEffectiveWeight( 1 );
+
+
     	climbingActions = [
     		actions.climbUp,
     		actions.climbDown,

@@ -14,7 +14,7 @@ function SocketIO() {
 	// there would be trivial, but only Felix Mariotto can do it. so instead this fork
 	// will use free-as-in-beer google service (firebase) but only in multiplayer mode
 
-	var database, playerInfo;
+	var database, playerInfo, playerInfoHandler;
 
 	function joinGame( id, pass, name ) {
 
@@ -24,6 +24,30 @@ function SocketIO() {
 			databaseURL: 'https://edelweiss-game.firebaseio.com'
 
 		} ).database();
+
+		const query = database.ref( '/updates' ).orderByChild( 'pass' ).equalTo( pass );
+
+		const handler = function( snapshot ) {
+
+			if( playerInfoHandler /*&& ( snapshot.key !== id )*/ ) {
+
+				const data = snapshot.val(); data.id = snapshot.key;
+
+				// comment the id check above to debug with 'ghost' player
+				if( data.id === id ) {
+					data.id = '0123456789ghost'; data.x --;
+				}
+
+				playerInfoHandler( data );
+
+			}
+
+		};
+
+		query.on( 'child_added', handler );
+		query.on( 'child_changed', handler );
+
+		// the lines below is what this function could look like with socket.io server
 
 		playerInfo = {
 
@@ -69,6 +93,18 @@ function SocketIO() {
 					// whatever
 
 				} );
+
+			}
+
+		},
+
+		on: function ( event, callback ) {
+
+			if( event === 'playerInfo' ) {
+
+				// assume single handler for now
+
+				playerInfoHandler = callback;
 
 			}
 
@@ -148,6 +184,9 @@ function SocketIO() {
 
 	};
 
+	function onPlayerUpdates( handler ) {
+		socket.on( 'playerInfo', handler );
+	}
 
 	function sendIsTouchScreen() {
 		socket.emit( 'touchscreen' );
@@ -156,6 +195,7 @@ function SocketIO() {
 
 	return {
 		joinGame,
+		onPlayerUpdates,
 		sendDeath,
 		sendOptiLevel,
 		sendBonus,

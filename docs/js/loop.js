@@ -81,6 +81,8 @@ function loop() {
 
     if ( assetManager ) assetManager.update( clockDelta );
 
+    for ( let key in characterAnimations ) characterAnimations[ key ].update( clockDelta );
+
     if ( charaAnim ) charaAnim.update( clockDelta );
     if ( dynamicItems ) dynamicItems.update( clockDelta );
     if ( input ) input.update( clockDelta );
