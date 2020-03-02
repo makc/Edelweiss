@@ -109,7 +109,7 @@ function SocketIO() {
 
 			socket.emit( 'playerInfo', playerInfo );
 
-		}, 666 );
+		}, 300 );
 
 	}
 
