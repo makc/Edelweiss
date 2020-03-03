@@ -224,6 +224,24 @@ function CharaAnim( player ) {
 
         moveSpeedRatio = delta / ( 1 / 60 ) ;
 
+        if( player.target ) {
+
+            var d = player.position.distanceTo( player.target );
+
+            if( ( 0.2 > d ) || ( d > 2.0 ) ) {
+
+                player.position.copy( player.target );
+
+            } else {
+
+                var k = 0.1 * moveSpeedRatio; k /= (1 + k);
+
+                player.position.multiplyScalar( 1 - k ).addScaledVector( player.target, k );
+
+            }
+
+        }
+
         // update the dash charging animation
 
         if ( currentState == 'chargingDash' ) {
@@ -824,7 +842,8 @@ function CharaAnim( player ) {
 
     function setPlayerState( data ) {
 
-        player.position.set( data.x, data.y, data.z );
+        ( player.target || player.position ).set( data.x, data.y, data.z );
+
         group.rotation.y = data.r;
 
         switch( data.a ) {

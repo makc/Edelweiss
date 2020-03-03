@@ -103,6 +103,7 @@ function init() {
             animation = CharaAnim( {
                 actions: character.actions,
                 charaGroup: character.model,
+                target: new THREE.Vector3(),
                 position: character.model.position
             } );
 
