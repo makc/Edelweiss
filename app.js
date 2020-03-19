@@ -62,6 +62,10 @@ const app = express()
 
 const io = socketIO( app );
 
+var games = {};
+
+
+
 io.on( 'connection', async (client)=> {
 
 	var lang = client.handshake.headers['accept-language'].split(",")[0];
@@ -204,6 +208,18 @@ io.on( 'connection', async (client)=> {
 
 	client.on('playerInfo', (message)=> {
 
+		if ( !games[ message.pass ] ) {
+
+			games[ message.pass ] = {
+
+				players: [ client.id ]
+
+			};
+
+			console.log( 'game instanciated !')
+
+		};
+
 		console.log( message );
 
 	});
@@ -213,6 +229,16 @@ io.on( 'connection', async (client)=> {
 	client.on( 'disconnect', async ()=> {
 
 		// console.log( `User ${ client.id } disconnected` );
+
+		//
+
+		for ( let game of Object.keys( games ) ) {
+
+			console.log( game );
+
+		};
+
+		//
 
 		var postgresClient = await POOL.connect();
 
