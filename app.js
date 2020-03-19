@@ -216,19 +216,25 @@ io.on( 'connection', async (client)=> {
 
 			};
 
+			io.sockets.sockets[ client.id ].join( message.pass );
+
 			console.log( 'game instanciated !')
 
 		} else if ( games[ message.pass ].players.indexOf( client.id ) === -1 ) {
 
 			games[ message.pass ].players.push( client.id );
 
+			io.sockets.sockets[ client.id ].join( message.pass );
+
 			console.log( 'player subscribed to existing game')
 
 		};
 
+		io.to( message.pass ).emit( 'playerInfo', message );
+
 		// console.log( message );
 
-		console.log('message received')
+		console.log('message forwarded')
 
 	});
 
