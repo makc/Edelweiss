@@ -30,3 +30,13 @@ This game is light, but I still wanted to optimize loading time by loading map t
 Check out my previous game [The Temple of Doom](https://github.com/felixmariotto/Temple_Of_Doom)
 
 Follow me on Github or Itch.io for more upcoming games
+
+# Multiplayer mod by makc
+
+Have a try to makc multiplayer mod of Edelweiss :
+
+![Screenshots multiplayer Edelweiss](https://edelweiss-game.s3.eu-west-3.amazonaws.com/assets/757c7084332477c84c07250378d9347ffa2f2549.png)
+
+[Play online here](https://makc.github.io/Edelweiss/)
+
+[Repository here](https://github.com/makc/Edelweiss)
