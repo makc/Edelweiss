@@ -409,7 +409,6 @@ function CharaAnim( player ) {
 
     function setState( newState ) {
 
-
     	if ( currentState == 'hittingGround' &&
     		 actions.hitGround.time <= ( actions.hitGround._clip.duration * 0.7 ) ) {
 
@@ -417,13 +416,26 @@ function CharaAnim( player ) {
 
     		return
 		};
-		
-		if ( currentState == "dying" && newState != 'respawn' ) {
-			return
-		};
+
+        //
+
+        if ( newState == 'dying' ) {
+
+            if ( currentState == 'dying' ) return
+
+            setTimeout( ()=> {
+                setState( 'respawn' );
+            }, 1500 );
+
+        };
+
+        if ( currentState == "dying" && newState != 'respawn' ) {
+            return
+        };
+
+        //
 
     	if ( currentState != newState ) {
-
 
     		// FADE IN
     		switch ( newState ) {
