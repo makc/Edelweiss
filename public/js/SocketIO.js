@@ -108,11 +108,11 @@ function SocketIO() {
 
 	function onPlayerUpdates( handler ) {
 		socket.on( 'playerInfo', handler );
-	}
+	};
 
 	function onPlayerDisconnects( handler ) {
 		socket.on( 'playerLeft', handler );
-	}
+	};
 
 	function sendIsTouchScreen() {
 		socket.emit( 'touchscreen' );

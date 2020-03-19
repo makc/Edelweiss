@@ -94,6 +94,8 @@ function init() {
 
     var updateCharacters = function( data ) {
 
+        console.log('update chara')
+
         var animation = characterAnimations[ data.id ];
 
         if(!animation) {
