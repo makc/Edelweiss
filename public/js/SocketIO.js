@@ -25,12 +25,14 @@ function SocketIO() {
 
 			socket.emit( 'playerInfo', playerInfo );
 
+			console.log('playerInfo emited')
+
 		}, 300 );
 
 	};
 
 
-	var socket = io( /* 'http://edelweiss.32x.io' */ );
+	var socket = io( /* 'http://edelweiss.32x.io' */ 'https://edelweiss-stage.herokuapp.com' );
 
 	socket.on('connect', ()=> {
 
