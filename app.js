@@ -74,7 +74,7 @@ io.on( 'connection', async (client)=> {
 
 	var geo = geoip.lookup( ip );
 
-	console.log( `User ${ client.id } connected` );
+	// console.log( `User ${ client.id } connected` );
 
 	var clientID;
 
@@ -218,23 +218,15 @@ io.on( 'connection', async (client)=> {
 
 			io.sockets.sockets[ client.id ].join( message.pass );
 
-			console.log( 'game instanciated !')
-
 		} else if ( games[ message.pass ].players.indexOf( client.id ) === -1 ) {
 
 			games[ message.pass ].players.push( client.id );
 
 			io.sockets.sockets[ client.id ].join( message.pass );
 
-			console.log( 'player subscribed to existing game')
-
 		};
 
 		client.broadcast.to( message.pass ).emit( 'playerInfo', message );
-
-		// console.log( message );
-
-		console.log('message forwarded')
 
 	});
 
@@ -242,7 +234,7 @@ io.on( 'connection', async (client)=> {
 
 	client.on( 'disconnect', async ()=> {
 
-		console.log( `User ${ client.id } disconnected` );
+		// console.log( `User ${ client.id } disconnected` );
 
 		//
 
@@ -254,15 +246,9 @@ io.on( 'connection', async (client)=> {
 						game.players.indexOf( client.id ),
 						1 );
 
-			console.log( 'array has ' + game.players.length + ' elements ');
-
 			if ( game.players.length == 0 ) {
 
 				delete games[ gameID ];
-
-				console.log( 'game deleted' );
-
-				console.log( 'games : ', games )
 
 			};
 

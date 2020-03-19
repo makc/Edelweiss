@@ -25,8 +25,6 @@ function SocketIO() {
 
 			socket.emit( 'playerInfo', playerInfo );
 
-			console.log('playerInfo emited')
-
 		}, 300 );
 
 	};
