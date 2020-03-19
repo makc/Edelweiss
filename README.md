@@ -1,8 +1,8 @@
 # Edelweiss
 
-**Open source webGL game made with three.js**
+## Open source webGL game made with three.js
 
-**Play online here : https://felixmariotto.itch.io/edelweiss**
+## Play online here : http://edelweiss.32x.io/
 
 ![Screenshot of Edelweiss](https://edelweiss-game.s3.eu-west-3.amazonaws.com/assets/teaser1.gif)
 ![Screenshot of Edelweiss](https://edelweiss-game.s3.eu-west-3.amazonaws.com/assets/teaser2.gif)
@@ -33,10 +33,6 @@ Follow me on Github or Itch.io for more upcoming games
 
 # Multiplayer mod by makc
 
-Have a try to makc multiplayer mod of Edelweiss :
+The mupliplayer mod was created by makc, whom I thank a lot for this.
 
-![Screenshots multiplayer Edelweiss](https://edelweiss-game.s3.eu-west-3.amazonaws.com/assets/757c7084332477c84c07250378d9347ffa2f2549.png)
-
-[Play online here](https://makc.github.io/Edelweiss/)
-
-[Repository here](https://github.com/makc/Edelweiss)
+[You can find his fork here](https://github.com/makc/Edelweiss)
