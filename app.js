@@ -202,6 +202,14 @@ io.on( 'connection', async (client)=> {
 
 	//
 
+	client.on('playerInfo', (message)=> {
+
+		console.log( message );
+
+	});
+
+	//
+
 	client.on( 'disconnect', async ()=> {
 
 		// console.log( `User ${ client.id } disconnected` );

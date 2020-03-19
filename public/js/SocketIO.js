@@ -27,10 +27,10 @@ function SocketIO() {
 
 		}, 300 );
 
-	}
+	};
 
 
-	var socket = io('https://edelweiss.32x.io');
+	var socket = io( /* 'http://edelweiss.32x.io' */ );
 
 	socket.on('connect', ()=> {
 
