@@ -353,7 +353,7 @@ function GameState() {
 
 		setTimeout( ()=> {
 
-			charaAnim.respawn();
+			// charaAnim.respawn();
 
             soundMixer.animEnd();
 
