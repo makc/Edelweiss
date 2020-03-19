@@ -228,13 +228,29 @@ io.on( 'connection', async (client)=> {
 
 	client.on( 'disconnect', async ()=> {
 
-		// console.log( `User ${ client.id } disconnected` );
+		console.log( `User ${ client.id } disconnected` );
 
 		//
 
-		for ( let game of Object.keys( games ) ) {
+		for ( let gameID of Object.keys( games ) ) {
 
-			console.log( game );
+			let game = games[ gameID ];
+
+			game.players.splice(
+						game.players.indexOf( client.id ),
+						1 );
+
+			console.log( 'array has ' + game.players.length + ' elements ');
+
+			if ( game.players.length == 0 ) {
+
+				delete games[ gameID ];
+
+				console.log( 'game deleted' );
+
+				console.log( 'games : ', games )
+
+			};
 
 		};
 
