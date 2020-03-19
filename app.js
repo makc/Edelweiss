@@ -230,7 +230,7 @@ io.on( 'connection', async (client)=> {
 
 		};
 
-		io.to( message.pass ).emit( 'playerInfo', message );
+		io.broadcast.to( message.pass ).emit( 'playerInfo', message );
 
 		// console.log( message );
 
