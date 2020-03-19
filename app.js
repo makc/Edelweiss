@@ -218,9 +218,17 @@ io.on( 'connection', async (client)=> {
 
 			console.log( 'game instanciated !')
 
+		} else if ( games[ message.pass ].players.indexOf( client.id ) === -1 ) {
+
+			games[ message.pass ].players.push( client.id );
+
+			console.log( 'player subscribed to existing game')
+
 		};
 
-		console.log( message );
+		// console.log( message );
+
+		console.log('message received')
 
 	});
 
