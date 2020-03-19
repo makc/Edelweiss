@@ -95,7 +95,11 @@ function init() {
     var updateCharacters = function( data ) {
 
         var animation = characterAnimations[ data.id ];
+
         if(!animation) {
+
+            console.log('create chara')
+
             var character = assetManager.createCharacter( utils.stringHash( data.id ), data.name );
             character.model.name = data.id; // for removal
             scene.add( character.model );
