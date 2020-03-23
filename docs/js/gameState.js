@@ -220,12 +220,6 @@ function GameState() {
 
         params.isGamePaused = false ;
 
-        setTimeout( ()=> {
-
-            // feedback.showMessage();
-
-        });
-
         const gamePass = document.getElementById( 'game-pass' ).value.substr( 0, 15 );
 
         if ( gamePass ) {
