@@ -286,6 +286,13 @@ function GameState() {
 
 	function parseJSON( file ) {
 
+        if ( file.charAt( 0 ) === '{' ) {
+
+            return JSON.parse( file );
+
+        }
+
+
         let data = lzjs.decompress( file );
 
         for ( let valueToReplace of Object.keys( hashTable ) ) {
