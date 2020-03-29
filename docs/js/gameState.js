@@ -342,20 +342,25 @@ function GameState() {
 
         soundMixer.animStart();
 
-        setTimeout( ()=> {
+        setTimeout( function() {
 
             if ( atlas.getSceneGraph() != sceneGraphs.mountain ) {
 
-                atlas.switchGraph( 'mountain', null, true );
+                atlas.switchGraph( 'mountain', null, respawn );
 
-            };
+            } else {
+
+                setTimeout( respawn, 1300 );
+
+            }
 
         }, 250 );
 
-		setTimeout( ()=> {
+    };
 
-			// charaAnim.respawn();
+	function respawn() {
 
+            charaAnim.respawn();
             soundMixer.animEnd();
 
 			atlas.player.position.copy( respawnPos );
@@ -368,8 +373,6 @@ function GameState() {
 
 			domBlackScreen.classList.remove( 'show-black-screen' );
 			domBlackScreen.classList.add( 'hide-black-screen' );
-
-		}, 1500);
 
 	};
 

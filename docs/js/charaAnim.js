@@ -359,13 +359,13 @@ function CharaAnim( player ) {
 
     	// Delete the starting action from the fadeOut list,
     	// or it would fadein and fadeout at the same time.
-		actionsToFadeOut.forEach( (action, i)=> {
+		for( let i = actionsToFadeOut.length -1; i > -1; i-- ) {
 
-			if ( action.actionName == actionName ) {
+			if ( actionsToFadeOut[ i ].actionName == actionName ) {
 				actionsToFadeOut.splice( i, 1 );
 			};
 
-		});
+		}
 
     };
 
@@ -380,13 +380,13 @@ function CharaAnim( player ) {
 
 		// Delete the starting action from the fadeIn list,
     	// or it would fadein and fadeout at the same time.
-		actionsToFadeIn.forEach( (action, i)=> {
+		for( let i = actionsToFadeIn.length -1; i > -1; i-- ) {
 
-			if ( action.actionName == actionName ) {
+			if ( actionsToFadeIn[ i ].actionName == actionName ) {
 				actionsToFadeIn.splice( i, 1 );
 			};
 
-		});
+		}
 
     };
 
@@ -419,14 +419,8 @@ function CharaAnim( player ) {
 
         //
 
-        if ( newState == 'dying' ) {
-
-            if ( currentState == 'dying' ) return
-
-            setTimeout( ()=> {
-                setState( 'respawn' );
-            }, 1500 );
-
+        if ( currentState != "dying" && newState == 'respawn' ) {
+            return
         };
 
         if ( currentState == "dying" && newState != 'respawn' ) {
@@ -478,7 +472,11 @@ function CharaAnim( player ) {
 					break;
 					
 				case 'dying' :
+					actions.die.reset();
 					setFadeIn( 'die', 1, 1 );
+					setTimeout( function () {
+						setState( 'respawn' ); // remote players plan B
+					}, 1500 );
 					break;
 
     			case 'slipping' :
@@ -865,9 +863,6 @@ function CharaAnim( player ) {
             case 'dashing':
                 dash( data.f || undefined, data.m );
                 break;
-            case 'hittingGround':
-                hitGround();
-                break;
             default:
                 setState( data.a );
                 break;
@@ -971,7 +966,6 @@ function CharaAnim( player ) {
 
 
     function hitGround() {
-		groundHit = false ;
 		setState('hittingGround');
     };
 

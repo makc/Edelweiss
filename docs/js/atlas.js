@@ -1548,7 +1548,7 @@ function Atlas() {
 
 				if ( respawn ) {
 
-					player.position.copy( gameState.respawnPos );
+					respawn();
 
 				} else {
 

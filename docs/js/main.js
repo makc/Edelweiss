@@ -36,36 +36,38 @@ function onWindowResize() {
 
     if ( cameraControl ) cameraControl.adaptFOV() ;
 
-    let world = document.getElementById( 'black-screen' );
+    if ( camera ) {
 
-	camera.aspect = world.clientWidth / world.clientHeight;
-	camera.updateProjectionMatrix();
+        let world = document.getElementById( 'black-screen' );
 
-    renderer.setSize( world.clientWidth, world.clientHeight );
+        camera.aspect = world.clientWidth / world.clientHeight;
+        camera.updateProjectionMatrix();
 
-    //
+        renderer.setSize( world.clientWidth, world.clientHeight );
 
-    composer.setSize( world.clientWidth, world.clientHeight );
+        //
 
-    var pixelRatio = renderer.getPixelRatio();
+        composer.setSize( world.clientWidth, world.clientHeight );
 
-    fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( world.clientWidth * pixelRatio );
-    fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( world.clientHeight * pixelRatio );
+        var pixelRatio = renderer.getPixelRatio();
 
-    //
+        fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( world.clientWidth * pixelRatio );
+        fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( world.clientHeight * pixelRatio );
 
-    if ( input.joystick ) {
+        //
 
-        document.getElementById( 'cross' ).style.top =
-                            `${ world.clientHeight - 127.5 }px` ;
-                           
+        if ( input && input.joystick ) {
 
-        input.joystick._baseX = 90 ;
-        input.joystick._baseY = world.clientHeight - 90 ;
+            document.getElementById( 'cross' ).style.top =
+                                `${ world.clientHeight - 127.5 }px` ;
+                               
 
-        input.joystick._baseEl.style.top = 
-            `${ world.clientHeight - ( 90 + ( input.joystick._baseEl.clientHeight / 2 ) ) }px` ;
+            input.joystick._baseX = 90 ;
+            input.joystick._baseY = world.clientHeight - 90 ;
 
-    };
+            input.joystick._baseEl.style.top = 
+                `${ world.clientHeight - ( 90 + ( input.joystick._baseEl.clientHeight / 2 ) ) }px` ;
 
+        }
+    }
 };
