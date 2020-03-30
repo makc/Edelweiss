@@ -322,7 +322,9 @@ function Interaction() {
 				startDialogue( 'npc-double-jump' );
 				break;
 
-				
+			case 'npc-boat' :
+				startDialogue( 'npc-boat' );
+				break;
 
 
 
@@ -866,7 +868,7 @@ function Interaction() {
 
 		domOverlay.style.display = 'inherit' ;
 
-		domCharName.innerHTML = dialogueChar.name ;
+		domCharName.innerHTML = dialogues[ dialogueName ].name || dialogueChar.name ;
 
 		domTalkContainer.classList.remove( 'hide-talk' );
 		domTalkContainer.classList.add( 'show-talk' );
@@ -1286,6 +1288,16 @@ function Interaction() {
 
 
 		///// TUTORIALS
+
+
+		'npc-boat' : {
+			name: 'Boatman',
+			char: dialogueChars.alpinist,
+			story: [
+				{ m: `That is Felix boat, kid. You have to ask Felix before you can borrow it.` },
+				{ m: `He went to his cabin in the mountains, I think. I have not seen him in days.` }
+			]
+		},
 
 
 		'npc-jump' : {

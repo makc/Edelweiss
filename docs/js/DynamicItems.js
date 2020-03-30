@@ -48,12 +48,12 @@ function DynamicItems() {
 				interactiveCubes.push( logicCube );
 
 				if ( logicCube.tag.match( /npc/ ) &&
-					 !logicCube.tag.match( /npc-respawn/ ) &&
+					 !logicCube.tag.match( /npc-(boat|respawn)/ ) &&
 					 !logicCube.tag.match( /npc-dev/ ) ) {
 
 					assetManager.createNewLady( logicCube );
 
-				} else if ( logicCube.tag.match( /npc-respawn/ ) ) {
+				} else if ( logicCube.tag.match( /npc-(boat|respawn)/ ) ) {
 
 					assetManager.createNewAlpinist( logicCube );
 

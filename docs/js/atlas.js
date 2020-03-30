@@ -810,6 +810,49 @@ function Atlas() {
 			
 		};
 
+		// If no tiles collision was found, check certain cubes too
+
+		if ( !yCollision.direction ) {
+
+			checkStage2( Math.floor( player.position.y ) );
+			checkStage2( Math.floor( player.position.y ) - 1 );
+
+		}
+
+		function checkStage2( stage ) {
+
+			if ( sceneGraph.cubesGraph[ stage ] ) {
+
+				// loop through the group of tiles at the same height as the player
+				sceneGraph.cubesGraph[ stage ].forEach( (logicCube, i)=> {
+
+					// if we want to let the player walk on thin beams, etc...
+					if ( logicCube.tag == 'boat' ) {
+
+						// check if the player is on top of the cube
+						if ( !( logicCube.position.x - ( (CUBEWIDTH * logicCube.scale.x ) / 2) > ( player.position.x + ( PLAYERWIDTH / 2 ) ) ||
+								logicCube.position.z - ( (CUBEWIDTH * logicCube.scale.z ) / 2) > ( player.position.z + ( PLAYERWIDTH / 2 ) ) ||
+								logicCube.position.x + ( (CUBEWIDTH * logicCube.scale.x ) / 2) < ( player.position.x - ( PLAYERWIDTH / 2 ) ) ||
+								logicCube.position.z + ( (CUBEWIDTH * logicCube.scale.z ) / 2) < ( player.position.z - ( PLAYERWIDTH / 2 ) )
+							// if the player was already constrained by the top face of this cube, we are going to have strict equality here
+							) && ( player.position.y === logicCube.position.y + ( (CUBEWIDTH * logicCube.scale.y ) / 2 ) + CUBE_INTERSECTION_OFFSET ) ) {
+
+							yCollision.point = player.position.y;
+							yCollision.direction = 'down';
+							yCollision.maxX = player.position.x + PLAYERWIDTH;
+							yCollision.minX = player.position.x - PLAYERWIDTH;
+							yCollision.maxZ = player.position.z + PLAYERWIDTH;
+							yCollision.minZ = player.position.z - PLAYERWIDTH;
+
+						};
+
+					};
+
+				});
+
+			};
+		};
+
 		return yCollision;
 	};
 
