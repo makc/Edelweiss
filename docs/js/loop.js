@@ -79,9 +79,8 @@ function loop() {
 
     if ( orbitControls ) orbitControls.update();
 
-    if ( assetManager ) assetManager.update( clockDelta );
-
     for ( let key in characterAnimations ) characterAnimations[ key ].update( clockDelta );
+    if ( assetManager ) assetManager.update( clockDelta );
 
     if ( charaAnim ) charaAnim.update( clockDelta );
     if ( dynamicItems ) dynamicItems.update( clockDelta );

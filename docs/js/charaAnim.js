@@ -3,22 +3,20 @@
 function CharaAnim( player ) {
 
     const actions = player.actions ;
+
     const group = player.charaGroup ;
 
     // get the glider object, and give it to the animation
-    // module, the hide it from the scene.
-    const glider = group.getObjectByName( 'glider' ); glider.visible = false;
+    // module, then hide it from the scene.
+    const glider = group.getObjectByName( 'glider' );
+    glider.visible = false;
 
 
     // this variable stock the state waiting to be played
     // after ground hitting
     var waitingState ;
 
-    var climbingActions; // this will be an array containing the climbing actions
     var currentClimbAction;
-
-    // This is called when atlas finished loading all the assets.
-    // It configures every action.
 
     for ( let i in actions ) {
         actions[ i ].setEffectiveWeight( 0 );
@@ -32,54 +30,45 @@ function CharaAnim( player ) {
     actions.gliderAction.setEffectiveWeight( 1 );
 
 
-    	climbingActions = [
-    		actions.climbUp,
-    		actions.climbDown,
-    		actions.climbLeft,
-    		actions.climbRight,
-    		actions.climbLeftUp,
-    		actions.climbLeftDown,
-    		actions.climbRightUp,
-    		actions.climbRightDown
-    	];
+	var climbingActions = [
+		actions.climbUp,
+		actions.climbDown,
+		actions.climbLeft,
+		actions.climbRight,
+		actions.climbLeftUp,
+		actions.climbLeftDown,
+		actions.climbRightUp,
+		actions.climbRightDown
+	];
 
-    	/// TIMESCALE
+	/// TIMESCALE
 
-    	/*
-	    actions.run.setEffectiveTimeScale( 3 );
-	    actions.climbUp.setEffectiveTimeScale( 3 );
-        actions.climbDown.setEffectiveTimeScale( 3 );
-        actions.climbLeft.setEffectiveTimeScale( 3 );
-        actions.climbRight.setEffectiveTimeScale( 3 );
-        actions.hitGround.setEffectiveTimeScale( 3 );
-        */
-
-        actions.gliderAction.setEffectiveTimeScale( 1.5 );
-        actions.haulDown.setEffectiveTimeScale( 2 );
-        actions.haulUp.setEffectiveTimeScale( 2 );
-        actions.pullUnder.setEffectiveTimeScale( 2 );
-        actions.landOnWall.setEffectiveTimeScale( 1 );
+    actions.gliderAction.setEffectiveTimeScale( 1.5 );
+    actions.haulDown.setEffectiveTimeScale( 2 );
+    actions.haulUp.setEffectiveTimeScale( 2 );
+    actions.pullUnder.setEffectiveTimeScale( 2 );
+    actions.landOnWall.setEffectiveTimeScale( 1 );
 
 
-        /// CLAMP WHEN FINISHED
+    /// CLAMP WHEN FINISHED
 
-        setLoopOnce( actions.gliderDeploy );
+    setLoopOnce( actions.gliderDeploy );
 
-        setLoopOnce( actions.haulDown );
-        setLoopOnce( actions.haulUp );
-        setLoopOnce( actions.pullUnder );
-        setLoopOnce( actions.landOnWall );
+    setLoopOnce( actions.haulDown );
+    setLoopOnce( actions.haulUp );
+    setLoopOnce( actions.pullUnder );
+    setLoopOnce( actions.landOnWall );
 
-        setLoopOnce( actions.jumbRise );
-		setLoopOnce( actions.hitGround );
-		setLoopOnce( actions.die );
+    setLoopOnce( actions.jumbRise );
+	setLoopOnce( actions.hitGround );
+	setLoopOnce( actions.die );
 
-        setLoopOnce( actions.dashUp );
-        setLoopOnce( actions.dashDown );
-        setLoopOnce( actions.dashLeft );
-        setLoopOnce( actions.dashRight );
-        setLoopOnce( actions.dashDownLeft );
-        setLoopOnce( actions.dashDownRight );
+    setLoopOnce( actions.dashUp );
+    setLoopOnce( actions.dashDown );
+    setLoopOnce( actions.dashLeft );
+    setLoopOnce( actions.dashRight );
+    setLoopOnce( actions.dashDownLeft );
+    setLoopOnce( actions.dashDownRight );
 
 
     function setLoopOnce( action ) {
@@ -238,9 +227,9 @@ function CharaAnim( player ) {
 
                 player.position.multiplyScalar( 1 - k ).addScaledVector( player.target, k );
 
-            }
+            };
 
-        }
+        };
 
         // update the dash charging animation
 
@@ -866,7 +855,7 @@ function CharaAnim( player ) {
             default:
                 setState( data.a );
                 break;
-        }
+        };
     };
 
 
@@ -984,8 +973,8 @@ function CharaAnim( player ) {
 
 
     return {
-        getPlayerState,
         setPlayerState,
+        getPlayerState,
     	update,
         setCharaRot,
         group,

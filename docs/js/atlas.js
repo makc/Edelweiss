@@ -275,10 +275,9 @@ function Atlas() {
 
 
 		let { model, actions } = assetManager.createCharacter( utils.stringHash( id ) );
+		charaGroup.add( model );
 
-			charaGroup.add( model );
-
-
+		
 		return {
 			id,
 			actions,
