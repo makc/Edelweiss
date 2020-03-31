@@ -894,8 +894,8 @@ function Controler( player ) {
 
 
 
-        // Die if fell into the water
-        if ( player.position.y + ( atlas.PLAYERHEIGHT / 2 ) < atlas.WATER_LEVEL ) {
+        // Die if fell into the water at the stage 0
+        if ( player.position.y + ( atlas.PLAYERHEIGHT / 2 ) < 0.5 ) {
 
             clearTimeout( deathTimeoutToken );
             deathTimeoutToken = undefined ;
