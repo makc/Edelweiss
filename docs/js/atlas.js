@@ -1324,15 +1324,22 @@ function Atlas() {
 		if ( !noCubes ) {
 
 			const cubeGeometry = new THREE.BoxBufferGeometry( CUBEWIDTH, CUBEWIDTH, CUBEWIDTH );
+			const edgeGeometry = new THREE.EdgesGeometry( cubeGeometry );
 
 			for( let i = 0; i < 10; i++ ) {
 				let mesh = new THREE.Mesh( cubeGeometry, new THREE.MeshLambertMaterial( {
-					transparent: true,
-					depthTest: false
+					transparent: true
 				} ) );
 
 				mesh.name = 'cube' ;
 				helpers.add( mesh );
+
+				let box = new THREE.LineSegments( edgeGeometry, new THREE.LineBasicMaterial( {
+					transparent: true,
+					depthTest: false,
+					opacity: 0.5
+				} ) );
+				mesh.add( box );
 			}
 		}
 	}
@@ -1433,6 +1440,8 @@ function Atlas() {
 				if ( mesh.visible = ( closestCubes.length > 0 ) ) {
 
 					let logicCube = closestCubes.pop ().logicCube;
+
+					mesh.children[0].material.color.setHex ( helperColors[ logicCube.type ] );
 
 					mesh.material.color.setHex ( helperColors[ logicCube.type ] );
 					mesh.material.opacity = ( logicCube.type == 'cube-trigger-invisible' ) ? 0.3 : 0.6;
