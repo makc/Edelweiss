@@ -1275,12 +1275,14 @@ function Atlas() {
 
 	function debug( noCubes, noTiles ) {
 
-		if ( helpers ) return;
+		if ( !helpers ) {
 
-		scene.add( helpers = new THREE.Group() );
+			scene.add( helpers = new THREE.Group() );
+
+		}
 
 
-		if ( !noTiles ) {
+		if ( !noTiles && !helpers.getObjectByName( 'tile' ) ) {
 
 			const tileGeometry = new THREE.PlaneBufferGeometry( 1, 1 );
 			const tileTexture = (new THREE.TextureLoader).load( 'assets/matrix.gif' );
@@ -1320,7 +1322,7 @@ function Atlas() {
 		}
 
 
-		if ( !noCubes ) {
+		if ( !noCubes && !helpers.getObjectByName( 'cube' ) ) {
 
 			const cubeGeometry = new THREE.BoxBufferGeometry( CUBEWIDTH, CUBEWIDTH, CUBEWIDTH );
 			const edgeGeometry = new THREE.EdgesGeometry( cubeGeometry );
