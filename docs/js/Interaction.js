@@ -230,42 +230,6 @@ function Interaction() {
 	///////////////////////////
 
 
-	// Hold the current "state of relationship" with each NPC
-	// ex : Did the player already talk to Dad about the key ?
-	var dialogueStates = {
-
-		dad: 'init',
-		// waiting-thread
-		// give-permission
-		// general
-
-		brother: 'init',
-
-		herbalist: 'init',
-		// waiting-sage
-
-		merchant: 'init',
-		// wait-key
-		// give-thread
-		// general
-
-		miner: 'init',
-		// give-key
-		// general
-
-		gatekeeper : 'init',
-		// warning
-
-		minerBoy : 'init',
-		// general
-
-		cable1 : 'init',
-		// use
-
-	};
-
-
-
 
 
 
@@ -287,7 +251,7 @@ function Interaction() {
 				break;
 
 			case 'npc-stamina' :
-				startDialogue( 'npc-stamina' );
+				startDialogue( stamina.params.stamina < 3 ? 'npc-stamina' : 'npc-stamina-after' );
 				break;
 
 			case 'npc-climb-jump' :
@@ -1303,7 +1267,7 @@ function Interaction() {
 		'npc-jump' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `Press on space or the action button to jump.` }
+				{ m: `What do you mean, &laquo;how do you get up there&raquo; ? Just press space or the action button to jump.` }
 			]
 		},
 
@@ -1320,7 +1284,16 @@ function Interaction() {
 			char: dialogueChars.lady,
 			story: [
 				{ m: `You may be too weak to climb some walls... Try to find some edelweiss, they will increase your stamina and make you stronger !` },
-				{ m: `Have a look into the mine.` }
+				{ m: `Have a look into this abandoned mine. Once in a while an edelweiss would bloom there.` }
+			]
+		},
+
+
+		'npc-stamina-after' : {
+			char: dialogueChars.lady,
+			story: [
+				{ m: `So you have found the flower, I see. You already look stronger !` },
+				{ m: `These flowers are a true blessing to old folks like me.` }
 			]
 		},
 
