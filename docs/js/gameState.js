@@ -126,7 +126,17 @@ function GameState() {
 
 	domStartMenu.style.display = 'flex';
 
-	fileLoader.load( 'assets/map/mountain.json', generateWorld);
+	fileLoader.load( 'assets/map/mountain.json', function( file ) {
+
+        var graph = parseJSON( file );
+
+        // Initialize atlas with the scene graph
+        atlas.init( graph );
+
+        // store this sceneGraph into the graphs object
+        sceneGraphs.mountain = graph ;
+
+    });
 
 
 
@@ -141,26 +151,68 @@ function GameState() {
 	///// STARTING THE GAME
 
 
-    function loadJSON( evt ) {
+    document.querySelector( '#json-load input' ).onchange = function( event ) {
 
-        var tgt = evt.target || window.event.srcElement,
-        files = tgt.files;
+        var files = event.target.files;
     
         // FileReader support
         if (FileReader && files && files.length) {
+
+            var matches = files[0].name.match(/^(.*)\.json$/);
+
+            var graphName = matches ? matches[1] : 'unknown';
 
             var fr = new FileReader();
 
             fr.onload = function () {
 
-                generateWorld( fr.result );
+                var sceneGraph = parseJSON( fr.result );
 
-                startGame();
+                console.log( `Loaded ${ graphName } graph from JSON:`, sceneGraph );
 
+                // at this point the game is already started so we
+                // want to load the json as if it was another cave
+
+                params.isGamePaused = true ;
+
+                sceneGraphs[ graphName ] = sceneGraph;
+
+                atlas.switchGraph( graphName, null, function() {
+
+                    soundMixer.animEnd();
+
+                    // try to place the player on the ground
+
+                    var pos;
+                    for ( let tilesGraphStage of sceneGraph.tilesGraph )
+                        if ( tilesGraphStage && !pos )
+                            for ( let logicTile of tilesGraphStage )
+                                if ( logicTile.type == 'ground-basic' ) {
+                                    pos = new THREE.Vector3 (
+                                        (logicTile.points[0].x + logicTile.points[1].x) / 2,
+                                        (logicTile.points[0].y + logicTile.points[1].y) / 2,
+                                        (logicTile.points[0].z + logicTile.points[1].z) / 2
+                                    );
+                                    break;
+                                }
+
+                    resetPlayerPos( pos );
+
+                    controler.setSpeedUp( 0 );
+
+                    params.isCrashing = false ;
+                    params.isDying = false ;
+                    params.isGamePaused = false ;
+
+                    domBlackScreen.classList.remove( 'show-black-screen' );
+                    domBlackScreen.classList.add( 'hide-black-screen' );
+
+                } );
             };
 
             fr.readAsText(files[0]);
 
+            files.length = 0;
         };
 
     };
@@ -232,20 +284,6 @@ function GameState() {
 
 
 
-    function generateWorld( file ) {
-
-        var graph = parseJSON( file );
-
-        // Initialize atlas with the scene graph
-        atlas.init( graph );
-
-        // store this sceneGraph into the graphs object
-        sceneGraphs.mountain = graph ;
-
-    };
-
-
-
 	function parseJSON( file ) {
 
         if ( file.charAt( 0 ) === '{' ) {
@@ -267,6 +305,35 @@ function GameState() {
         };
 
         return JSON.parse( data ) ;
+    };
+
+
+
+    document.getElementById( 'json-save' ).onclick = function() {
+
+        const curentSceneGraph = atlas.getSceneGraph();
+
+        for( let graphName in sceneGraphs ) {
+
+            if( sceneGraphs[ graphName ] == curentSceneGraph ) {
+
+                let data = JSON.stringify( curentSceneGraph );
+
+                for ( let valueToReplace of Object.keys( hashTable ) ) {
+
+                    data = data.replace( new RegExp( valueToReplace, 'g' ), hashTable[ valueToReplace ] );
+
+                };
+
+                let link = document.createElement( 'a' );
+
+                link.download = graphName + '.json';
+
+                link.href = URL.createObjectURL( new File( [lzjs.compress( data )], graphName + '.json', { type: 'text/plain;charset=utf-8' } ) );
+
+                link.dispatchEvent( new MouseEvent( 'click' ) );
+            }
+        }
     };
 
 

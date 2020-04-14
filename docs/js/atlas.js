@@ -1271,18 +1271,65 @@ function Atlas() {
 
 
 
-	var helpers;
+	var helpers, transformControls, raycaster, shouldRaycast;
 
-	function debug( noCubes, noTiles ) {
+	function debug() {
 
 		if ( !helpers ) {
 
 			scene.add( helpers = new THREE.Group() );
+			scene.add( transformControls = new THREE.TransformControls( camera, renderer.domElement ) );
 
-		}
+			transformControls.addEventListener( 'change', function() {
+				var mesh = transformControls.object;
+				if( mesh ) {
+					// block the raycast to let the cube transform finish
+					shouldRaycast = false;
 
+					var logicCube = mesh.userData.cube;
+					if( logicCube ) {
 
-		if ( !noTiles && !helpers.getObjectByName( 'tile' ) ) {
+						logicCube.position.x = mesh.position.x;
+						logicCube.position.y = mesh.position.y;
+						logicCube.position.z = mesh.position.z;
+
+						logicCube.scale.x = mesh.scale.x;
+						logicCube.scale.y = mesh.scale.y;
+						logicCube.scale.z = mesh.scale.z;
+					}
+				}
+			} );
+
+			renderer.domElement.addEventListener( 'mousedown', function() {
+				shouldRaycast = true;
+			} );
+
+			raycaster = new THREE.Raycaster();
+			renderer.domElement.addEventListener( 'click', function( event ) {
+				if( shouldRaycast ) {
+					raycaster.setFromCamera( {
+						x: ( event.layerX / renderer.domElement.offsetWidth ) * 2 - 1,
+						y: ( event.layerY / renderer.domElement.offsetHeight ) * -2 + 1
+					}, camera );
+
+					var intersections = raycaster.intersectObject( helpers, true );
+					if( intersections.length ) {
+						var mesh = intersections[0].object;
+						if( mesh.name == 'cube' ) {
+							if( transformControls.object == mesh ) {
+								transformControls.detach(); // detach if the same cube
+							} else {
+								transformControls.attach( mesh );
+							}
+						} else {
+							transformControls.detach(); // detach if not a cube
+						}
+					} else {
+						transformControls.detach(); // detach if not a hit
+					}
+				}
+			} );
+
 
 			const tileGeometry = new THREE.PlaneBufferGeometry( 1, 1 );
 			const tileTexture = (new THREE.TextureLoader).load( 'assets/matrix.gif' );
@@ -1319,10 +1366,7 @@ function Atlas() {
 				mesh.name = 'tile' ;
 				helpers.add( mesh );
 			}
-		}
 
-
-		if ( !noCubes && !helpers.getObjectByName( 'cube' ) ) {
 
 			const cubeGeometry = new THREE.BoxBufferGeometry( CUBEWIDTH, CUBEWIDTH, CUBEWIDTH );
 			const edgeGeometry = new THREE.EdgesGeometry( cubeGeometry );
@@ -1340,8 +1384,41 @@ function Atlas() {
 					depthTest: false,
 					opacity: 0.5
 				} ) );
+
+				box.raycast = function() {};
 				mesh.add( box );
 			}
+
+
+			controler.permission.gliding = true ;
+			controler.permission.airborne = true ;
+
+
+			document.getElementById( 'gui' ).style.display = 'block';
+
+
+			document.getElementById( 'cube-add' ).onclick = function() {
+				// TODO
+			};
+
+			document.getElementById( 'cube-remove' ).onclick = function() {
+				if( transformControls.object && transformControls.object.userData.cube ) {
+					deleteCubeFromGraph( transformControls.object.userData.cube );
+					debugUpdate( true );
+				}
+			};
+
+			document.getElementById( 'cube-properties' ).onclick = function() {
+				// TODO
+			};
+
+			document.getElementById( 'cube-transform' ).onclick = function() {
+				if ( transformControls.mode != 'scale' ) {
+					transformControls.setMode( 'scale' );
+				} else {
+					transformControls.setMode( 'translate' );
+				}
+			};
 		}
 	}
 
@@ -1405,6 +1482,8 @@ function Atlas() {
 		closestTiles.sort ( closestCompare );
 		closestCubes.sort ( closestCompare );
 
+		const selectedCube = transformControls.object ? transformControls.object.userData.cube : undefined;
+
 		for ( let mesh of helpers.children ) {
 			if ( mesh.name == 'tile' ) {
 
@@ -1433,6 +1512,8 @@ function Atlas() {
 						mesh.rotation.x = -Math.PI / 2 ;
 
 					};
+
+					mesh.userData.tile = logicTile;
 				}
 			} else
 
@@ -1442,6 +1523,8 @@ function Atlas() {
 
 					let logicCube = closestCubes.pop ().logicCube;
 
+					if ( logicCube == selectedCube ) transformControls.attach( mesh );
+
 					mesh.children[0].material.color.setHex ( helperColors[ logicCube.type ] );
 
 					mesh.material.color.setHex ( helperColors[ logicCube.type ] );
@@ -1449,8 +1532,16 @@ function Atlas() {
 
 					mesh.position.copy ( logicCube.position );
 					mesh.scale.copy ( logicCube.scale );
+
+					mesh.userData.cube = logicCube;
 				}
 			}
+		}
+
+		if ( transformControls.object && (
+			!transformControls.object.visible || ( transformControls.object.userData.cube != selectedCube )
+		) ) {
+			transformControls.detach(); // detach if walked away from the cube
 		}
 	}
 
@@ -1466,7 +1557,6 @@ function Atlas() {
 		PLAYERHEIGHT,
 		PLAYERWIDTH,
 		player,
-		deleteCubeFromGraph,
 		startPos,
 		collideCamera,
 		adjTileExists,

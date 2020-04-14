@@ -268,7 +268,7 @@ function Controler( player ) {
                 glidingCount = 0 ;
                 state.isGliding = false ;
 
-            } else {
+            } else if ( !permission.airborne ) {
 
                 stamina.reduceStamina( GLIDINGPRICE );
 
@@ -844,7 +844,7 @@ function Controler( player ) {
             if ( state.isGliding ) {
 
                 // set gliding fall speed
-                speedUp = -0.1 ;
+                speedUp = permission.airborne ? 0 : -0.1 ;
 
             } else if ( state.isClimbing ) {
 

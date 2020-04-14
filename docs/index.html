@@ -37,11 +37,6 @@
             color: grey;
         }
 
-        button {
-            padding: 10px 20px 10px 20px;
-            border-radius: 5px;
-        }
-
         .dialogue-box {
             background-color: white;
             border-radius: 10px;
@@ -162,6 +157,7 @@
                 background-repeat: no-repeat;
                 background-position: 35% 60%;
                 outline: none !important;
+                padding: 10px 20px 10px 20px;
                 cursor: pointer;
             }
             .input input {
@@ -345,7 +341,38 @@
             position: fixed;
             bottom: 0;
             right: 0;
+            left: 0;
             display: none;
+            padding: 10px;
+            text-align: right;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        #gui button {
+            background: transparent;
+            border: 1px dotted #aaa;
+            border-radius: 0;
+            color: #bfd;
+            position: relative;
+            overflow: hidden;
+            padding: 4px 5px 1px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #gui button:hover {
+            border-color: white;
+            color: white;
+        }
+
+        #json-load input {
+            position: absolute;
+            top: 0;
+            left: -100px;
+            width: 300px;
+            height: 300px;
+            opacity: 0;
+            cursor: pointer;
         }
 
         #message-box {
@@ -658,6 +685,7 @@
 
 
     <script src="libs/three.js"></script>
+    <script src="libs/TransformControls.js"></script>
     <script src="libs/GLTFLoader.js"></script>
     <script src="libs/DRACOLoader.js"></script>
     <script src="libs/SkeletonUtils.js"></script>
@@ -857,6 +885,13 @@
     <!-- TEMPORARY -->
 
     <div id="gui">
+        <button id="cube-add" title="Add the box"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M21 3H3v18h18V3zm-4 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" fill="currentColor"/></svg></button>
+        <button id="cube-remove" title="Remove the box"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M21 3H3v18h18V3zm-4 10H7v-2h10v2z" fill="currentColor"/></svg></button>
+        <button id="cube-properties" title="Box properties"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 3H3v18h18V3zm-1.75 9c0 .24-.02.47-.05.71l.01-.02 1.47 1.16c.14.1.23.18.23.18l-1.7 2.94-2.02-.8.02-.03c-.37.29-.77.53-1.21.71h.01l-.27 1.85c-.02.17-.04.3-.04.3h-3.4l-.31-2.15H10c-.44-.18-.84-.42-1.21-.71l.02.03-2.02.8-1.7-2.94s.1-.08.23-.18l1.47-1.16.01.02c-.03-.24-.05-.47-.05-.71s.02-.47.05-.69l-.01.01-1.7-1.34 1.7-2.95 2.01.81v.01c.37-.28.77-.52 1.2-.7h-.01L10.3 5h3.41l.3 2.15H14c.43.18.83.42 1.2.7v-.01l2.01-.81 1.7 2.95-1.71 1.34-.01-.01c.04.22.06.45.06.69z" fill="currentColor"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></button>
+        <button id="cube-transform" title="Box transform mode"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z" fill="currentColor"/></svg></button>
+        &nbsp;
+        <button id="json-load"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 12v7H5v-7H3v9h18v-9h-2zm-6 .67l2.59-2.58z" fill="currentColor"/><path d="M15.7 10L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" transform="translate(24 19) rotate(180)" fill="currentColor"/></svg><input type="file" title="Load JSON"></input></button>
+        <button id="json-save" title="Save JSON"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 12v7H5v-7H3v9h18v-9h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" fill="currentColor"/></svg></button>
     </div>
 
 </body>
