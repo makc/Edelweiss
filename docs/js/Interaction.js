@@ -1375,14 +1375,16 @@ function Interaction() {
 		'npc-respawn-0' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Hi ! Do you want to save your progression ?', answers: [
-					{ m: 'Yes', next: 'yes' },
-					{ m: 'No', next: 'no' }
+				{ m: 'Not a day goes by without some kids injuring themselves up there.' },
+				{ m: 'And then I have to carry them here and nurse back to health.' },
+				{ question: 'Shall I get the tent ready for you, just in case ?', answers: [
+					{ m: 'Yes, please', next: 'yes' },
+					{ m: 'I will be fine', next: 'no' }
 				] },
-				{ label: 'yes', m: 'Your progression is saved, see you soon !', onCall: ()=> {
+				{ label: 'yes', m: 'All right, if anything happens — I&apos;ve got your back.', onCall: ()=> {
 					gameState.setSavedPosition( 0 );
 				}, end: true },
-				{ label: 'no', m: 'Ho ? OK...', end: true  }
+				{ label: 'no', m: 'Good. Take care.', end: true  }
 			]
 		},
 
