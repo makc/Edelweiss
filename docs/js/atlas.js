@@ -1398,7 +1398,23 @@ function Atlas() {
 
 
 			document.getElementById( 'cube-add' ).onclick = function() {
-				// TODO
+				var d = Math.sqrt( 0.5 ) * ( CUBEWIDTH + PLAYERWIDTH + CUBE_INTERSECTION_OFFSET );
+				var dz = d * Math.cos( charaAnim.group.rotation.y );
+				var dx = d * Math.sin( charaAnim.group.rotation.y );
+
+				var logicCube = {
+					position: {
+						x: player.position.x + dx,
+						y: player.position.y + 0.5 * CUBEWIDTH,
+						z: player.position.z + dz
+					},
+					scale: { x: 1, y: 1, z: 1 },
+					type: 'cube-inert'
+				};
+
+				var stage = Math.floor( logicCube.position.y );
+				sceneGraph.cubesGraph[ stage ].push( logicCube );
+				debugUpdate( true, logicCube );
 			};
 
 			document.getElementById( 'cube-remove' ).onclick = function() {
@@ -1441,7 +1457,7 @@ function Atlas() {
 
 	const closestTiles = [], closestCubes = [], closestCompare = function( a, b ) { return b.distance - a.distance };
 
-	function debugUpdate( mustUpdate ) {
+	function debugUpdate( mustUpdate, selectedCube ) {
 
 		if ( !mustUpdate || !helpers ) return;
 
@@ -1455,7 +1471,7 @@ function Atlas() {
 
 		const cubeScaleFactor = 0.5 * CUBEWIDTH / Math.sqrt( 3 );
 
-		for ( let stage = Math.floor( player.position.y ) -1; stage <= Math.floor( player.position.y ) +1; stage++ ) {
+		for ( let stage = Math.floor( player.position.y ) -2; stage <= Math.floor( player.position.y ) +2; stage++ ) {
 			if ( sceneGraph.tilesGraph[ stage ] ) for ( let logicTile of sceneGraph.tilesGraph[ stage ] ) {
 
 				tileCenter.set(
@@ -1474,7 +1490,7 @@ function Atlas() {
 				let cubeScaleLength = tileCenter.copy( logicCube.scale ).length();
 
 				let distance = Math.max ( 0, shiftedPlayerPos.distanceTo( logicCube.position ) - cubeScaleLength * cubeScaleFactor );
-				if ( distance < 3 ) closestCubes.push ( { distance, logicCube } );
+				if ( distance < 5 ) closestCubes.push ( { distance, logicCube } );
 
 			}
 		}
@@ -1482,7 +1498,9 @@ function Atlas() {
 		closestTiles.sort ( closestCompare );
 		closestCubes.sort ( closestCompare );
 
-		const selectedCube = transformControls.object ? transformControls.object.userData.cube : undefined;
+		selectedCube = selectedCube || (
+			transformControls.object ? transformControls.object.userData.cube : undefined
+		);
 
 		for ( let mesh of helpers.children ) {
 			if ( mesh.name == 'tile' ) {
