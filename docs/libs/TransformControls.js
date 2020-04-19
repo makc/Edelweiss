@@ -351,7 +351,14 @@ THREE.TransformControls = function ( camera, domElement ) {
 
 			}
 
-			object.position.copy( offset ).add( positionStart );
+			// Edelweiss: limit the offset when close to player
+
+			offset.add( positionStart ).sub( object.position );
+			var p = _tempVector2.copy( atlas.player.position ).sub( object.position ).lengthSq();
+			var q = object.scale.lengthSq();
+			var s = Math.min( Math.max( 0.01, 0.5 * p / q ), offset.length() );
+			offset.normalize().multiplyScalar( s );
+			object.position.add( offset );
 
 			// Apply translation snap
 
@@ -457,9 +464,24 @@ THREE.TransformControls = function ( camera, domElement ) {
 
 			}
 
+			// Edelweiss: patch fast scale problem
+
+			var _curX = object.scale.x / scaleStart.x;
+			_tempVector2.x = Math.max( _curX - 0.1 / scaleStart.x, Math.min( _curX + 0.1 / scaleStart.x, _tempVector2.x ) ); 
+			var _curY = object.scale.y / scaleStart.y;
+			_tempVector2.y = Math.max( _curY - 0.1 / scaleStart.y, Math.min( _curY + 0.1 / scaleStart.y, _tempVector2.y ) ); 
+			var _curZ = object.scale.z / scaleStart.z;
+			_tempVector2.z = Math.max( _curZ - 0.1 / scaleStart.z, Math.min( _curZ + 0.1 / scaleStart.z, _tempVector2.z ) ); 
+
 			// Apply scale
 
 			object.scale.copy( scaleStart ).multiply( _tempVector2 );
+
+			// Edelweiss: patch zero scale problem
+
+			object.scale.x = Math.max( 0.2, object.scale.x );
+			object.scale.y = Math.max( 0.2, object.scale.y );
+			object.scale.z = Math.max( 0.2, object.scale.z );
 
 			if ( this.scaleSnap ) {
 

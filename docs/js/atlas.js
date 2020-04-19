@@ -14,6 +14,7 @@ function Atlas() {
 	const INTERACTIVECUBERANGE = 0.82 ; // radius
 
     const CUBE_INTERSECTION_OFFSET = 0.001 ;
+    const CUBE_IS_WALKABLE = /^(beam|boat|ledge)/ ;
 
 
 	var startPos = new THREE.Vector3();
@@ -654,7 +655,7 @@ function Atlas() {
 				sceneGraph.cubesGraph[ stage ].forEach( (logicCube, i)=> {
 
 					// if we want to let the player walk on thin beams, etc...
-					if ( logicCube.tag == 'boat' ) {
+					if ( CUBE_IS_WALKABLE.test( logicCube.tag ) ) {
 
 						// check if the player is on top of the cube
 						if ( !( logicCube.position.x - ( (CUBEWIDTH * logicCube.scale.x ) / 2) > ( player.position.x + ( PLAYERWIDTH / 2 ) ) ||
@@ -1271,6 +1272,33 @@ function Atlas() {
 
 
 
+	function openPropertiesDialog( node, types ) {
+		const select = document.querySelector( '#properties select' );
+		select.innerHTML = types.map( function( type ) {
+			return '<option value="' + type + '"' + (( type === node.type ) ? ' selected' : '') + '>' + type + '</option>';
+		}).join( '' );
+		select.onchange = function() {
+			node.type = select.value;
+		};
+
+		const input = document.querySelector( '#properties input' );
+		input.value = node.tag || '';
+		input.onchange = function() {
+			if (input.value) {
+				node.tag = input.value;
+			} else {
+				delete node.tag;
+			}
+		};
+
+		document.getElementById( 'properties' ).style.display = 'block';
+	};
+
+	function closePropertiesDialog() {
+		document.getElementById( 'properties' ).style.display = 'none';
+	};
+
+
 	var helpers, transformControls, raycaster, shouldRaycast;
 
 	function debug() {
@@ -1327,6 +1355,8 @@ function Atlas() {
 					} else {
 						transformControls.detach(); // detach if not a hit
 					}
+
+					closePropertiesDialog(); // one way or another, the cube was de-selected
 				}
 			} );
 
@@ -1425,7 +1455,11 @@ function Atlas() {
 			};
 
 			document.getElementById( 'cube-properties' ).onclick = function() {
-				// TODO
+				if( transformControls.object && transformControls.object.userData.cube ) {
+					openPropertiesDialog( transformControls.object.userData.cube, [
+						'cube-inert', 'cube-interactive', 'cube-trigger', 'cube-trigger-invisible', 'cube-anchor'
+					] );
+				}
 			};
 
 			document.getElementById( 'cube-transform' ).onclick = function() {
@@ -1559,7 +1593,7 @@ function Atlas() {
 		if ( transformControls.object && (
 			!transformControls.object.visible || ( transformControls.object.userData.cube != selectedCube )
 		) ) {
-			transformControls.detach(); // detach if walked away from the cube
+			transformControls.detach(); closePropertiesDialog(); // detach if walked away from the cube
 		}
 	}
 

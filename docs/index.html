@@ -375,6 +375,35 @@
             cursor: pointer;
         }
 
+        #properties {
+            position: fixed;
+            top: 10%; left: 50%; margin-left: -130px;
+            padding: 20px 30px;
+            background-color: rgba(0,0,0,0.4); border: 1px dotted white;
+            text-align: center;
+            display: none;
+        }
+
+        #properties div {
+            text-align: left; margin-bottom: 10px;
+        }
+
+        #properties button {
+            width: 50px; margin-top: 10px;
+        }
+
+        #properties div, #properties button {
+            color: #bfd; line-height: 1.6;
+        }
+
+        #properties select, #properties input {
+            box-sizing: border-box;
+            display: block;
+            padding: 5px;
+            width: 200px;
+            color: #333;
+        }
+
         #message-box {
             position: fixed;
             left: 50%;
@@ -891,6 +920,11 @@
         &nbsp;
         <button id="json-load"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 12v7H5v-7H3v9h18v-9h-2zm-6 .67l2.59-2.58z" fill="currentColor"/><path d="M15.7 10L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" transform="translate(24 19) rotate(180)" fill="currentColor"/></svg><input type="file" title="Load JSON"></input></button>
         <button id="json-save" title="Save JSON"><svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19 12v7H5v-7H3v9h18v-9h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" fill="currentColor"/></svg></button>
+        <div id="properties">
+            <div>Type:<select autocomplete="off"></select></div>
+            <div>Tag:<input autocomplete="off" placeholder="(optional)" type="text"></input></div>
+            <button onclick="this.parentElement.style.display='none'">OK</input>
+        </div>
     </div>
 
 </body>
