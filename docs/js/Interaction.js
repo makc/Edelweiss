@@ -127,6 +127,10 @@ function Interaction() {
 				getBonus( 'climb-2' );
 				break;
 
+			case 'bonus-hidden-water' :
+				getBonus( 'climb-3' );
+				break;
+
 			
 			/// ITEMS
 
@@ -627,6 +631,19 @@ function Interaction() {
 			message : '+ 15% climbing speed'
 		},
 
+		'climb-3' : {
+
+			isFound: 1, // == true, but is not ;)
+
+			onGet : function() {
+
+				controler.upgradeAcceleration();
+				
+			},
+
+			message : '+ 15% climbing speed'
+		},
+
 
 
 
@@ -691,8 +708,14 @@ function Interaction() {
 	};
 
 
+	function enableHiddenBonus( bonusName ) {
 
+		// if was not previously enabled
+		if( bonuses[ bonusName ].isFound === 1 ) {
+			bonuses[ bonusName ].isFound = false ;
+		};
 
+	};
 
 
 	function getBonus( bonusName ) {
@@ -1392,14 +1415,18 @@ function Interaction() {
 		'npc-respawn-1' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Hi ! Do you want to save your progression ?', answers: [
-					{ m: 'Yes', next: 'yes' },
-					{ m: 'No', next: 'no' }
+				{ m: 'What a hot day. You must be thirsty, right ? I see you have no water on you.' },
+				{ m: 'Everyone must pass this ravine on their way up, so I brought that water pump here — please help yourself.', onCall: ()=> {
+					enableHiddenBonus( 'climb-3' );
+				}, },
+				{ question: 'Shall you find yourself exhausted or in trouble, you can always rest and recover in my tent, okay ?', answers: [
+					{ m: 'Thanks, I will !', next: 'yes' },
+					{ m: 'No need, thank you.', next: 'no' }
 				] },
-				{ label: 'yes', m: 'Your progression is saved, see you soon !', onCall: ()=> {
+				{ label: 'yes', m: 'You are welcome ! Stay hydrated.', onCall: ()=> {
 					gameState.setSavedPosition( 1 );
 				}, end: true },
-				{ label: 'no', m: 'Ho ? OK...', end: true  }
+				{ label: 'no', m: 'Suit yourself. Good luck !', end: true  }
 			]
 		},
 

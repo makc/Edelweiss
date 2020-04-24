@@ -66,7 +66,7 @@ function DynamicItems() {
 					assetManager.createNewEdelweiss( logicCube );
 
 				} else if ( logicCube.tag &&
-							logicCube.tag.match( /bonus/ ) ) {
+							logicCube.tag.match( /bonus(?!-hidden)/ ) ) {
 
 					assetManager.createNewBonus( logicCube );
 
