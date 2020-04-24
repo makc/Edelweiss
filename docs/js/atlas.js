@@ -1317,13 +1317,13 @@ function Atlas() {
 					var logicCube = mesh.userData.cube;
 					if( logicCube ) {
 
-						logicCube.position.x = mesh.position.x;
-						logicCube.position.y = mesh.position.y;
-						logicCube.position.z = mesh.position.z;
+						logicCube.position.x = (( mesh.position.x *100)|0)/100 ;
+						logicCube.position.y = (( mesh.position.y *100)|0)/100 ;
+						logicCube.position.z = (( mesh.position.z *100)|0)/100 ;
 
-						logicCube.scale.x = mesh.scale.x;
-						logicCube.scale.y = mesh.scale.y;
-						logicCube.scale.z = mesh.scale.z;
+						logicCube.scale.x = (( mesh.scale.x *100)|0)/100 ;
+						logicCube.scale.y = (( mesh.scale.y *100)|0)/100 ;
+						logicCube.scale.z = (( mesh.scale.z *100)|0)/100 ;
 					}
 				}
 			} );
@@ -1469,19 +1469,72 @@ function Atlas() {
 					transformControls.setMode( 'translate' );
 				}
 			};
+
+			document.getElementById( 'teleport' ).onclick = function() {
+				const selects = document.querySelectorAll( '#destinations select' );
+
+				// special places to go to
+
+				const places = [];
+				for ( let stage in sceneGraph.tilesGraph ) if ( sceneGraph.tilesGraph[ stage ] )
+				for ( let logicTile of sceneGraph.tilesGraph[ stage ] ) if ( /ground-s/.test( logicTile.type ) ) {
+					places.push( {
+						name: logicTile.tag || '(no tag)',
+						coordinates: JSON.stringify( {
+							x: ( logicTile.points[0].x + logicTile.points[1].x ) / 2,
+							y: ( logicTile.points[0].y + logicTile.points[1].y ) / 2,
+							z: ( logicTile.points[0].z + logicTile.points[1].z ) / 2
+						} )
+					} );
+				}
+				places.sort( function( a, b ) { return (( a.name > b.name ) || (
+					// try to make the sorting order prettier with some simple hack like...
+					( a.name.length > b.name.length ) && ( a.name.charAt( 0 ) == b.name.charAt( 0 ) )
+				)) ? 1 : -1 } );
+
+				selects[0].innerHTML = '<option selected disabled>pick a place:</option>' + places.map( function( place ) {
+					return '<option value="' + btoa( place.coordinates ) + '">' + place.name + '</option>';
+				}).join( '' );
+				selects[0].onchange = function() {
+					gameState.resetPlayerPos( JSON.parse( atob( selects[0].value ) ) );
+
+					document.getElementById( 'destinations' ).style.display = 'none';
+				};
+
+				// pre-defined list of graphs to load
+
+				const jsons = 'ABCDEF'.split( '' ).map( function( x ) { return 'cave-' + x } ); jsons.push( 'dev-home' );
+				for ( let key in gameState.sceneGraphs ) if ( jsons.indexOf( key ) < 0 ) jsons.push( key );
+
+				selects[1].innerHTML = jsons.map( function( key ) {
+					return '<option value="' + key + '" ' + ((
+						gameState.sceneGraphs[ key ] == sceneGraph
+					) ? 'selected' : '' ) + '>' + key + '</option>';
+				}).join( '' );
+				selects[1].onchange = function() {
+					const graphName = selects[1].value;
+					fileLoader.load( 'assets/map/' + graphName + '.json', function( graphText ) {
+						gameState.debugLoadGraph( graphText, graphName );
+
+						document.getElementById( 'destinations' ).style.display = 'none';
+					} );
+				};
+
+				document.getElementById( 'destinations' ).style.display = 'block';
+			};
 		}
 	}
 
 	const helperColors = {
-		'ground-basic'     : 0xff66, // matrix effect
-		'ground-special'   : 0xff9b05,
-		'ground-start'     : 0x3dffff,
-		'wall-limit'       : 0x0f0aa6,
-		'wall-easy'        : 0xb0ffa8,
-		'wall-medium'      : 0x17ad28,
-		'wall-hard'        : 0x057a34,
-		'wall-fall'        : 0x9e0000,
-		'wall-slip'        : 0xff66, // matrix effect
+		'ground-basic'     : 0x00ff66, // matrix effect
+		'ground-special'   : 0xffff00,
+		'ground-start'     : 0x00ffff,
+		'wall-limit'       : 0x0000ff,
+		'wall-easy'        : 0xffffff,
+		'wall-medium'      : 0x66ff00,
+		'wall-hard'        : 0xff6600,
+		'wall-fall'        : 0xff0000,
+		'wall-slip'        : 0x00ff66, // matrix effect
 		'cube-inert'       : 0x9d9d9e,
 		'cube-interactive' : 0xffdebd,
 		'cube-trigger'     : 0x276b00,

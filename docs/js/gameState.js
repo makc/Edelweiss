@@ -146,9 +146,51 @@ function GameState() {
 
 
 
+    function debugLoadGraph( graphText, graphName ) {
 
+        var sceneGraph = parseJSON( graphText );
 
-	///// STARTING THE GAME
+        console.log( `Loaded ${ graphName } graph:`, sceneGraph );
+
+        // at this point the game is already started so we
+        // want to load the json as if it was another cave
+
+        params.isGamePaused = true ;
+
+        sceneGraphs[ graphName ] = sceneGraph;
+
+        atlas.switchGraph( graphName, null, function() {
+
+            soundMixer.animEnd();
+
+            // try to place the player on the ground
+
+            var pos;
+            for ( let tilesGraphStage of sceneGraph.tilesGraph )
+                if ( tilesGraphStage && !pos )
+                    for ( let logicTile of tilesGraphStage )
+                        if ( /ground-s/.test( logicTile.type ) ) {
+                            pos = new THREE.Vector3 (
+                                (logicTile.points[0].x + logicTile.points[1].x) / 2,
+                                (logicTile.points[0].y + logicTile.points[1].y) / 2,
+                                (logicTile.points[0].z + logicTile.points[1].z) / 2
+                            );
+                            break;
+                        }
+
+            resetPlayerPos( pos );
+
+            controler.setSpeedUp( 0 );
+
+            params.isCrashing = false ;
+            params.isDying = false ;
+            params.isGamePaused = false ;
+
+            domBlackScreen.classList.remove( 'show-black-screen' );
+            domBlackScreen.classList.add( 'hide-black-screen' );
+
+        } );
+    };
 
 
     document.querySelector( '#json-load input' ).onchange = function( event ) {
@@ -166,48 +208,8 @@ function GameState() {
 
             fr.onload = function () {
 
-                var sceneGraph = parseJSON( fr.result );
+                debugLoadGraph( fr.result, graphName );
 
-                console.log( `Loaded ${ graphName } graph from JSON:`, sceneGraph );
-
-                // at this point the game is already started so we
-                // want to load the json as if it was another cave
-
-                params.isGamePaused = true ;
-
-                sceneGraphs[ graphName ] = sceneGraph;
-
-                atlas.switchGraph( graphName, null, function() {
-
-                    soundMixer.animEnd();
-
-                    // try to place the player on the ground
-
-                    var pos;
-                    for ( let tilesGraphStage of sceneGraph.tilesGraph )
-                        if ( tilesGraphStage && !pos )
-                            for ( let logicTile of tilesGraphStage )
-                                if ( logicTile.type == 'ground-basic' ) {
-                                    pos = new THREE.Vector3 (
-                                        (logicTile.points[0].x + logicTile.points[1].x) / 2,
-                                        (logicTile.points[0].y + logicTile.points[1].y) / 2,
-                                        (logicTile.points[0].z + logicTile.points[1].z) / 2
-                                    );
-                                    break;
-                                }
-
-                    resetPlayerPos( pos );
-
-                    controler.setSpeedUp( 0 );
-
-                    params.isCrashing = false ;
-                    params.isDying = false ;
-                    params.isGamePaused = false ;
-
-                    domBlackScreen.classList.remove( 'show-black-screen' );
-                    domBlackScreen.classList.add( 'hide-black-screen' );
-
-                } );
             };
 
             fr.readAsText(files[0]);
@@ -217,6 +219,9 @@ function GameState() {
 
     };
 
+
+
+    ///// STARTING THE GAME
 
 
 	function startGame( isTouchScreen ) {
@@ -788,6 +793,7 @@ function GameState() {
         gateTilePos,
         endPassGateAnim,
         setSavedPosition,
+        debugLoadGraph,
         update
 	};
 
