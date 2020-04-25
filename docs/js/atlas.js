@@ -1299,13 +1299,43 @@ function Atlas() {
 	};
 
 
-	var helpers, transformControls, raycaster, shouldRaycast;
+	var helpers, tileGizmo, transformControls, raycaster, shouldRaycast;
+
+	function makeTileGizmo() {
+		const gizmoTexture = (new THREE.TextureLoader).load( 'assets/tile-gizmo.png' );
+
+		gizmoTexture.anisotropy = ( renderer.capabilities.getMaxAnisotropy() >> 1 );
+		gizmoTexture.magFilter = THREE.NearestFilter;
+
+		const gizmo = new THREE.Mesh( new THREE.PlaneBufferGeometry( 1, 1 ), new THREE.MeshBasicMaterial( {
+			map: gizmoTexture, side: THREE.DoubleSide, transparent: true, depthTest: false
+		} ) );
+
+		gizmo.attach = function( object ) {
+			this.position.copy( object.position );
+			this.rotation.copy( object.rotation );
+			this.object = object;
+			this.visible = true;
+
+			// with the code above tile gizmo ends up behind tile planes with depthTest already set to false, so...
+			this.position.multiplyScalar( 1 - 0.01 ).addScaledVector( camera.position, 0.01 );
+		};
+
+		gizmo.detach = function() {
+			this.object = undefined;
+			this.visible = false;
+		};
+		gizmo.detach();
+
+		return gizmo;
+	};
 
 	function debug() {
 
 		if ( !helpers ) {
 
 			scene.add( helpers = new THREE.Group() );
+			scene.add( tileGizmo = makeTileGizmo() );
 			scene.add( transformControls = new THREE.TransformControls( camera, renderer.domElement ) );
 
 			transformControls.addEventListener( 'change', function() {
@@ -1344,19 +1374,30 @@ function Atlas() {
 					if( intersections.length ) {
 						var mesh = intersections[0].object;
 						if( mesh.name == 'cube' ) {
+							tileGizmo.detach();
+
 							if( transformControls.object == mesh ) {
-								transformControls.detach(); // detach if the same cube
+								transformControls.detach();
 							} else {
 								transformControls.attach( mesh );
 							}
 						} else {
-							transformControls.detach(); // detach if not a cube
+							transformControls.detach();
+
+							if( mesh.name == 'tile' ) {
+								if( tileGizmo.object == mesh ) {
+									tileGizmo.detach();
+								} else {
+									tileGizmo.attach( mesh );
+								}
+							}
 						}
 					} else {
-						transformControls.detach(); // detach if not a hit
+						tileGizmo.detach();
+						transformControls.detach();
 					}
 
-					closePropertiesDialog(); // one way or another, the cube was de-selected
+					closePropertiesDialog();
 				}
 			} );
 
@@ -1426,6 +1467,15 @@ function Atlas() {
 
 			document.getElementById( 'gui' ).style.display = 'block';
 
+
+			document.getElementById( 'tile-properties' ).onclick = function() {
+				if( tileGizmo.object && tileGizmo.object.userData.tile ) {
+					openPropertiesDialog( tileGizmo.object.userData.tile, [
+						'ground-basic', 'ground-special', 'ground-start',
+						'wall-limit', 'wall-slip', 'wall-easy', 'wall-medium', 'wall-hard', 'wall-fall'
+					] );
+				}
+			};
 
 			document.getElementById( 'cube-add' ).onclick = function() {
 				var d = Math.sqrt( 0.5 ) * ( CUBEWIDTH + PLAYERWIDTH + CUBE_INTERSECTION_OFFSET );
@@ -1513,6 +1563,13 @@ function Atlas() {
 				}).join( '' );
 				selects[1].onchange = function() {
 					const graphName = selects[1].value;
+
+					if ( gameState.sceneGraphs[ graphName ] ) {
+						gameState.debugLoadGraph( gameState.sceneGraphs[ graphName ], graphName );
+
+						document.getElementById( 'destinations' ).style.display = 'none';
+					} else
+
 					fileLoader.load( 'assets/map/' + graphName + '.json', function( graphText ) {
 						gameState.debugLoadGraph( graphText, graphName );
 
@@ -1585,6 +1642,8 @@ function Atlas() {
 		closestTiles.sort ( closestCompare );
 		closestCubes.sort ( closestCompare );
 
+		let selectedTile = tileGizmo.object ? tileGizmo.object.userData.tile : undefined ;
+
 		selectedCube = selectedCube || (
 			transformControls.object ? transformControls.object.userData.cube : undefined
 		);
@@ -1618,6 +1677,10 @@ function Atlas() {
 
 					};
 
+					// unlike transformControls, tileGizmo.attach() needs up-to-date position/rotation
+
+					if ( logicTile == selectedTile ) tileGizmo.attach( mesh );
+
 					mesh.userData.tile = logicTile;
 				}
 			} else
@@ -1641,6 +1704,12 @@ function Atlas() {
 					mesh.userData.cube = logicCube;
 				}
 			}
+		}
+
+		if ( tileGizmo.object && (
+			!tileGizmo.object.visible || ( tileGizmo.object.userData.tile != selectedTile )
+		) ) {
+			tileGizmo.detach(); closePropertiesDialog(); // detach if walked away from the tile
 		}
 
 		if ( transformControls.object && (

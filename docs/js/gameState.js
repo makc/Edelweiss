@@ -146,9 +146,9 @@ function GameState() {
 
 
 
-    function debugLoadGraph( graphText, graphName ) {
+    function debugLoadGraph( graphData, graphName ) {
 
-        var sceneGraph = parseJSON( graphText );
+        var sceneGraph = (typeof graphData === 'string' ) ? parseJSON( graphData ) : graphData;
 
         console.log( `Loaded ${ graphName } graph:`, sceneGraph );
 
@@ -215,6 +215,8 @@ function GameState() {
             fr.readAsText(files[0]);
 
             files.length = 0;
+
+            document.querySelector( '#json-load input' ).blur();
         };
 
     };
