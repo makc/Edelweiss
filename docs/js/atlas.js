@@ -1141,6 +1141,44 @@ function Atlas() {
 
 	var helpers, tileGizmo, transformControls, raycaster, shouldRaycast;
 
+	function raycastOnClick( event ) {
+		if( shouldRaycast ) {
+			raycaster.setFromCamera( {
+				x: ( event.layerX / renderer.domElement.offsetWidth ) * 2 - 1,
+				y: ( event.layerY / renderer.domElement.offsetHeight ) * -2 + 1
+			}, camera );
+
+			var intersections = raycaster.intersectObject( helpers, true );
+			if( intersections.length ) {
+				var mesh = intersections[0].object;
+				if( mesh.name == 'cube' ) {
+					tileGizmo.detach();
+
+					if( transformControls.object == mesh ) {
+						transformControls.detach();
+					} else {
+						transformControls.attach( mesh );
+					}
+				} else {
+					transformControls.detach();
+
+					if( mesh.name == 'tile' ) {
+						if( tileGizmo.object == mesh ) {
+							tileGizmo.detach();
+						} else {
+							tileGizmo.attach( mesh );
+						}
+					}
+				}
+			} else {
+				tileGizmo.detach();
+				transformControls.detach();
+			}
+
+			closePropertiesDialog();
+		}
+	};
+
 	function makeTileGizmo() {
 		const gizmoTexture = (new THREE.TextureLoader).load( 'assets/tile-gizmo.png' );
 
@@ -1167,6 +1205,13 @@ function Atlas() {
 		};
 		gizmo.detach();
 
+		gizmo.dispose = function() {
+			this.detach();
+			this.geometry.dispose();
+			this.material.dispose();
+			this.material.map.dispose();
+		};
+
 		return gizmo;
 	};
 
@@ -1174,7 +1219,30 @@ function Atlas() {
 
 	function debug() {
 
-		if ( !helpers ) {
+		if ( helpers ) {
+
+			closePropertiesDialog();
+			document.getElementById( 'gui' ).style.display = 'none';
+
+			controler.permission.airborne = false;
+
+			scene.remove( transformControls ); transformControls.dispose(); transformControls = undefined;
+			scene.remove( tileGizmo ); tileGizmo.dispose(); tileGizmo = undefined;
+			scene.remove( helpers ); helpers.traverse(function(mesh) {
+				if( mesh.geometry ) mesh.geometry.dispose();
+				if( mesh.material ) mesh.material.dispose();
+				if( mesh.material && mesh.material.uniforms &&
+					mesh.material.uniforms.textureMap ) {
+					mesh.material.uniforms.textureMap.value.dispose();
+				}
+			});
+
+			helpers = undefined;
+
+			raycaster = undefined;
+			renderer.domElement.removeEventListener( 'click', raycastOnClick );
+
+		} else {
 
 			scene.add( helpers = new THREE.Group() );
 			scene.add( tileGizmo = makeTileGizmo() );
@@ -1205,43 +1273,7 @@ function Atlas() {
 			} );
 
 			raycaster = new THREE.Raycaster();
-			renderer.domElement.addEventListener( 'click', function( event ) {
-				if( shouldRaycast ) {
-					raycaster.setFromCamera( {
-						x: ( event.layerX / renderer.domElement.offsetWidth ) * 2 - 1,
-						y: ( event.layerY / renderer.domElement.offsetHeight ) * -2 + 1
-					}, camera );
-
-					var intersections = raycaster.intersectObject( helpers, true );
-					if( intersections.length ) {
-						var mesh = intersections[0].object;
-						if( mesh.name == 'cube' ) {
-							tileGizmo.detach();
-
-							if( transformControls.object == mesh ) {
-								transformControls.detach();
-							} else {
-								transformControls.attach( mesh );
-							}
-						} else {
-							transformControls.detach();
-
-							if( mesh.name == 'tile' ) {
-								if( tileGizmo.object == mesh ) {
-									tileGizmo.detach();
-								} else {
-									tileGizmo.attach( mesh );
-								}
-							}
-						}
-					} else {
-						tileGizmo.detach();
-						transformControls.detach();
-					}
-
-					closePropertiesDialog();
-				}
-			} );
+			renderer.domElement.addEventListener( 'click', raycastOnClick );
 
 
 			const tileGeometry = new THREE.PlaneBufferGeometry( 1, 1 );
@@ -1312,10 +1344,13 @@ function Atlas() {
 
 			document.getElementById( 'tile-properties' ).onclick = function() {
 				if( tileGizmo.object && tileGizmo.object.userData.tile ) {
-					openPropertiesDialog( tileGizmo.object.userData.tile, [
-						'ground-basic', 'ground-special', 'ground-start',
-						'wall-limit', 'wall-slip', 'wall-easy', 'wall-medium', 'wall-hard', 'wall-fall'
-					] );
+					openPropertiesDialog( tileGizmo.object.userData.tile,
+						tileGizmo.object.userData.tile.isWall ? [
+							'wall-limit', 'wall-slip', 'wall-easy', 'wall-medium', 'wall-hard', 'wall-fall'
+						] : [
+							'ground-basic', 'ground-special', 'ground-start'
+						]
+					);
 				}
 			};
 
