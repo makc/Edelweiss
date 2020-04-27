@@ -1,10 +1,10 @@
 
-
 /*
 	AssetManager keeps track of all the special assets like animated NPCs and bonuses.
 	At initialisation, it create groups that will hold the loaded assets once loading is done.
 	AssetManager is able to hide/show the groups when gameState tells it to change of graph.
 */
+
 function AssetManager() {
 
 	// assets constants
@@ -247,16 +247,18 @@ function AssetManager() {
 		sprite.position.y = 0.7 ;
 
 		return sprite;
-	}
 
+	};
 
+	//
 
 	function createCharacter( skinIndex, displayName ) {
 
 		for ( let i = 0; i < characters.length; i++ ) {
 
 			if ( !characters[ i ].userData.isUsed ) {
-				  characters[ i ].userData.isUsed = true;
+				 
+				 characters[ i ].userData.isUsed = true;
 
 				// assign character skin
 				let skin = charSkins[ skinIndex % charSkins.length ];
@@ -264,21 +266,21 @@ function AssetManager() {
 					let body = characters[ i ].getObjectByName( 'hero001' );
 					if( body ) {
 						body.material.map = skin;
-					}
-				}
+					};
+				};
 
 				// set up charater display name
 				if( displayName ) {
 					characters[ i ].add( createCharacterLabel( displayName ) );
-				}
+				};
 
 				// return both the character and its actions
 				return {
 					model : characters[ i ], actions : charActions[ i ]
-				}
-			}
+				};
+			};
 
-		}
+		};
 
 		// if here, we have exhausted all the characters - make some more
 
@@ -296,6 +298,7 @@ function AssetManager() {
 		return createCharacter( skinIndex, displayName );
 	};
 
+	//
 
 	function releaseCharacter( model ) {
 
@@ -306,6 +309,7 @@ function AssetManager() {
 
 	};
 
+	//
 
 	function toggleCharacterShadows( enabled ) {
 
@@ -325,11 +329,6 @@ function AssetManager() {
 		};
 
 	};
-
-
-
-
-
 
 	/////////////////////
 	///  INSTANCES SETUP
@@ -417,9 +416,6 @@ function AssetManager() {
 
 	};
 
-
-
-
 	///////////////
 	//// GENERAL
 	///////////////
@@ -483,6 +479,8 @@ function AssetManager() {
 
 	};
 
+	//
+
 	function setGroupVisibility( assetGroup ) {
 
 		if ( assetGroup.userData.graph == currentGraph ) {
@@ -502,6 +500,8 @@ function AssetManager() {
 		};
 
 	};
+
+	//
 
 	function deleteBonus( bonusName ) {
 
@@ -531,6 +531,8 @@ function AssetManager() {
 		};
 
 	};
+
+	//
 
 	function update( delta ) {
 
@@ -566,6 +568,7 @@ function AssetManager() {
 
 	};
 
+	//
 
 	function updateBonus( group ) {
 
@@ -590,10 +593,7 @@ function AssetManager() {
 
 	};
 
-
-
-
-
+	//
 
 	return {
 		createCharacter,
@@ -607,7 +607,5 @@ function AssetManager() {
 		update,
 		deleteBonus
 	};
-
-
 
 };

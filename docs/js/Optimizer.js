@@ -111,7 +111,6 @@ function Optimizer() {
 
 	};
 
-
 	//////////////////////////////
 	///    GENERAL FUNCTIONS
 	//////////////////////////////
@@ -121,7 +120,6 @@ function Optimizer() {
 	to decide if an opti/de-opti is needed, it decides over an average of
 	the sampled deltas.
 	*/
-
 	function update( delta ) {
 
 		// We don't want neither to optimize or to sample the performance
@@ -153,13 +151,11 @@ function Optimizer() {
 				 params.attempts[ params.level - 1 ] <= 2 ) {
 
 	            deOptimize();
-	        	socketIO.sendOptiLevel();
 
 	        } else if ( average > OPTFPS ) {
 
 	        	params.attempts[ params.level ] ++ ; // record the failure of the current opti level
 	        	optimize();
-	        	socketIO.sendOptiLevel();
 
 	        };
 

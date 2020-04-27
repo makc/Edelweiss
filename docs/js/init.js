@@ -26,9 +26,9 @@ function init() {
 
     scene.background = reflectionCube;
 
-    /////////////////////
-    //   RENDERER
-    /////////////////////
+    //////////////
+    /// RENDERER
+    //////////////
 
     renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('world') });
 
@@ -100,6 +100,8 @@ function init() {
         animation.setPlayerState( data );
     };
 
+    //
+
     var removeCharacters = function( id ) {
 
         var group = scene.getObjectByName( id );
@@ -116,7 +118,6 @@ function init() {
 
         manager.onLoad = function() {};
 
-        uaParser = new UAParser();
         socketIO = SocketIO();
         atlas = Atlas();
         input = Input();

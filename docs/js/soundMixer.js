@@ -1,5 +1,4 @@
 
-
 function SoundMixer() {
 
 	var domMusic = document.getElementById('music');
@@ -99,7 +98,7 @@ function SoundMixer() {
 			maxDistance: 20,
 			playSpeedVarying: 0.1
 		}
-	}
+	};
 
 	var sfxs = [];
 	var sfxCanPlay = true ;
@@ -107,11 +106,7 @@ function SoundMixer() {
 	var listener;
 	var audioLoader = new THREE.AudioLoader();
 
-
-
-
-
-
+	//
     
     function setMusic( musicName ) {
 
@@ -139,7 +134,7 @@ function SoundMixer() {
 
 	};
 
-
+	//
 
     function start() {
 
@@ -172,7 +167,7 @@ function SoundMixer() {
 
     };
 
-
+    //
 
     function createSFX( sfxName, position ) {
 
@@ -207,15 +202,11 @@ function SoundMixer() {
 
 		});
 
-		
-
     };
 
-
+    //
 
 	function switchGraph( graphName ) {
-
-		console.log('switch')
 
 		if ( graphName == 'mountain' ) {
 
@@ -237,6 +228,7 @@ function SoundMixer() {
 
 	};
 
+	//
 
 	function update( mustCheck, delta ) {
 
@@ -283,6 +275,7 @@ function SoundMixer() {
 
 	};
 
+	//
 
 	function animStart() {
 
@@ -295,6 +288,7 @@ function SoundMixer() {
 		domMusic.volume = musicVolume ;
 	};
 
+	//
 
 	function animEnd() {
 
@@ -308,6 +302,7 @@ function SoundMixer() {
 
 	};
 
+	//
 
 	return {
 		start,

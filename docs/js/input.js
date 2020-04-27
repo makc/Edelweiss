@@ -1,12 +1,5 @@
 
-
-
-
-
-
-
 function Input() {
-
 
     const STICK_TRAVEL_RADIUS = 50 ;
 
@@ -32,7 +25,7 @@ function Input() {
 
     var joystick, domCross, moveVec, joystickAngle, joystickState ;
 
-    //// JOYSTICK
+    /// JOYSTICK
 
     function initJoystick() {
 
@@ -69,18 +62,9 @@ function Input() {
 
         params.isTouchScreen = true ;
 
-        socketIO.sendIsTouchScreen();
-
     };
 
-
-
-
-
-
-
-
-
+    //
 
     function update( delta ) {
 
@@ -88,21 +72,11 @@ function Input() {
 
     };
 
-
-
-
-
-
-
-
     ////////////////////
     ///// GAME KEYS
     ////////////////////
 
-
-
-    /////// TOUCHSCREEN
-
+    // TOUCHSCREEN
 
     function checkJoystickDelta() {
 
@@ -161,15 +135,7 @@ function Input() {
 
     };
 
-
-
-
-
-
-
-
-    ////
-
+    //
 
     domActionButton.addEventListener( 'touchstart', (e)=> {
 
@@ -198,7 +164,7 @@ function Input() {
 
     });
 
-
+    //
 
     domActionButton.addEventListener( 'touchend', (e)=> {
 
@@ -228,13 +194,7 @@ function Input() {
 
     });
 
-
-
-
-
-
-
-    ////
+    //
 
     // request next line if the touch action was not for scrolling
 
@@ -260,20 +220,9 @@ function Input() {
 
     });
 
-
-
-
-
-
-    
-
-
-    /////// KEYBOARD
-
+    //KEYBOARD
 
     window.addEventListener( 'keydown', (e)=> {
-
-        // console.log( e.code );
 
         switch( e.code ) {
 
@@ -281,18 +230,22 @@ function Input() {
                 // console.log('press escape');
                 break;
 
-            case 'ArrowLeft' :
+            case 'KeyA':
+            case 'ArrowLeft':
                 addMoveKey( 'left' );
                 break;
 
+            case 'KeyW':    
             case 'ArrowUp' :
                 addMoveKey( 'up' );
                 break;
 
+            case 'KeyD':
             case 'ArrowRight' :
                 addMoveKey( 'right' );
                 break;
 
+            case 'KeyS':
             case 'ArrowDown' :
                 addMoveKey( 'down' );
                 break;
@@ -314,27 +267,28 @@ function Input() {
         
     }, false);
 
-
-
-
-
+    //
 
     window.addEventListener( 'keyup', (e)=> {
 
         switch( e.code ) {
 
+            case 'KeyA':
             case 'ArrowLeft' :
                 removeMoveKey( 'left' );
                 break;
 
+            case 'KeyW':
             case 'ArrowUp' :
                 removeMoveKey( 'up' );
                 break;
-
+            
+            case 'KeyD':
             case 'ArrowRight' :
                 removeMoveKey( 'right' );
                 break;
 
+            case 'KeyS':
             case 'ArrowDown' :
                 removeMoveKey( 'down' );
                 break;
@@ -358,11 +312,7 @@ function Input() {
 
     });
 
-
-
-
-
-
+    //
 
     function removeMoveKey( keyString ) {
 
@@ -372,14 +322,13 @@ function Input() {
 
     };
 
-
-
+    //
 
     function addMoveKey( keyString ) {
 
         if ( gameState.params.isGamePaused ) {
 
-            console.log( 'navigate in menu' );
+            // console.log( 'navigate in menu' );
 
         } else if ( interaction.isInDialogue() ) {
 
@@ -394,7 +343,7 @@ function Input() {
         
     };
 
-
+    //
 
     function sendMoveDirection() {
 
@@ -471,12 +420,7 @@ function Input() {
 
     };
 
-
-
-
-
-
-
+    //
 
     function pressAction() {
 
@@ -484,7 +428,7 @@ function Input() {
 
         if ( gameState.params.isGamePaused ) {
 
-            console.log( 'validate in menu' );
+            // console.log( 'validate in menu' );
 
         } else if ( interaction.isInDialogue() ) {
 
@@ -498,12 +442,7 @@ function Input() {
 
     };
 
-
-
-
-
-
-
+    //
 
     function releaseAction() {
 
@@ -516,12 +455,7 @@ function Input() {
     
     };
 
-
-
-
-
-
-
+    //
 
     function blockPressAction() {
 
@@ -530,10 +464,7 @@ function Input() {
         
     };
 
-
-
-
-
+    //
 
     var api = {
         params,
@@ -542,7 +473,6 @@ function Input() {
         initJoystick,
         blockPressAction
     };
-
 
     return api ;
 

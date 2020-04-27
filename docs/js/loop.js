@@ -1,14 +1,6 @@
 
-
-
-
-
 var loopCount = 0 ;
 var ticks, clockDelta;
-
-
-
-
 
 function loop() {
 
@@ -18,18 +10,6 @@ function loop() {
 
     requestAnimationFrame( loop );
 
-    
-    
-    /*
-    setTimeout( function() {
-
-        requestAnimationFrame( loop );
-
-    }, 1000 / 20 );
-    */
-
-
-
     // If performances are low,
     // reduce graphic quality to get at least 45FPS
     if ( !gameState.params.isGamePaused && optimizer ) {
@@ -38,8 +18,7 @@ function loop() {
 
     };
 
-
-
+    //
 
     if ( optimizer &&
          optimizer.params.level <= 1 ) {
@@ -51,9 +30,6 @@ function loop() {
         renderer.render( scene, camera );
 
     };
-
-    
-
 
     // UPDATE LOGIC
     
@@ -71,8 +47,6 @@ function loop() {
 
     };
 
-
-
     // MISC UPDATES
 
     for ( let key in characterAnimations ) characterAnimations[ key ].update( clockDelta );
@@ -82,12 +56,14 @@ function loop() {
     if ( input ) input.update( clockDelta );
     if ( stamina ) stamina.update( loopCount % 10 == 0 );
     if ( mapManager ) mapManager.update( loopCount % 10 == 0 );
+
     if ( gameState ) {
-         gameState.update( loopCount % 15 == 0 );
-    
-         if ( !gameState.params.isGamePaused ) {
-              if ( soundMixer ) soundMixer.update( loopCount % 15 == 0, clockDelta );
-              if ( atlas ) atlas.debugUpdate( loopCount % 15 == 0 );
-         }
+
+        gameState.update( loopCount % 15 == 0 );
+
+        if ( !gameState.params.isGamePaused ) {
+            if ( soundMixer ) soundMixer.update( loopCount % 15 == 0, clockDelta );
+            if ( atlas ) atlas.debugUpdate( loopCount % 15 == 0 );
+        };
     };
 };

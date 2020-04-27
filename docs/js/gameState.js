@@ -1,11 +1,5 @@
 
-
-
-
-
 function GameState() {
-
-
 
 	const domStartMenu = document.getElementById('start-menu');
     const domStartButton = document.getElementById('start-button');
@@ -20,8 +14,6 @@ function GameState() {
 	const domActionButton = document.getElementById('action-button');
 
 	const domBlackScreen = document.getElementById('black-screen');
-
-
 
     // will hold the sceneGraphs of the caves as well
     var sceneGraphs = {
@@ -42,10 +34,7 @@ function GameState() {
 
     var loadingFinished = false;
 
-
-
-	//////// EVENTS
-
+	/// EVENTS
 
     domStartButton.addEventListener( 'touchstart', (e)=> {
 
@@ -54,8 +43,6 @@ function GameState() {
         };
 
     });
-    
-
 
     domStartButton.addEventListener( 'click', (e)=> {
 
@@ -64,12 +51,6 @@ function GameState() {
         };
 
     });
-
-
-
-
-
-
 
     // LOADING MANAGER
 
@@ -87,7 +68,6 @@ function GameState() {
 
     };
 
-
     THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 
         // console.log( `${ (itemsLoaded / itemsTotal) * 100 }%` )
@@ -95,6 +75,7 @@ function GameState() {
         updateLoadingBar( (itemsLoaded / itemsTotal) * 100 );
     };
 
+    //
 
     function updateLoadingBar( percent ) {
 
@@ -106,6 +87,7 @@ function GameState() {
 
     };
 
+    //
 
     function unlockStartButton() {
 
@@ -115,14 +97,7 @@ function GameState() {
 
     };
 
-
-
-
-
-
-
-
-	//// LAYOUT INIT
+	/// LAYOUT INIT
 
 	domStartMenu.style.display = 'flex';
 
@@ -138,13 +113,7 @@ function GameState() {
 
     });
 
-
-
-
-
-
-
-
+    //
 
     function debugLoadGraph( graphData, graphName ) {
 
@@ -166,17 +135,26 @@ function GameState() {
             // try to place the player on the ground
 
             var pos;
-            for ( let tilesGraphStage of sceneGraph.tilesGraph )
-                if ( tilesGraphStage && !pos )
-                    for ( let logicTile of tilesGraphStage )
+
+            for ( let tilesGraphStage of sceneGraph.tilesGraph ) {
+
+                if ( tilesGraphStage && !pos ) {
+
+                    for ( let logicTile of tilesGraphStage ) {
+
                         if ( /ground-s/.test( logicTile.type ) ) {
+
                             pos = new THREE.Vector3 (
                                 (logicTile.points[0].x + logicTile.points[1].x) / 2,
                                 (logicTile.points[0].y + logicTile.points[1].y) / 2,
                                 (logicTile.points[0].z + logicTile.points[1].z) / 2
                             );
+
                             break;
-                        }
+                        };
+                    };
+                };
+            };
 
             resetPlayerPos( pos );
 
@@ -192,6 +170,7 @@ function GameState() {
         } );
     };
 
+    //
 
     document.querySelector( '#json-load input' ).onchange = function( event ) {
 
@@ -221,9 +200,7 @@ function GameState() {
 
     };
 
-
-
-    ///// STARTING THE GAME
+    /// STARTING THE GAME
 
 
 	function startGame( isTouchScreen ) {
@@ -260,12 +237,9 @@ function GameState() {
 
     };
 
-
-
 	/////////////////////
     ///   IMPORT JSON
     /////////////////////
-
 
     var hashTable = {
         true: '$t',
@@ -288,8 +262,6 @@ function GameState() {
         'cube-interactive': '$q',
         'cube-trigger': '$o'
     };
-
-
 
 	function parseJSON( file ) {
 
@@ -314,7 +286,7 @@ function GameState() {
         return JSON.parse( data ) ;
     };
 
-
+    //
 
     document.getElementById( 'json-save' ).onclick = function() {
 
@@ -343,38 +315,13 @@ function GameState() {
         }
     };
 
-
-
-
-
-    
-
-
-
-
-
-    
-
-
-
-
-    
-
-
-
-
-
-
-
-
+    ///////////////////////
+    /// GENERAL FUNCTIONS
+    ///////////////////////
 
 	// This function is called when the player fell from too high.
 	// Show a black screen, wait one second, respawn, remove black screen.
 	function die( hasCrashed ) {
-
-        if ( atlas.player && atlas.player.position ) {
-            socketIO.sendDeath();
-        };
 
 		params.isDying = true ;
 		if ( hasCrashed ) params.isCrashing = true ;
@@ -394,36 +341,33 @@ function GameState() {
 
                 setTimeout( respawn, 1300 );
 
-            }
+            };
 
         }, 250 );
 
     };
 
+    //
+
 	function respawn() {
 
-            charaAnim.respawn();
-            soundMixer.animEnd();
+        charaAnim.respawn();
+        soundMixer.animEnd();
 
-			atlas.player.position.copy( respawnPos );
-			cameraControl.resetCameraPos();
+		atlas.player.position.copy( respawnPos );
+		cameraControl.resetCameraPos();
 
-			controler.setSpeedUp( 0 );
+		controler.setSpeedUp( 0 );
 
-            params.isCrashing = false ;
-            params.isDying = false ;
+        params.isCrashing = false ;
+        params.isDying = false ;
 
-			domBlackScreen.classList.remove( 'show-black-screen' );
-			domBlackScreen.classList.add( 'hide-black-screen' );
+		domBlackScreen.classList.remove( 'show-black-screen' );
+		domBlackScreen.classList.add( 'hide-black-screen' );
 
 	};
 
-
-
-
-
-
-
+    //
 
     function switchMapGraph( gateName ) {
 
@@ -474,10 +418,7 @@ function GameState() {
 
     };
 
-
-
-
-
+    //
 
     function endPassGateAnim() {
 
@@ -507,11 +448,7 @@ function GameState() {
 
     };
 
-
-
-
-
-
+    //
 
     function resetPlayerPos( vec ) {
 
@@ -521,13 +458,7 @@ function GameState() {
 
     };
 
-
-
-
-
-
-
-
+    //
 
     function getDestinationFromGate( gateName ) {
 
@@ -559,7 +490,7 @@ function GameState() {
 
     			};
 
-            // gauntlet
+            // dash
             case 'cave-2' :
 
                 if ( atlas.getSceneGraph() == sceneGraphs.mountain ) {
@@ -689,23 +620,13 @@ function GameState() {
 
                 };
     			
-
     	};
 
     };
 
-
-
-
-
-
-
+    //
 
     function setSavedPosition( respawnID ) {
-
-        // console.log( `save progress on ${ 'respawn-' + respawnID }` );
-
-        socketIO.sendSave( respawnID );
 
         if ( atlas.getSceneGraph() == sceneGraphs.mountain ) {
 
@@ -727,7 +648,7 @@ function GameState() {
 
                 });
 
-            }
+            };
 
         } else {
 
@@ -761,7 +682,7 @@ function GameState() {
 
     };
 
-
+    //
 
     function update( mustUpdate ) {
 
@@ -779,11 +700,7 @@ function GameState() {
 
     };
 
-
-
-
-
-
+    //
 
 	return {
 		die,

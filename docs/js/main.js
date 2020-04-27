@@ -3,7 +3,7 @@ var scene, camera, input, atlas,
     controler, clock, charaAnim,
     gltfLoader, cameraControl, stamina, interaction,
     dynamicItems, textureLoader, fileLoader, mapManager,
-    socketIO, optimizer, uaParser, gameState,
+    socketIO, optimizer, gameState,
     assetManager, soundMixer, renderer, composer, fxaaPass ;
 
 var characterAnimations = {};

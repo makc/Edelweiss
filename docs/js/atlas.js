@@ -1,9 +1,5 @@
 
-
- 
-
 function Atlas() {
-
 
 	var sceneGraph ;
 
@@ -16,11 +12,9 @@ function Atlas() {
     const CUBE_INTERSECTION_OFFSET = 0.001 ;
     const CUBE_IS_WALKABLE = /^(beam|boat|ledge)/ ;
 
-
 	var startPos = new THREE.Vector3();
 
 	var planes = [];
-
 
 	var cameraCollision = false ;
 
@@ -28,13 +22,14 @@ function Atlas() {
 	// direction is the one with less collision
 	var collisionSortArr = [ 'x', 'y', 'z' ];
 
+	//
+
 	var cubeCollision = {
 		point: undefined,
 		inRange: undefined,
 		tag: undefined
 	};
 
-	
 	var yCollision = {
 		point: undefined,
 		direction: undefined,
@@ -43,8 +38,6 @@ function Atlas() {
 		maxZ: undefined,
 		minZ: undefined
 	};
-
-
 
 	var xCollision = {
 		maxHeight: undefined,
@@ -58,6 +51,7 @@ function Atlas() {
 		majorWallType: undefined
 	};
 
+	//
 
 	var tempTriVec1 = new THREE.Vector3();
 	var tempTriVec2 = new THREE.Vector3();
@@ -81,9 +75,6 @@ function Atlas() {
 	var tileCenter = new THREE.Vector3();
 	var wallDistance;
 
-
-
-
     //////////////////////
     ///     INIT
     //////////////////////
@@ -97,9 +88,7 @@ function Atlas() {
 
     };
 
-
-	
-
+    //
 	
 	function initHelpers( gateName ) {
 
@@ -138,7 +127,6 @@ function Atlas() {
 
 		};
 
-
 		for ( let cubesGraphStage of sceneGraph.cubesGraph ) {
 
 			if ( cubesGraphStage ) for ( let logicCube of cubesGraphStage ) {
@@ -148,7 +136,6 @@ function Atlas() {
 			};
 
 		};
-
 
 		// Can remove conditional later
 		if ( sceneGraph.planes ) {
@@ -174,12 +161,7 @@ function Atlas() {
 
 	};
 
-
-
-
-
-
-
+	//
 
 	function deleteCubeFromGraph( logicCube ) {
 
@@ -206,16 +188,9 @@ function Atlas() {
 
 	};
 
-
-
-
-
-
-
-
-
-
+	//////////////////
 	// PLAYER LOGIC
+	//////////////////
 
 	var player = Player();
 
@@ -224,8 +199,6 @@ function Atlas() {
 	charaAnim = CharaAnim( player );
 
 	cameraControl = CameraControl( player, camera );
-
-
 
 	function Player() {
 		let id = utils.randomString();
@@ -236,8 +209,7 @@ function Atlas() {
 		let position = group.position ;
 
 		group.position.copy( startPos );
-
-			
+	
 		/// HELPER
 
 			let box = new THREE.LineSegments( new THREE.EdgesGeometry(
@@ -256,7 +228,6 @@ function Atlas() {
 			box.position.y = PLAYERHEIGHT / 2 ;
 			box.visible = false;
 
-
 		/// CHARACTER
 
 		let charaGroup = new THREE.Group();
@@ -273,12 +244,9 @@ function Atlas() {
 			arrow.position.y = PLAYERHEIGHT / 2 ;
 			arrow.visible = false;
 
-
-
 		let { model, actions } = assetManager.createCharacter( utils.stringHash( id ) );
 		charaGroup.add( model );
 
-		
 		return {
 			id,
 			actions,
@@ -292,24 +260,9 @@ function Atlas() {
 
 	};
 
-
-
-
-
-
-
-
-
-
-
-
-
 	/////////////////////////
 	///    COLLISIONS
 	/////////////////////////
-
-
-
 
 	function collideCamera() {
 
@@ -348,15 +301,7 @@ function Atlas() {
 
 	};
 
-
-
-
-
-
-
-
-
-
+	//
 
 	function collidePlayerCubes() {
 
@@ -376,8 +321,7 @@ function Atlas() {
 
 	};
 
-
-
+	//
 
 	function checkInvisibleCubes() {
 
@@ -405,8 +349,7 @@ function Atlas() {
 
 	};
 
-
-
+	//
 
 	function checkStage( stage ) {
 
@@ -498,8 +441,7 @@ function Atlas() {
 
 	};
 
-
-
+	//
 
 	function cubeCollides( logicCube ) {
 
@@ -512,16 +454,7 @@ function Atlas() {
 
 	};
 
-
-
-
-
-
-
-
-
-
-
+	//
 
 	function collidePlayerGrounds() {
 
@@ -684,20 +617,9 @@ function Atlas() {
 		return yCollision;
 	};
 
-
-
-
-
-
-
-
-
-
-
-
+	//
 
 	function collidePlayerWalls( direction ) {
-
 
 		xCollision.maxHeight = undefined ;
 		xCollision.minHeight = undefined ;
@@ -762,21 +684,12 @@ function Atlas() {
 
 		};
 
-
 		return xCollision ;
-
-
-
-
-
-
 
 		// This function check for collision with the scene's limit planes
 		function checkPlanes() {
 
-
 			planes.forEach( (plane)=> {
-
 
 				// Plane is parallel to camera
 				if ( plane.normal.z != 0 ) {
@@ -799,7 +712,6 @@ function Atlas() {
 						};
 						
 					};
-
 
 				// plane is right or left
 				} else {
@@ -827,10 +739,7 @@ function Atlas() {
 
 		};
 
-
-
-
-
+		// Check for collistion with the player at one given stage
 		function checkStage( stage ) {
 
 			if ( sceneGraph.tilesGraph[ stage ] ) {
@@ -848,7 +757,6 @@ function Atlas() {
 						 ( Math.min( logicTile.points[0].y, logicTile.points[1].y ) <= player.position.y + PLAYERHEIGHT - 0.1 && 
 						   Math.max( logicTile.points[0].y, logicTile.points[1].y ) >= player.position.y + PLAYERHEIGHT - 0.1 )  ) {
 
-
 						// Save the colliding tile into the array that is used to know
 						// the major wall type, and compute the max and min wall limits
 						// min and high limits are used for slipping, hauling.. etc..
@@ -856,10 +764,7 @@ function Atlas() {
 
 							collidedWalls.push( logicTile );
 
-
-							////////////
-							//  Y DIR
-							////////////
+							// Y DIR
 
 							if ( typeof xCollision.maxHeight != 'undefined' ) {
 								if ( xCollision.maxHeight < Math.max( logicTile.points[0].y, logicTile.points[1].y ) ) {
@@ -877,10 +782,7 @@ function Atlas() {
 								xCollision.minHeight = Math.min( logicTile.points[0].y, logicTile.points[1].y );
 							};
 
-
-							///////////
-							//  X DIR
-							//////////
+							// X DIR
 
 							if ( direction == 'x' ) {
 
@@ -902,10 +804,7 @@ function Atlas() {
 
 							};
 
-
-							///////////
-							//  Z DIR
-							//////////
+							// Z DIR
 
 							if ( direction == 'z' ) {
 
@@ -928,8 +827,6 @@ function Atlas() {
 							};
 
 						};
-
-
 
 						// Check if any X Z collision
 
@@ -979,8 +876,7 @@ function Atlas() {
 
 		};
 
-
-
+		//
 
 		function computeDirection( logicTile ) {
 
@@ -996,20 +892,9 @@ function Atlas() {
 
 		};
 
-
-
 	};
 
-
-
-	
-
-    
-
-
-
-
-
+	//
 
 	function intersectRay( ray, stages, mustTestGrounds ) {
 
@@ -1049,14 +934,12 @@ function Atlas() {
 
 							};
 
-
 						} else {
 
 							tempTriVec1.set( logicTile.points[0].x, logicTile.points[0].y, logicTile.points[1].z );
 							tempTriVec2.set( logicTile.points[1].x, logicTile.points[0].y, logicTile.points[0].z );
 
 						};
-
 
 						// Intersection check with the two triangles formed by the tile
 
@@ -1091,8 +974,6 @@ function Atlas() {
 
 								};
 
-								
-
 								function tempCollisionShorterThan( collisionVec ) {
 
 									if ( collisionVec.length() == 0 ) return true ;
@@ -1124,33 +1005,9 @@ function Atlas() {
 
 	};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	/////////////////////////
 	///    FUNCTIONS
 	/////////////////////////
-
-
-
-
-
-
-
 
 	// adjTileExists is used by cameraControl to know if the tile
 	// obstructing the camera path has an adjacent tile in the
@@ -1213,16 +1070,7 @@ function Atlas() {
 
 	};
 
-
-
-
-
-
-
-
-
-
-
+	//
 
 	function switchGraph( graphName, gateName, respawn ) {
 
@@ -1237,40 +1085,29 @@ function Atlas() {
 
 			planes = [];
 
-				initHelpers( gateName );
+			initHelpers( gateName );
 
-				if ( respawn ) {
+			if ( respawn ) {
 
-					respawn();
+				respawn();
 
-				} else {
+			} else {
 
-					gameState.endPassGateAnim();
+				gameState.endPassGateAnim();
 
-				};
+			};
 
 		});
 
 	};
 
-
-
-
-
-
-
+	//
 
 	function getSceneGraph() {
 		return sceneGraph ;
 	};
 
-
-
-
-
-
-
-
+	//
 
 	function openPropertiesDialog( node, types ) {
 		const select = document.querySelector( '#properties select' );
@@ -1294,10 +1131,13 @@ function Atlas() {
 		document.getElementById( 'properties' ).style.display = 'block';
 	};
 
+	//
+
 	function closePropertiesDialog() {
 		document.getElementById( 'properties' ).style.display = 'none';
 	};
 
+	//
 
 	var helpers, tileGizmo, transformControls, raycaster, shouldRaycast;
 
@@ -1329,6 +1169,8 @@ function Atlas() {
 
 		return gizmo;
 	};
+
+	//
 
 	function debug() {
 
@@ -1582,6 +1424,8 @@ function Atlas() {
 		}
 	}
 
+	//
+
 	const helperColors = {
 		'ground-basic'     : 0x00ff66, // matrix effect
 		'ground-special'   : 0xffff00,
@@ -1598,6 +1442,8 @@ function Atlas() {
 		'cube-trigger-invisible' : 0x276b00,
 		'cube-anchor'      : 0xfc0703
 	};
+
+	//
 
 	const closestTiles = [], closestCubes = [], closestCompare = function( a, b ) { return b.distance - a.distance };
 
@@ -1719,6 +1565,7 @@ function Atlas() {
 		}
 	}
 
+	//
 
 	var api = {
 		debug,
@@ -1738,9 +1585,6 @@ function Atlas() {
 		init
 	};
 
-
-
 	return api ;
-
 
 };
