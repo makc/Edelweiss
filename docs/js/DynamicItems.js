@@ -21,46 +21,9 @@ function DynamicItems() {
 	//
 
 	// Add a cube to the three arrays containing cubes to interact with
-	function addCube( logicCube ) {
+	function addInteractiveCube( logicCube ) {
 
-		switch ( logicCube.type ) {
-
-			case 'cube-interactive' :
-
-				interactiveCubes.push( logicCube );
-
-				if ( logicCube.tag.match( /npc/ ) &&
-					 !logicCube.tag.match( /npc-(boat|respawn)/ ) &&
-					 !logicCube.tag.match( /npc-dev/ ) ) {
-
-					assetManager.createNewLady( logicCube );
-
-				} else if ( logicCube.tag.match( /npc-(boat|respawn)/ ) ) {
-
-					assetManager.createNewAlpinist( logicCube );
-
-				};
-
-				break;
-
-
-			case 'cube-trigger' :
-
-				if ( logicCube.tag &&
-					 logicCube.tag.match( /bonus-stamina/ ) ) {
-
-					assetManager.createNewEdelweiss( logicCube );
-
-				} else if ( logicCube.tag &&
-							logicCube.tag.match( /bonus(?!-hidden)/ ) ) {
-
-					assetManager.createNewBonus( logicCube );
-
-				};
-
-				break;
-
-		};
+		interactiveCubes.push( logicCube );
 
 	};
 
@@ -97,7 +60,7 @@ function DynamicItems() {
 	return {
 		showInteractionSign,
 		clearInteractionSign,
-		addCube
+		addInteractiveCube
 	};
 
 };

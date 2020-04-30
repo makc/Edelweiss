@@ -24,10 +24,11 @@ function AssetManager() {
 	const textCanvas = document.createElement( 'canvas' );
 	textCanvas.height = 34;
 
-	// Hold one mixer and one action per asset iteration
-	var alpinistMixers = [], alpinistIdles = [];
-	var ladyMixers = [], ladyIdles = [];
+	// Hold one mixer and (optionally) one set of actions per asset iteration
+	var alpinistMixers = [];
+	var ladyMixers = [];
 	var charMixers = [], charActions = [];
+	var miscMixers = new Map(), miscModels = new Map();
 
 	// Asset groups arrays
 	var alpinists = [];
@@ -139,7 +140,7 @@ function AssetManager() {
 			null,
 			alpinists,
 			alpinistMixers,
-			alpinistIdles
+			[]
 		);
 
 	});
@@ -152,7 +153,7 @@ function AssetManager() {
 			null,
 			ladies,
 			ladyMixers,
-			ladyIdles
+			[]
 		);
 
 	});
@@ -360,6 +361,58 @@ function AssetManager() {
 
 	};
 
+	var glbs = {};
+
+	function createNewObject( logicCube ) {
+
+		if( miscModels.get( logicCube ) ) return;
+
+		const parsedTag = logicCube.tag.match( /^(.+glb)\??(.*)?$/i );
+
+		const url = 'assets/models/' + parsedTag[1];
+
+		const promise = glbs[url] || new Promise( function( resolve ) {
+
+			gltfLoader.load( url, resolve );
+
+		});
+
+		glbs[url] = promise;
+
+		promise.then( function( glb ) {
+
+			const model = THREE.SkeletonUtils.clone( glb.scene );
+			miscModels.set( logicCube, model );
+			setLambert( model );
+
+			if( glb.animations.length > 0 ) {
+				// play all clips
+				const mixer = new THREE.AnimationMixer( model );
+				miscMixers.set( logicCube, mixer );
+
+				for( let clip of glb.animations ) {
+					mixer.clipAction( clip ).play();
+				}
+			}
+
+			const box = new THREE.Box3();
+			box.setFromObject( model );
+
+			setAssetAt( [model], logicCube,
+				// decide if the model should fall on the ground or hang in the air by its origin Y
+				( 0 - box.min.y ) / ( box.max.y - box.min.y ) < 0.05
+			);
+
+			// rotate the model if the tag has r=<degrees>
+			const rotation = /r=(\d+)/;
+			if( rotation.test( parsedTag[2] ) ) {
+				model.rotation.y = Math.PI * parseInt( parsedTag[2].match( rotation )[1] ) / 180;
+			}
+
+		});
+
+	};
+
 	// Take the last free group from the right asset array, position it, and hide/show it.
 	function setAssetAt( assetArray, logicCube, floor, bubbleOffset ) {
 
@@ -375,15 +428,20 @@ function AssetManager() {
 				if ( floor ) {
 					asset.position.y = Math.floor( asset.position.y );
 
-					// patch the cube position itself to get the
-					// exclamation mark sign positioned properly
+					if ( bubbleOffset !== undefined ) {
+						// patch the cube position itself to get the
+						// exclamation mark sign positioned properly
 
-					pos.y = Math.floor( pos.y ) + bubbleOffset;
+						pos.y = Math.floor( pos.y ) + bubbleOffset;
+					}
 				}
 
 				asset.userData.isSet = true ;
 				asset.userData.tag = tag ;
-				asset.userData.graph = getGraphFromTag( tag );
+
+				// assuming updateGraph() was already called at this point
+
+				asset.userData.graph = currentGraph ;
 
 				// anchor for bonus floating animation
 
@@ -396,21 +454,6 @@ function AssetManager() {
 				break ;
 
 			};
-
-		};
-
-	};
-
-	// Get the name of the graph bound to a given asset
-	function getGraphFromTag( tag ) {
-
-		if ( tag.match( /bonus-stamina-1/ ) ) {
-
-			return 'cave-A';
-
-		} else {
-
-			return 'mountain';
 
 		};
 
@@ -461,21 +504,15 @@ function AssetManager() {
 			currentGraph = destination
 		};
 
-		alpinists.forEach( ( assetGroup )=> {
-			setGroupVisibility( assetGroup );
-		});
+		alpinists.forEach( setGroupVisibility );
 
-		ladies.forEach( ( assetGroup )=> {
-			setGroupVisibility( assetGroup );
-		});
+		ladies.forEach( setGroupVisibility );
 
-		edelweisses.forEach( ( assetGroup )=> {
-			setGroupVisibility( assetGroup );
-		});
+		edelweisses.forEach( setGroupVisibility );
 
-		bonuses.forEach( ( assetGroup )=> {
-			setGroupVisibility( assetGroup );
-		});
+		bonuses.forEach( setGroupVisibility );
+
+		miscModels.forEach( setGroupVisibility );
 
 	};
 
@@ -554,6 +591,12 @@ function AssetManager() {
 
 		};
 
+		for ( let mixer of miscMixers.values() ) {
+
+			mixer.update( delta );
+
+		};
+
 		for ( let group of edelweisses ) {
 
 			updateBonus( group );
@@ -603,6 +646,7 @@ function AssetManager() {
 		createNewAlpinist,
 		createNewEdelweiss,
 		createNewBonus,
+		createNewObject,
 		updateGraph,
 		update,
 		deleteBonus

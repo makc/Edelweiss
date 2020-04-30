@@ -131,7 +131,50 @@ function Atlas() {
 
 			if ( cubesGraphStage ) for ( let logicCube of cubesGraphStage ) {
 
-				dynamicItems.addCube( logicCube );
+				if ( logicCube.tag ) {
+
+					if ( logicCube.type == 'cube-interactive' ) {
+
+						dynamicItems.addInteractiveCube( logicCube );
+
+						if ( /npc(?!-(boat|dev|respawn))/.test( logicCube.tag ) ) {
+
+							assetManager.createNewLady( logicCube );
+
+						}
+
+						else if ( /npc-(boat|respawn)/.test( logicCube.tag ) ) {
+
+							assetManager.createNewAlpinist( logicCube );
+
+						}
+					}
+
+					else if ( logicCube.type == 'cube-trigger' ) {
+
+						if ( /bonus-stamina/.test( logicCube.tag ) ) {
+
+							assetManager.createNewEdelweiss( logicCube );
+
+						}
+
+						else if ( /bonus(?!-hidden)/.test( logicCube.tag ) ) {
+
+							assetManager.createNewBonus( logicCube );
+
+						}
+					}
+
+					else if ( logicCube.type == 'cube-inert' ) {
+
+						if ( /\.glb\?|\.glb$/i.test( logicCube.tag ) ) {
+
+							assetManager.createNewObject( logicCube );
+
+						}
+					}
+
+				};
 
 			};
 
