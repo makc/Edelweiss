@@ -224,6 +224,10 @@ function Input() {
 
     window.addEventListener( 'keydown', (e)=> {
 
+        // ignore input fields
+        if( e.target.nodeName == 'INPUT' ) return ;
+        if( e.target.nodeName == 'SELECT' ) return ;
+
         switch( e.code ) {
 
             case 'Escape' :

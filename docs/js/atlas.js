@@ -89,6 +89,55 @@ function Atlas() {
     };
 
     //
+
+    function addCubeObject( logicCube ) {
+
+		if ( logicCube.tag ) {
+
+			if ( logicCube.type == 'cube-interactive' ) {
+
+				dynamicItems.addInteractiveCube( logicCube );
+
+				if ( /npc(?!-(boat|dev|respawn))/.test( logicCube.tag ) ) {
+
+					assetManager.createNewLady( logicCube );
+
+				}
+
+				else if ( /npc-(boat|respawn)/.test( logicCube.tag ) ) {
+
+					assetManager.createNewAlpinist( logicCube );
+
+				}
+			}
+
+			else if ( logicCube.type == 'cube-trigger' ) {
+
+				if ( /bonus-stamina/.test( logicCube.tag ) ) {
+
+					assetManager.createNewEdelweiss( logicCube );
+
+				}
+
+				else if ( /bonus(?!-hidden)/.test( logicCube.tag ) ) {
+
+					assetManager.createNewBonus( logicCube );
+
+				}
+			}
+
+			else if ( logicCube.type == 'cube-inert' ) {
+
+				if ( /\.glb\?|\.glb$/i.test( logicCube.tag ) ) {
+
+					assetManager.createNewObject( logicCube );
+
+				}
+			}
+
+		};
+
+    };
 	
 	function initHelpers( gateName ) {
 
@@ -131,50 +180,7 @@ function Atlas() {
 
 			if ( cubesGraphStage ) for ( let logicCube of cubesGraphStage ) {
 
-				if ( logicCube.tag ) {
-
-					if ( logicCube.type == 'cube-interactive' ) {
-
-						dynamicItems.addInteractiveCube( logicCube );
-
-						if ( /npc(?!-(boat|dev|respawn))/.test( logicCube.tag ) ) {
-
-							assetManager.createNewLady( logicCube );
-
-						}
-
-						else if ( /npc-(boat|respawn)/.test( logicCube.tag ) ) {
-
-							assetManager.createNewAlpinist( logicCube );
-
-						}
-					}
-
-					else if ( logicCube.type == 'cube-trigger' ) {
-
-						if ( /bonus-stamina/.test( logicCube.tag ) ) {
-
-							assetManager.createNewEdelweiss( logicCube );
-
-						}
-
-						else if ( /bonus(?!-hidden)/.test( logicCube.tag ) ) {
-
-							assetManager.createNewBonus( logicCube );
-
-						}
-					}
-
-					else if ( logicCube.type == 'cube-inert' ) {
-
-						if ( /\.glb\?|\.glb$/i.test( logicCube.tag ) ) {
-
-							assetManager.createNewObject( logicCube );
-
-						}
-					}
-
-				};
+				addCubeObject( logicCube );
 
 			};
 
@@ -1152,7 +1158,7 @@ function Atlas() {
 
 	//
 
-	function openPropertiesDialog( node, types ) {
+	function openPropertiesDialog( node, types, onChange ) {
 		const select = document.querySelector( '#properties select' );
 		select.innerHTML = types.map( function( type ) {
 			return '<option value="' + type + '"' + (( type === node.type ) ? ' selected' : '') + '>' + type + '</option>';
@@ -1161,13 +1167,20 @@ function Atlas() {
 			node.type = select.value;
 		};
 
+		let delayId = 0;
+
 		const input = document.querySelector( '#properties input' );
 		input.value = node.tag || '';
-		input.onchange = function() {
+		input.oninput = function() {
 			if (input.value) {
 				node.tag = input.value;
 			} else {
 				delete node.tag;
+			}
+
+			if (onChange) {
+				clearTimeout( delayId );
+				delayId = setTimeout( onChange, 1234 );
 			}
 		};
 
@@ -1300,9 +1313,25 @@ function Atlas() {
 					var logicCube = mesh.userData.cube;
 					if( logicCube ) {
 
+						var model = assetManager.getObject( logicCube );
+						var floor = model && ( model.position.y == Math.floor( logicCube.position.y ));
+
 						logicCube.position.x = (( mesh.position.x *100)|0)/100 ;
 						logicCube.position.y = (( mesh.position.y *100)|0)/100 ;
 						logicCube.position.z = (( mesh.position.z *100)|0)/100 ;
+
+						if( model ) {
+							model.position.x = logicCube.position.x ;
+							model.position.z = logicCube.position.z ;
+							model.userData.initPos.x = logicCube.position.x ;
+							model.userData.initPos.z = logicCube.position.z ;
+							if( floor ) {
+								model.position.y = Math.floor( logicCube.position.y );
+							} else {
+								model.position.y = logicCube.position.y ;
+							}
+							model.userData.initPos.y = logicCube.position.y ;
+						}
 
 						logicCube.scale.x = (( mesh.scale.x *100)|0)/100 ;
 						logicCube.scale.y = (( mesh.scale.y *100)|0)/100 ;
@@ -1397,28 +1426,64 @@ function Atlas() {
 				}
 			};
 
-			document.getElementById( 'cube-add' ).onclick = function() {
-				var d = Math.sqrt( 0.5 ) * ( CUBEWIDTH + PLAYERWIDTH + CUBE_INTERSECTION_OFFSET );
+			var createCube = function( sx, sy, sz, tag ) {
+				var d = Math.sqrt( 0.5 ) * ( CUBEWIDTH * Math.max( sx, sz ) + PLAYERWIDTH + CUBE_INTERSECTION_OFFSET );
 				var dz = d * Math.cos( charaAnim.group.rotation.y );
 				var dx = d * Math.sin( charaAnim.group.rotation.y );
 
 				var logicCube = {
 					position: {
 						x: player.position.x + dx,
-						y: player.position.y + 0.5 * CUBEWIDTH,
+						y: player.position.y + 0.5 * CUBEWIDTH * sy,
 						z: player.position.z + dz
 					},
-					scale: { x: 1, y: 1, z: 1 },
+					scale: { x: sx, y: sy, z: sz },
 					type: 'cube-inert'
 				};
 
 				var stage = Math.floor( logicCube.position.y );
 				sceneGraph.cubesGraph[ stage ].push( logicCube );
 				debugUpdate( true, logicCube );
+
+				if( tag ) {
+					logicCube.tag = tag; addCubeObject( logicCube );
+				}
+			};
+
+			document.getElementById( 'cube-add' ).onclick = function( event ) {
+
+				// bypass the dialog with shift + click
+				if( event.shiftKey ) return createCube( 1, 1, 1 );
+
+				const thumbs = document.querySelector( '#cubes .thumbs' );
+				thumbs.innerHTML = '';
+
+				const cubes = [
+					{ sx: 1, sy: 1, sz: 1 },
+					{ sx: 1.3, sy: 1.9, sz: 1.2, tag: 'rocks/1.glb' },
+					{ sx: 2.7, sy: 1.9, sz: 1.7, tag: 'rocks/2.glb' },
+					{ sx: 1, sy: 1, sz: 1, tag: 'sheep.glb' }
+				];
+
+				cubes.forEach( function( cube ) {
+					var image = new Image();
+					image.src = 'assets/models/' + (
+						cube.tag ? ( cube.tag.replace( '.glb', '.png' ) ) : 'noasset.png'
+					);
+					image.onclick = function() {
+						createCube( cube.sx, cube.sy, cube.sz, cube.tag );
+						document.getElementById( 'cubes' ).style.display = 'none';
+					};
+					thumbs.appendChild( image );
+				});
+
+				thumbs.scrollLeft = 0;
+				document.getElementById( 'cubes' ).style.display = 'block';
 			};
 
 			document.getElementById( 'cube-remove' ).onclick = function() {
 				if( transformControls.object && transformControls.object.userData.cube ) {
+					assetManager.deleteObject( transformControls.object.userData.cube );
 					deleteCubeFromGraph( transformControls.object.userData.cube );
 					debugUpdate( true );
 				}
@@ -1426,9 +1491,15 @@ function Atlas() {
 
 			document.getElementById( 'cube-properties' ).onclick = function() {
 				if( transformControls.object && transformControls.object.userData.cube ) {
-					openPropertiesDialog( transformControls.object.userData.cube, [
+					var cube = transformControls.object.userData.cube;
+					var lastCubeTag = cube.tag;
+					openPropertiesDialog( cube, [
 						'cube-inert', 'cube-interactive', 'cube-trigger', 'cube-trigger-invisible', 'cube-anchor'
-					] );
+					], function() {
+						assetManager.deleteObject( { tag: lastCubeTag } ) || assetManager.deleteObject( cube );
+						addCubeObject( cube );
+						lastCubeTag = cube.tag;
+					} );
 				}
 			};
 

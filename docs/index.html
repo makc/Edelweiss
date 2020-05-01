@@ -404,6 +404,26 @@
             color: #333;
         }
 
+        #gui #cubes.dialog {
+            margin-left: -230px;
+        }
+
+        #gui #cubes.dialog .thumbs {
+            overflow-x: auto;
+            width: 400px;
+            white-space: nowrap;
+        }
+
+        #gui #cubes.dialog .thumbs img {
+            width: 110px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        #gui #cubes.dialog .thumbs img:first-child {
+            margin-left: 0;
+        }
+
         #message-box {
             position: fixed;
             left: 50%;
@@ -931,6 +951,11 @@
         <div id="destinations" class="dialog">
             <div>Current JSON:<select autocomplete="off"></select></div>
             <div>Another JSON:<select autocomplete="off"></select></div>
+            <button onclick="this.parentElement.style.display='none'">OK</input>
+        </div>
+        <div id="cubes" class="dialog">
+            <div>Select a box to add:</div>
+            <div class="thumbs"></div>
             <button onclick="this.parentElement.style.display='none'">OK</input>
         </div>
     </div>

@@ -23,7 +23,11 @@ function DynamicItems() {
 	// Add a cube to the three arrays containing cubes to interact with
 	function addInteractiveCube( logicCube ) {
 
-		interactiveCubes.push( logicCube );
+		if( interactiveCubes.indexOf( logicCube ) < 0 ) {
+
+			interactiveCubes.push( logicCube );
+
+		}
 
 	};
 

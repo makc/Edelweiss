@@ -571,6 +571,73 @@ function AssetManager() {
 
 	//
 
+	function getObjectOfArray( logicCube, array ) {
+		for( let model of array ) {
+			if( model.userData.isSet && ( model.userData.tag == logicCube.tag ) ) {
+				return model;
+			}
+		}
+	};
+
+	function getObject( logicCube ) {
+
+		let model;
+
+		// check NPCs
+
+		model = getObjectOfArray( logicCube, alpinists ); if( model ) return model;
+
+		model = getObjectOfArray( logicCube, ladies ); if( model ) return model;
+
+		// check bonuses
+
+		model = getObjectOfArray( logicCube, bonuses ); if( model ) return model;
+
+		model = getObjectOfArray( logicCube, edelweisses ); if( model ) return model;
+
+		// miscellaneous objects
+
+		return miscModels.get( logicCube );
+	};
+
+	//
+
+	function deleteObjectOfArray( logicCube, array ) {
+		for( let model of array ) {
+			if( model.userData.isSet && ( model.userData.tag == logicCube.tag ) ) {
+				model.userData.isSet = false; scene.remove( model ); return model;
+			}
+		}
+	};
+
+	function deleteObject( logicCube ) {
+
+		// check NPCs
+
+		if( deleteObjectOfArray( logicCube, alpinists ) ) return true;
+
+		if( deleteObjectOfArray( logicCube, ladies ) ) return true;
+
+		// check bonuses
+
+		if( deleteObjectOfArray( logicCube, bonuses ) ) return true;
+
+		if( deleteObjectOfArray( logicCube, edelweisses ) ) return true;
+
+		// miscellaneous objects
+
+		let model = miscModels.get( logicCube );
+
+		scene.remove( model );
+
+		miscModels.delete( logicCube );
+		miscMixers.delete( logicCube );
+
+		return model !== undefined;
+	};
+
+	//
+
 	function update( delta ) {
 
 		for ( let mixer of alpinistMixers ) {
@@ -649,7 +716,9 @@ function AssetManager() {
 		createNewObject,
 		updateGraph,
 		update,
-		deleteBonus
+		deleteBonus,
+		getObject,
+		deleteObject
 	};
 
 };
