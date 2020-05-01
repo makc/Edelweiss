@@ -61,13 +61,6 @@ function GameState() {
         updateLoadingBar( (itemsLoaded / itemsTotal) * 100 );
     };
 
-    THREE.DefaultLoadingManager.onLoad = function ( ) {
-
-        // console.log( 'Loading Complete!');
-        unlockStartButton();
-
-    };
-
     THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
 
         // console.log( `${ (itemsLoaded / itemsTotal) * 100 }%` )
@@ -80,10 +73,6 @@ function GameState() {
     function updateLoadingBar( percent ) {
 
         domStartLoaded.style.width = percent + '%' ;
-
-        if ( percent >= 100 ) {
-            unlockStartButton();
-        };
 
     };
 
@@ -110,6 +99,9 @@ function GameState() {
 
         // store this sceneGraph into the graphs object
         sceneGraphs.mountain = graph ;
+
+        // enable start button after enough assets were loaded
+        mapManager.switchMap( 'mountain' ).then( unlockStartButton );
 
     });
 

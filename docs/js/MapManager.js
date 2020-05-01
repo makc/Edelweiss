@@ -1,7 +1,6 @@
 
 function MapManager() {
 
-	const CHUNK_SIZE = 12 ;
 	const LAST_CHUNK_ID = 13 ;
 
 	// Object that will contain a positive boolean on the index
@@ -40,43 +39,55 @@ function MapManager() {
 
 	};
 
-	/*
-	Only run if the player is in the main map (mountain).
-	It loads new chunks of map to the scene along the path
-	of the player, to save loading time at startup.
-	*/
-	function update( mustFindMap ) {
+	var queue = Promise.resolve();
 
-		if ( mustFindMap &&
-			 params.currentMap == 'mountain' &&
-			 atlas &&
-			 atlas.player ) {
+	function requestChunk( url, mapName ) {
 
-			// Get current map chunk ID from player's z pos
-			let z = Math.floor( -atlas.player.position.z / CHUNK_SIZE ) ;
-			if ( z < 0 ) z = 0 ;
+		return new Promise( function( resolve ) {
 
-			// request chunks of map near player's position
+			if( record[ url ] ) {
 
-			requestChunk( z );
-			requestChunk( z + 1 );
-			requestChunk( z + 2 );
-			requestChunk( z + 3 );
+				// already loaded this glb before
 
-			function requestChunk( z ) {
+				resolve();
 
-				if ( z <= LAST_CHUNK_ID && !record[ z ] ) {
+			} else {
 
-					record[ z ] = true ;
+				gltfLoader.load( url, function( glb ) {
 
-					// Load the map chunk
-					loadMap( z );
+					glb.scene.traverse( function( child ) {
 
-				};
+						if ( child.material ) {
+
+							child.material = new THREE.MeshLambertMaterial({
+								map: child.material.map,
+								side: THREE.FrontSide
+							});
+
+							child.castShadow = true ;
+							child.receiveShadow = true ;
+
+						};
+
+					});
+					
+					maps[ mapName ].add( glb.scene );
+
+					record[ url ] = true;
+
+					resolve();
+
+				}, null, function() {
+
+					console.error( 'Could not load ' + url );
+
+					resolve();
+
+				});
 
 			};
 
-		};
+		});
 
 	};
 
@@ -84,38 +95,27 @@ function MapManager() {
 
 	function loadMap( mapName, resolve ) {
 
-		gltfLoader.load( `assets/map/${ mapName }.glb`, (glb)=> {
+		if( mapName == 'mountain' ) {
 
-			// console.log( '///// MAP LOADED : ' + mapName );
+			queue = queue.then( () => requestChunk( 'assets/map/boat.glb', mapName ) );
 
-			glb.scene.traverse( (child)=> {
+			for( let i = 0; i <= 3; i++ ) {
+				queue = queue.then( () => requestChunk( 'assets/map/' + i + '.glb', mapName ) );
+			}
 
-				if ( child.material ) {
+			queue = queue.then( resolve );
 
-					child.material = new THREE.MeshLambertMaterial({
-						map: child.material.map,
-						side: THREE.FrontSide
-					});
+			for( let i = 4; i <= LAST_CHUNK_ID; i++ ) {
+				queue = queue.then( () => requestChunk( 'assets/map/' + i + '.glb', mapName ) );
+			}
 
-					child.castShadow = true ;
-					child.receiveShadow = true ;
+		} else {
 
-				};
+			queue = queue.then( () => requestChunk( 'assets/map/' + mapName + '.glb', mapName ) );
 
-			});
-			
-			maps[ params.currentMap ].add( glb.scene );
-			record[ mapName ] = true;
+			queue = queue.then( resolve );
 
-			if ( resolve ) resolve();
-
-		}, null, (err)=> {
-
-			console.error( `Impossible to load file ${ mapName }.glb` );
-
-			if ( resolve ) resolve();
-
-		});
+		}
 
 	};
 
@@ -143,20 +143,7 @@ function MapManager() {
 
 			};
 
-			/*
-			if the new map is the mountain, then the map will be udpated
-			on the fly. If not, then the cave map is loaded here.
-			*/
-			if ( newMapName == 'mountain' ||
-				 record[ newMapName ] ) {
-
-				resolve();
-
-			} else {
-
-				loadMap( newMapName, resolve );
-
-			};
+			loadMap( newMapName, resolve );
 
 		});
 
@@ -210,7 +197,6 @@ function MapManager() {
 	//
 
 	return {
-		update,
 		switchMap,
 		params
 	};

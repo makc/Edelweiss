@@ -55,7 +55,6 @@ function loop() {
     if ( charaAnim ) charaAnim.update( clockDelta );
     if ( input ) input.update( clockDelta );
     if ( stamina ) stamina.update( loopCount % 10 == 0 );
-    if ( mapManager ) mapManager.update( loopCount % 10 == 0 );
 
     if ( gameState ) {
 
