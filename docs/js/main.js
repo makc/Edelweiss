@@ -3,7 +3,7 @@ var scene, camera, input, atlas,
     controler, clock, charaAnim,
     gltfLoader, cameraControl, stamina, interaction,
     dynamicItems, textureLoader, fileLoader, mapManager,
-    socketIO, optimizer, gameState,
+    socketIO, optimizer, gameState, ambientLight,
     assetManager, soundMixer, renderer, composer, fxaaPass ;
 
 var characterAnimations = {};
@@ -51,6 +51,6 @@ window.addEventListener( 'resize', ()=> {
 
             input.joystick._baseEl.style.top = `${ world.clientHeight - ( 90 + ( input.joystick._baseEl.clientHeight / 2 ) ) }px` ;
 
-        }
-    }
-}, false );
+        };
+    };
+});

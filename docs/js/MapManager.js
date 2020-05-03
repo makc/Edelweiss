@@ -3,6 +3,40 @@ function MapManager() {
 
 	const LAST_CHUNK_ID = 13 ;
 
+	// LIGHTS
+
+	const LIGHT_BASE_INTENS = 0.48;
+	const LIGHT_CAVE_INTENS = 0.30;
+
+	const POINT_LIGHT_INTENS = 0.5;
+	const POINT_LIGHT_LENGTH = 9;
+
+	// FOG
+
+	const FOG = new THREE.FogExp2( 0xd7cbb1, 0.06 );
+
+	scene.fog = FOG;
+
+	// CUBEMAP
+
+    var path = 'assets/skybox/';
+    var format = '.jpg';
+    var urls = [
+        path + 'px' + format, path + 'nx' + format,
+        path + 'py' + format, path + 'ny' + format,
+        path + 'pz' + format, path + 'nz' + format
+    ];
+
+    var reflectionCube = new THREE.CubeTextureLoader().load( urls );
+    reflectionCube.format = THREE.RGBFormat;
+
+    var caveBackground = new THREE.Color( 0x251e16 );
+    var caveBackgroundGrey = new THREE.Color( 0x171614 );
+
+    scene.background = reflectionCube;
+
+    //
+
 	// Object that will contain a positive boolean on the index
 	// corresponding to the ID of the loaded mountain map chunks,
 	// and the name of the loaded caves (cave-A...)
@@ -122,6 +156,23 @@ function MapManager() {
 	// Make current map disappear, and show a new map
 	function switchMap( newMapName ) {
 
+		if ( newMapName === "mountain" ) {
+
+			scene.fog = FOG;
+			scene.background = reflectionCube;
+			ambientLight.intensity = LIGHT_BASE_INTENS;
+
+		} else {
+
+			scene.fog = undefined;
+			scene.background = caveBackground;
+			ambientLight.intensity = LIGHT_CAVE_INTENS;
+
+		};
+
+		if ( newMapName === "cave-F" ) scene.background = caveBackgroundGrey;
+		if ( newMapName === "dev-home" ) ambientLight.intensity = LIGHT_BASE_INTENS;
+
 		return new Promise( (resolve, reject)=> {
 
 			if ( !maps[ newMapName ] ) addMapGroup( newMapName );
@@ -167,7 +218,12 @@ function MapManager() {
 
 					var pos = cube.position ;
 
-					var light = new THREE.PointLight( 0xffffff, 1, 10 );
+					var light = new THREE.PointLight(
+						0xffffff,
+						POINT_LIGHT_INTENS,
+						POINT_LIGHT_LENGTH
+					);
+
 					light.position.set( pos.x, pos.y, pos.z );
 					scene.add( light );
 					caveLights.push( light );
