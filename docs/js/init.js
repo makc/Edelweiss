@@ -98,9 +98,25 @@ function init() {
 
     //
 
+    function updateLoadingBar( percent ) {
+
+        document.getElementById( 'start-loaded' ).style.width = percent + '%' ;
+
+    };
+
+    manager.onProgress = function( url, itemsLoaded, itemsTotal ) {
+
+        //console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
+        updateLoadingBar( (itemsLoaded / itemsTotal) * 100 );
+
+    };
+
+    //
+
     manager.onLoad = function() {
 
         manager.onLoad = function() {};
+        manager.onProgress = function() {};
 
         socketIO = SocketIO();
         atlas = Atlas();

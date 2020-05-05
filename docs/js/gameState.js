@@ -52,43 +52,18 @@ function GameState() {
 
     });
 
-    // LOADING MANAGER
-
-    THREE.DefaultLoadingManager.onStart = function ( url, itemsLoaded, itemsTotal ) {
-
-        // console.log( `${ (itemsLoaded / itemsTotal) * 100 }%` )
-        // console.log( 'Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-        updateLoadingBar( (itemsLoaded / itemsTotal) * 100 );
-    };
-
-    THREE.DefaultLoadingManager.onProgress = function ( url, itemsLoaded, itemsTotal ) {
-
-        // console.log( `${ (itemsLoaded / itemsTotal) * 100 }%` )
-        // console.log( 'Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.' );
-        updateLoadingBar( (itemsLoaded / itemsTotal) * 100 );
-    };
-
-    //
-
-    function updateLoadingBar( percent ) {
-
-        domStartLoaded.style.width = percent + '%' ;
-
-    };
-
     //
 
     function unlockStartButton() {
 
         domStartButton.style.color = "#111111" ;
         domStartLoaded.style.backgroundColor = "#111111" ;
+        domStartLoaded.style.minWidth = "100%" ;
         loadingFinished = true ;
 
     };
 
-	/// LAYOUT INIT
-
-	domStartMenu.style.display = 'flex';
+	//
 
 	fileLoader.load( 'assets/map/mountain.json', function( file ) {
 
@@ -676,24 +651,6 @@ function GameState() {
 
     //
 
-    function update( mustUpdate ) {
-
-        if ( !mustUpdate ) return ;
-
-        if ( !loadingFinished ) {
-
-            if ( domStartLoaded.clientWidth / domStartBack.clientWidth < 0.3 ) {
-
-                domStartLoaded.style.width = ( domStartLoaded.clientWidth + 1 ) + 'px' ;
-
-            };
-
-        };
-
-    };
-
-    //
-
 	return {
 		die,
 		params,
@@ -705,7 +662,6 @@ function GameState() {
         endPassGateAnim,
         setSavedPosition,
         debugLoadGraph,
-        update
 	};
 
 };

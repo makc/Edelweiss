@@ -58,8 +58,6 @@ function loop() {
 
     if ( gameState ) {
 
-        gameState.update( loopCount % 15 == 0 );
-
         if ( !gameState.params.isGamePaused ) {
             if ( soundMixer ) soundMixer.update( loopCount % 15 == 0, clockDelta );
             if ( atlas ) atlas.debugUpdate( loopCount % 15 == 0 );
