@@ -1442,6 +1442,7 @@ function Atlas() {
 				};
 
 				var stage = Math.floor( logicCube.position.y );
+				sceneGraph.cubesGraph[ stage ] = sceneGraph.cubesGraph[ stage ] || [];
 				sceneGraph.cubesGraph[ stage ].push( logicCube );
 				debugUpdate( true, logicCube );
 
