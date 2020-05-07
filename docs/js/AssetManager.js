@@ -15,6 +15,7 @@ function AssetManager() {
 
 	const OFFSET_EDELWEISS = new THREE.Vector3( 0, 0.1, 0 );
 
+	const particleGeometry = new THREE.SphereBufferGeometry( 0.03, 4, 3 );
 	const particleMaterial = new THREE.MeshBasicMaterial({ color:0xffffff });
 
 	// What graph the player is currently playing in ?
@@ -25,17 +26,11 @@ function AssetManager() {
 	textCanvas.height = 34;
 
 	// Hold one mixer and (optionally) one set of actions per asset iteration
-	var alpinistMixers = [];
-	var ladyMixers = [];
 	var charMixers = [], charActions = [];
-	var miscMixers = new Map(), miscModels = new Map();
+	var miscMixers = new Map(), miscModels = new Map(), bonusCubes = {}, bonusWasDeleted = {};
 
 	// Asset groups arrays
-	var alpinists = [];
-	var edelweisses = [];
-	var ladies = [];
-	var bonuses = [];
-	var characters = [];
+	var characters = [ new THREE.Group(), new THREE.Group(), new THREE.Group(), new THREE.Group() ];
 
 	// different sets of color for the hero character,
 	// for multiplayer differentiation.
@@ -46,58 +41,22 @@ function AssetManager() {
 		null
 	];
 
+	// procedural bonus (could be glb file, too)
+	function makeBonus( resolve ) {
+		
+		const bonus = { scene: new THREE.Group(), animations: [] };
 
+		const cone = new THREE.ConeBufferGeometry( 0.1, 0.2, 4 );
+		const half1 = new THREE.Mesh( cone, particleMaterial );
+		const half2 = new THREE.Mesh( cone, particleMaterial );
 
+		half1.position.y = 0.1 ;
+		half2.position.y = -0.1 ;
+		half2.rotation.x = Math.PI ;
 
+		bonus.scene.add( half1, half2 );
 
-
-	//////////////
-	///   INIT
-	//////////////
-
-	// Create one group per iteration, before the assets is loaded/created
-	addGroups( alpinists, 11 );
-	addGroups( edelweisses, 7 );
-	addGroups( ladies, 12 );
-	addGroups( bonuses, 9 );
-	addGroups( characters, 4 );
-
-	function addGroups( arr, groupsNumber ) {
-
-		for ( let i = 0 ; i < groupsNumber ; i++ ) {
-
-			let group = new THREE.Group();
-
-			if ( arr == bonuses ||
-				 arr == edelweisses ) {
-
-				addParticles( group );
-
-			};
-
-			if ( arr == bonuses ) {
-
-				let bonus = new THREE.Mesh(
-					new THREE.ConeBufferGeometry( 0.1, 0.20, 4 ),
-					particleMaterial
-				);
-
-				let bonus2 = new THREE.Mesh(
-					new THREE.ConeBufferGeometry( 0.1, 0.2, 4 ),
-					particleMaterial
-				);
-
-				bonus.position.y = 0.1 ;
-				bonus2.position.y = - 0.1 ;
-				bonus2.rotation.x = Math.PI ;
-
-				group.add( bonus, bonus2 );
-
-			};
-
-			arr.push( group );
-
-		};
+		resolve( bonus );
 
 	};
 
@@ -107,11 +66,12 @@ function AssetManager() {
 		for ( let i = 0 ; i < 26 ; i ++ ) {
 
 			let particle = new THREE.Mesh(
-				new THREE.SphereBufferGeometry( 0.03, 4, 3 ),
+				particleGeometry,
 				particleMaterial
 			);
 
 			let particleGroup = new THREE.Group();
+			particleGroup.scale.setScalar( 1 / group.scale.x );
 
 			let yOffset = Math.random() ;
 
@@ -132,46 +92,6 @@ function AssetManager() {
 
 	//// ASSETS LOADING /////
 
-	gltfLoader.load('assets/models/alpinist.glb', (glb)=> {
-
-		createMultipleModels(
-			glb,
-			SCALE_ALPINIST,
-			null,
-			alpinists,
-			alpinistMixers,
-			[]
-		);
-
-	});
-
-	gltfLoader.load('assets/models/lady.glb', (glb)=> {
-
-		createMultipleModels(
-			glb,
-			SCALE_LADY,
-			null,
-			ladies,
-			ladyMixers,
-			[]
-		);
-
-	});
-
-	gltfLoader.load('assets/models/edelweiss.glb', (glb)=> {
-
-		createMultipleModels(
-			glb,
-			SCALE_EDELWEISS,
-			OFFSET_EDELWEISS,
-			edelweisses,
-			null,
-			null,
-			true
-		);
-
-	});
-
 	var charGlb;
 
 	gltfLoader.load('assets/models/hero.glb', (glb)=> {
@@ -184,7 +104,6 @@ function AssetManager() {
 		createMultipleModels(
 			glb,
 			SCALE_CHAR,
-			null,
 			characters,
 			charMixers,
 			charActions
@@ -194,10 +113,9 @@ function AssetManager() {
 
 	// Create iterations of the same loaded asset. nasty because of skeletons.
 	// Hopefully THREE.SkeletonUtils.clone() is able to clone skeletons correctly.
-	function createMultipleModels( glb, scale, offset, modelsArr, mixers, actions, lightEmissive ) {
+	function createMultipleModels( glb, scale, modelsArr, mixers, actions ) {
 
-		glb.scene.scale.set( scale, scale, scale );
-		if ( offset ) glb.scene.position.add( offset );
+		glb.scene.scale.setScalar( scale );
 
 		for ( let i = mixers ? mixers.length : 0 ; i < modelsArr.length ; i++ ) {
 
@@ -216,7 +134,7 @@ function AssetManager() {
 
 			};
 
-			setLambert( newModel, lightEmissive !== undefined );
+			setLambert( newModel );
 
 		};
 
@@ -288,12 +206,11 @@ function AssetManager() {
 
 		// if here, we have exhausted all the characters - make some more
 
-		addGroups( characters, 2 );
+		characters.push( new THREE.Group(), new THREE.Group() );
 
 		createMultipleModels(
 			charGlb,
 			SCALE_CHAR,
-			null,
 			characters,
 			charMixers,
 			charActions
@@ -338,43 +255,72 @@ function AssetManager() {
 	///  INSTANCES SETUP
 	/////////////////////
 
-	// methods called by atlas when it loads cubes with required names
-
-	function createNewLady( logicCube ) {
-
-		setAssetAt( ladies, logicCube, true, 0.45 );
-
-	};
-
-	function createNewAlpinist( logicCube ) {
-
-		setAssetAt( alpinists, logicCube, true, 0.6 );
-
-	};
-
-	function createNewEdelweiss( logicCube ) {
-
-		setAssetAt( edelweisses, logicCube );
-
-	};
-
-	function createNewBonus( logicCube ) {
-
-		setAssetAt( bonuses, logicCube );
-
-	};
-
 	var glbs = {};
 
 	function createNewObject( logicCube ) {
 
 		if( miscModels.get( logicCube ) ) return;
 
-		const parsedTag = logicCube.tag.match( /^(.+glb)\??(.*)?$/i );
+		if( bonusWasDeleted[ logicCube.tag ] ) return;
 
-		const url = 'assets/models/' + parsedTag[1];
+		var url, bubbleOffset, offset = 0, rotation = 0, scale = 1, bonus = false;
 
-		const promise = glbs[url] || new Promise( function( resolve ) {
+		// decide what model do we need to load
+
+		if ( logicCube.type == 'cube-interactive' ) {
+
+			if ( /npc-(boat|respawn)/.test( logicCube.tag ) ) {
+
+				url = 'assets/models/alpinist.glb'; scale = SCALE_ALPINIST;
+
+				bubbleOffset = 0.6;
+			}
+
+			else if ( /npc(?!-dev)/.test( logicCube.tag ) ) {
+
+				url = 'assets/models/lady.glb'; scale = SCALE_LADY;
+
+				bubbleOffset = 0.45;
+			}
+		}
+
+		else if ( logicCube.type == 'cube-trigger' ) {
+
+			if ( /bonus-stamina/.test( logicCube.tag ) ) {
+
+				url = 'assets/models/edelweiss.glb'; scale = SCALE_EDELWEISS;
+
+				offset = OFFSET_EDELWEISS.y; bonus = true;
+			}
+
+			else if ( /bonus(?!-hidden)/.test( logicCube.tag ) ) {
+
+				url = 'bonus';
+
+				bonus = true;
+			}
+		}
+
+		else if ( logicCube.type == 'cube-inert' ) {
+
+			const parsedTag = logicCube.tag.match( /^(.+glb)\??(.*)?$/i );
+
+			if ( parsedTag ) {
+
+				url = 'assets/models/' + parsedTag[1];
+
+				// rotate the model if the tag has r=<degrees>
+				const pattern = /r=(\d+)/;
+				if ( pattern.test( parsedTag[2] ) ) {
+					rotation = Math.PI * parseInt( parsedTag[2].match( pattern )[1] ) / 180;
+				}
+			}
+		}
+
+		// if we have the url - load it
+		if( !url ) return;
+
+		const promise = glbs[url] || new Promise( ( url === 'bonus' ) ? makeBonus : function( resolve ) {
 
 			gltfLoader.load( url, resolve );
 
@@ -386,7 +332,7 @@ function AssetManager() {
 
 			const model = THREE.SkeletonUtils.clone( glb.scene );
 			miscModels.set( logicCube, model );
-			setLambert( model );
+			setLambert( model, bonus );
 
 			if( glb.animations.length > 0 ) {
 				// play all clips
@@ -398,67 +344,50 @@ function AssetManager() {
 				}
 			}
 
+			// decide if the model should fall on the ground or hang in the air by its origin Y
 			const box = new THREE.Box3();
 			box.setFromObject( model );
 
-			setAssetAt( [model], logicCube,
-				// decide if the model should fall on the ground or hang in the air by its origin Y
-				( 0 - box.min.y ) / ( box.max.y - box.min.y ) < 0.05
-			);
+			const floor = ( ( 0 - box.min.y ) / ( box.max.y - box.min.y ) < 0.05 );
 
-			// rotate the model if the tag has r=<degrees>
-			const rotation = /r=(\d+)/;
-			if( rotation.test( parsedTag[2] ) ) {
-				model.rotation.y = Math.PI * parseInt( parsedTag[2].match( rotation )[1] ) / 180;
+			// former setAssetAt:
+			model.position.copy( logicCube.position );
+			if( floor ) {
+				model.position.y = Math.floor( model.position.y );
+
+				if( bubbleOffset !== undefined ) {
+					// patch the cube position itself to get the
+					// exclamation mark sign positioned properly
+					logicCube.position.y = Math.floor( logicCube.position.y ) + bubbleOffset;
+				}
+			};
+
+			// assuming updateGraph() was already called at this point
+			model.userData.graph = currentGraph ;
+			setGroupVisibility( model );
+			scene.add( model );
+
+			// tweak the model transformation
+			model.position.y += offset;
+			model.rotation.y = rotation;
+			model.scale.setScalar( scale );
+
+			// special processing of bonuses
+			if( bonus ) {
+				model.userData.initPos = model.position.clone();
+				addParticles( model );
+
+				// add the light source when in caves
+				if( currentGraph != 'mountain' ) {
+					const light = new THREE.PointLight( 0xffffff, 1, 1.5 );
+					light.position.y = 0.5;
+					model.add( light );
+				}
+
+				bonusCubes[ logicCube.tag ] = logicCube;
 			}
 
 		});
-
-	};
-
-	// Take the last free group from the right asset array, position it, and hide/show it.
-	function setAssetAt( assetArray, logicCube, floor, bubbleOffset ) {
-
-		let pos = logicCube.position ;
-		let tag = logicCube.tag ;
-
-		for ( let asset of assetArray ) {
-
-			if ( !asset.userData.isSet ) {
-
-				asset.position.copy( pos );
-
-				if ( floor ) {
-					asset.position.y = Math.floor( asset.position.y );
-
-					if ( bubbleOffset !== undefined ) {
-						// patch the cube position itself to get the
-						// exclamation mark sign positioned properly
-
-						pos.y = Math.floor( pos.y ) + bubbleOffset;
-					}
-				}
-
-				asset.userData.isSet = true ;
-				asset.userData.tag = tag ;
-
-				// assuming updateGraph() was already called at this point
-
-				asset.userData.graph = currentGraph ;
-
-				// anchor for bonus floating animation
-
-				asset.userData.initPos = asset.position.clone();
-
-				setGroupVisibility( asset );
-
-				scene.add( asset );
-
-				break ;
-
-			};
-
-		};
 
 	};
 
@@ -471,8 +400,8 @@ function AssetManager() {
 
 		model.traverse( (obj)=> {
 
-			if ( obj.type == 'Mesh' ||
-				 obj.type == 'SkinnedMesh' ) {
+			if(( obj.type == 'Mesh' ||
+				 obj.type == 'SkinnedMesh' ) && ( obj.material !== particleMaterial )) {
 
 				obj.material = new THREE.MeshLambertMaterial({
 					map: obj.material.map,
@@ -492,8 +421,8 @@ function AssetManager() {
 						.join (chunk);
 				};
 
-				obj.castShadow = true ;
-				obj.receiveShadow = true ;
+				obj.castShadow = !lightEmissive ;
+				obj.receiveShadow = !lightEmissive ;
 
 			};
 
@@ -508,14 +437,6 @@ function AssetManager() {
 			currentGraph = destination
 		};
 
-		alpinists.forEach( setGroupVisibility );
-
-		ladies.forEach( setGroupVisibility );
-
-		edelweisses.forEach( setGroupVisibility );
-
-		bonuses.forEach( setGroupVisibility );
-
 		miscModels.forEach( setGroupVisibility );
 
 	};
@@ -524,21 +445,7 @@ function AssetManager() {
 
 	function setGroupVisibility( assetGroup ) {
 
-		if ( assetGroup.userData.graph == currentGraph ) {
-
-			assetGroup.visible = true ;
-
-		} else {
-
-			assetGroup.visible = false ;
-
-		};
-
-		if ( assetGroup.userData.isDeleted ) {
-
-			assetGroup.visible = false ;
-
-		};
+		assetGroup.visible = ( assetGroup.userData.graph == currentGraph );
 
 	};
 
@@ -546,89 +453,27 @@ function AssetManager() {
 
 	function deleteBonus( bonusName ) {
 
-		if ( bonusName.match( /stamina/ ) ) {
+		if ( bonusCubes[ bonusName ] ) {
 
-			checkForBonus( edelweisses );
+			deleteObject( bonusCubes[ bonusName ] );
 
-		} else {
-
-			checkForBonus( bonuses );
-
-		};
-
-		function checkForBonus( groupArr ) {
-
-			groupArr.forEach( (group)=> {
-
-				if ( group.userData.tag == bonusName ) {
-
-					group.visible = false ;
-					group.userData.isDeleted = true ;
-
-				};
-
-			});
+			bonusWasDeleted[ bonusName ] = true;
 
 		};
 
 	};
 
 	//
-
-	function getObjectOfArray( logicCube, array ) {
-		for( let model of array ) {
-			if( model.userData.isSet && ( model.userData.tag == logicCube.tag ) ) {
-				return model;
-			}
-		}
-	};
 
 	function getObject( logicCube ) {
 
-		let model;
-
-		// check NPCs
-
-		model = getObjectOfArray( logicCube, alpinists ); if( model ) return model;
-
-		model = getObjectOfArray( logicCube, ladies ); if( model ) return model;
-
-		// check bonuses
-
-		model = getObjectOfArray( logicCube, bonuses ); if( model ) return model;
-
-		model = getObjectOfArray( logicCube, edelweisses ); if( model ) return model;
-
-		// miscellaneous objects
-
 		return miscModels.get( logicCube );
+
 	};
 
 	//
 
-	function deleteObjectOfArray( logicCube, array ) {
-		for( let model of array ) {
-			if( model.userData.isSet && ( model.userData.tag == logicCube.tag ) ) {
-				model.userData.isSet = false; scene.remove( model ); return model;
-			}
-		}
-	};
-
 	function deleteObject( logicCube ) {
-
-		// check NPCs
-
-		if( deleteObjectOfArray( logicCube, alpinists ) ) return true;
-
-		if( deleteObjectOfArray( logicCube, ladies ) ) return true;
-
-		// check bonuses
-
-		if( deleteObjectOfArray( logicCube, bonuses ) ) return true;
-
-		if( deleteObjectOfArray( logicCube, edelweisses ) ) return true;
-
-		// miscellaneous objects
 
 		let model = miscModels.get( logicCube );
 
@@ -637,24 +482,14 @@ function AssetManager() {
 		miscModels.delete( logicCube );
 		miscMixers.delete( logicCube );
 
+		delete bonusCubes[ logicCube.tag ];
+
 		return model !== undefined;
 	};
 
 	//
 
 	function update( delta ) {
-
-		for ( let mixer of alpinistMixers ) {
-
-			mixer.update( delta );
-
-		};
-
-		for ( let mixer of ladyMixers ) {
-
-			mixer.update( delta );
-
-		};
 
 		for ( let mixer of charMixers ) {
 
@@ -668,13 +503,7 @@ function AssetManager() {
 
 		};
 
-		for ( let group of edelweisses ) {
-
-			updateBonus( group );
-
-		};
-
-		for ( let group of bonuses ) {
+		for ( let group of miscModels.values() ) {
 
 			updateBonus( group );
 
@@ -713,10 +542,6 @@ function AssetManager() {
 		createCharacter,
 		releaseCharacter,
 		toggleCharacterShadows,
-		createNewLady,
-		createNewAlpinist,
-		createNewEdelweiss,
-		createNewBonus,
 		createNewObject,
 		updateGraph,
 		update,

@@ -94,46 +94,13 @@ function Atlas() {
 
 		if ( logicCube.tag ) {
 
+			assetManager.createNewObject( logicCube );
+
 			if ( logicCube.type == 'cube-interactive' ) {
 
 				dynamicItems.addInteractiveCube( logicCube );
 
-				if ( /npc(?!-(boat|dev|respawn))/.test( logicCube.tag ) ) {
-
-					assetManager.createNewLady( logicCube );
-
-				}
-
-				else if ( /npc-(boat|respawn)/.test( logicCube.tag ) ) {
-
-					assetManager.createNewAlpinist( logicCube );
-
-				}
-			}
-
-			else if ( logicCube.type == 'cube-trigger' ) {
-
-				if ( /bonus-stamina/.test( logicCube.tag ) ) {
-
-					assetManager.createNewEdelweiss( logicCube );
-
-				}
-
-				else if ( /bonus(?!-hidden)/.test( logicCube.tag ) ) {
-
-					assetManager.createNewBonus( logicCube );
-
-				}
-			}
-
-			else if ( logicCube.type == 'cube-inert' ) {
-
-				if ( /\.glb\?|\.glb$/i.test( logicCube.tag ) ) {
-
-					assetManager.createNewObject( logicCube );
-
-				}
-			}
+			};
 
 		};
 
@@ -1323,14 +1290,16 @@ function Atlas() {
 						if( model ) {
 							model.position.x = logicCube.position.x ;
 							model.position.z = logicCube.position.z ;
-							model.userData.initPos.x = logicCube.position.x ;
-							model.userData.initPos.z = logicCube.position.z ;
 							if( floor ) {
 								model.position.y = Math.floor( logicCube.position.y );
 							} else {
 								model.position.y = logicCube.position.y ;
 							}
-							model.userData.initPos.y = logicCube.position.y ;
+							if( model.userData.initPos ) {
+								model.userData.initPos.x = logicCube.position.x ;
+								model.userData.initPos.y = logicCube.position.y ;
+								model.userData.initPos.z = logicCube.position.z ;
+							}
 						}
 
 						logicCube.scale.x = (( mesh.scale.x *100)|0)/100 ;
