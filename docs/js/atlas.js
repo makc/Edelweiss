@@ -1395,7 +1395,7 @@ function Atlas() {
 				}
 			};
 
-			var createCube = function( sx, sy, sz, tag ) {
+			var createCube = function( sx, sy, sz, height, tag, type ) {
 				var d = Math.sqrt( 0.5 ) * ( CUBEWIDTH * Math.max( sx, sz ) + PLAYERWIDTH + CUBE_INTERSECTION_OFFSET );
 				var dz = d * Math.cos( charaAnim.group.rotation.y );
 				var dx = d * Math.sin( charaAnim.group.rotation.y );
@@ -1403,11 +1403,11 @@ function Atlas() {
 				var logicCube = {
 					position: {
 						x: player.position.x + dx,
-						y: player.position.y + 0.5 * CUBEWIDTH * sy,
+						y: player.position.y + ( height || ( 0.5 * CUBEWIDTH * sy ) ),
 						z: player.position.z + dz
 					},
 					scale: { x: sx, y: sy, z: sz },
-					type: 'cube-inert'
+					type: type || 'cube-inert'
 				};
 
 				var stage = Math.floor( logicCube.position.y );
@@ -1428,20 +1428,24 @@ function Atlas() {
 				const thumbs = document.querySelector( '#cubes .thumbs' );
 				thumbs.innerHTML = '';
 
+				const shortRandomString = utils.randomString().substr( 0, 4 );
+
 				const cubes = [
 					{ sx: 1, sy: 1, sz: 1 },
-					{ sx: 1.3, sy: 1.9, sz: 1.2, tag: 'rocks/1.glb' },
-					{ sx: 2.7, sy: 1.9, sz: 1.7, tag: 'rocks/2.glb' },
-					{ sx: 1, sy: 1, sz: 1, tag: 'sheep.glb' }
+					{ sx: 1, sy: 1, sz: 1, tag: 'sheep.glb' },
+					{ sx: 1, sy: 1, sz: 1, height: 0.45, type: 'cube-interactive', tag: 'npc-' + shortRandomString, png: 'lady.png' },
+					{ sx: 1, sy: 1, sz: 1, height: 0.60, type: 'cube-interactive', tag: 'npc-respawn-' + shortRandomString, png: 'alpinist.png' },
+					{ sx: 1, sy: 1, sz: 1, height: 0.4, type: 'cube-trigger', tag: 'bonus-' + shortRandomString, png: 'bonus.png' },
+					{ sx: 1, sy: 1, sz: 1, height: 0.4, type: 'cube-trigger', tag: 'bonus-stamina-' + shortRandomString, png: 'edelweiss.png' }
 				];
 
 				cubes.forEach( function( cube ) {
 					var image = new Image();
 					image.src = 'assets/models/' + (
-						cube.tag ? ( cube.tag.replace( '.glb', '.png' ) ) : 'noasset.png'
+						cube.tag ? ( cube.png || cube.tag.replace( '.glb', '.png' ) ) : 'noasset.png'
 					);
 					image.onclick = function() {
-						createCube( cube.sx, cube.sy, cube.sz, cube.tag );
+						createCube( cube.sx, cube.sy, cube.sz, cube.height, cube.tag, cube.type );
 						document.getElementById( 'cubes' ).style.display = 'none';
 					};
 					thumbs.appendChild( image );

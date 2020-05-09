@@ -263,11 +263,13 @@ function AssetManager() {
 
 		if( bonusWasDeleted[ logicCube.tag ] ) return;
 
-		var url, bubbleOffset, offset = 0, rotation = 0, scale = 1, bonus = false;
+		var url, floor, bubbleOffset, offset = 0, rotation = 0, scale = 1, bonus = false;
 
 		// decide what model do we need to load
 
 		if ( logicCube.type == 'cube-interactive' ) {
+
+			floor = true;
 
 			if ( /npc-(boat|respawn)/.test( logicCube.tag ) ) {
 
@@ -344,11 +346,13 @@ function AssetManager() {
 				}
 			}
 
-			// decide if the model should fall on the ground or hang in the air by its origin Y
-			const box = new THREE.Box3();
-			box.setFromObject( model );
+			if( !floor ) {
+				// decide if the model should fall on the ground or hang in the air by its origin Y
+				const box = new THREE.Box3();
+				box.setFromObject( model );
 
-			const floor = ( ( 0 - box.min.y ) / ( box.max.y - box.min.y ) < 0.05 );
+				floor = ( ( 0 - box.min.y ) / ( box.max.y - box.min.y ) < 0.05 );
+			}
 
 			// former setAssetAt:
 			model.position.copy( logicCube.position );
