@@ -67,14 +67,14 @@ function Utils() {
         return Math.atan2( Math.sin( rad1 - rad2), Math.cos( rad1 - rad2) );
     };
 
-    // returns the distance between two vectors 2 or 3
-    function distanceVecs( vec1, vec2 ) {
+    // returns squared distance between two vectors
+    function distanceVecsSquared( vec1, vec2 ) {
 
-        return Math.sqrt(
-            Math.pow( vec1.x - vec2.x, 2 ) +
-            Math.pow( vec1.y - vec2.y, 2 ) +
-            Math.pow( vec1.z - vec2.z, 2 )
-        );
+        const dx = vec1.x - vec2.x;
+        const dy = vec1.y - vec2.y;
+        const dz = vec1.z - vec2.z;
+
+        return dx * dx + dy * dy + dz * dz;
 
     };
 
@@ -85,6 +85,10 @@ function Utils() {
             vec1.x == vec2.x &&
             vec1.y == vec2.y &&
             vec1.z == vec2.z
+
+        ) || (
+
+            distanceVecsSquared( vec1, vec2 ) < 1e-7
 
         );
 
@@ -142,7 +146,7 @@ function Utils() {
         toPiRange,
         lerpAngles,
         minDiffRadians,
-        distanceVecs,
+        distanceVecsSquared,
         interp,
         lerp,
         vecEquals

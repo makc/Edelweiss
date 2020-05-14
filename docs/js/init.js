@@ -26,6 +26,7 @@ function init() {
     var renderPass = new THREE.RenderPass( scene, camera );
 
     fxaaPass = new THREE.ShaderPass( THREE.FXAAShader );
+    fxaaPass.needsSwap = false;
 
     var pixelRatio = renderer.getPixelRatio();
 

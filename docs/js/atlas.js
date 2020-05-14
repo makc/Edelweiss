@@ -7,7 +7,7 @@ function Atlas() {
 	const PLAYERWIDTH = 0.3 ;
 
 	const CUBEWIDTH = 0.4 ;
-	const INTERACTIVECUBERANGE = 0.82 ; // radius
+	const INTERACTIVE_CUBE_RANGE_SQUARED = 0.673 ; // radius = 0.82
 
     const CUBE_INTERSECTION_OFFSET = 0.001 ;
     const CUBE_IS_WALKABLE = /^(beam|boat|ledge)/ ;
@@ -381,7 +381,7 @@ function Atlas() {
 
 				if ( logicCube.type == 'cube-interactive' ) {
 					
-					if ( utils.distanceVecs( logicCube.position, player.position ) < INTERACTIVECUBERANGE ) {
+					if ( utils.distanceVecsSquared( logicCube.position, player.position ) < INTERACTIVE_CUBE_RANGE_SQUARED ) {
 
 						cubeCollision.inRange = true ;
 						cubeCollision.tag = logicCube.tag ;
@@ -1038,49 +1038,29 @@ function Atlas() {
 
 		let exists = false ;
 
-		// create the vector if the hypotetic tile
+		// calculate the center the hypotetic tile
 
-		testTileVecs[ 0 ].copy( testTile.points[ 0 ] );
-		testTileVecs[ 1 ].copy( testTile.points[ 1 ] );
+		testTileVecs[ 0 ].copy( testTile.points[ 0 ] ).add( testTile.points[ 1 ] ).multiplyScalar( 0.5 );
 
 		testTileVecs[ 0 ][ dir ] += sign ;
-		testTileVecs[ 1 ][ dir ] += sign ;
 
 		// test each tile of this tilesGraph stage for equality
 
-		if ( !sceneGraph.tilesGraph[ Math.min( testTileVecs[0].y, testTileVecs[1].y ) ] ) return ;
+		const stage = Math.floor( testTileVecs[0].y );
 
-		sceneGraph.tilesGraph[ Math.min( testTileVecs[0].y, testTileVecs[1].y ) ].forEach( (logicTile)=> {
+		if ( !sceneGraph.tilesGraph[ stage ] ) return;
 
-			if ( (utils.vecEquals( testTileVecs[0], logicTile.points[0] ) && utils.vecEquals( testTileVecs[1], logicTile.points[1] ) ) ||
-				 (utils.vecEquals( testTileVecs[1], logicTile.points[0] ) && utils.vecEquals( testTileVecs[0], logicTile.points[1] ) ) ) {
+		sceneGraph.tilesGraph[ stage ].forEach( function( logicTile, index ) {
+
+			testTileVecs[ 1 ].copy( logicTile.points[ 0 ] ).add( logicTile.points[ 1 ] ).multiplyScalar( 0.5 );
+
+			if ( utils.vecEquals( testTileVecs[ 0 ], testTileVecs[ 1 ] ) ) {
 
 				exists = true ;
 
 			};
 
 		});
-
-		// We do the same here with the other possible set of points
-		// for the hypothetic tile.
-
-		if ( !exists ) {
-
-			[ testTileVecs[0].x, testTileVecs[1].x ] = [ testTileVecs[1].x, testTileVecs[0].x ];
-			[ testTileVecs[0].y, testTileVecs[1].y ] = [ testTileVecs[1].y, testTileVecs[0].y ];
-
-			sceneGraph.tilesGraph[ Math.min( testTileVecs[0].y, testTileVecs[1].y ) ].forEach( (logicTile)=> {
-
-				if ( (utils.vecEquals( testTileVecs[0], logicTile.points[0] ) && utils.vecEquals( testTileVecs[1], logicTile.points[1] ) ) ||
-					 (utils.vecEquals( testTileVecs[1], logicTile.points[0] ) && utils.vecEquals( testTileVecs[0], logicTile.points[1] ) ) ) {
-
-					exists = true ;
-
-				};
-
-			});
-
-		};
 
 		return exists ;
 
@@ -1121,6 +1101,18 @@ function Atlas() {
 
 	function getSceneGraph() {
 		return sceneGraph ;
+	};
+
+	//
+
+	function minecraft( logicTile, direction ) {
+		for( let point of logicTile.points ) {
+			point.x = Math.round( point.x + direction.x );
+			point.y = Math.round( point.y + direction.y );
+			point.z = Math.round( point.z + direction.z );
+		}
+
+		// TODO add or remove neighbour tiles
 	};
 
 	//
@@ -1212,11 +1204,70 @@ function Atlas() {
 			map: gizmoTexture, side: THREE.DoubleSide, transparent: true, depthTest: false
 		} ) );
 
+		const solidRedMaterial = new THREE.MeshBasicMaterial( {
+			color: 0xff0000, transparent: true, depthTest: false
+		} );
+
+		gizmo.add( new THREE.Mesh( new THREE.SphereBufferGeometry( 0.03, 5, 2 ), solidRedMaterial ) );
+		gizmo.children[ 0 ].rotation.set( Math.PI / 4, Math.PI / 4, 0 );
+
+		gizmo.add( new THREE.Mesh( new THREE.BoxBufferGeometry( 0.01, 0.01, 0.4 ), solidRedMaterial ) );
+		gizmo.children[ 1 ].position.z = 0.2;
+
+		gizmo.add( new THREE.Mesh( new THREE.ConeBufferGeometry( 0.03, 0.1, 5 ), solidRedMaterial ) );
+		gizmo.children[ 2 ].position.z = 0.4; gizmo.children[ 2 ].rotation.x = Math.PI / 2;
+
+		const tmpVec1 = new THREE.Vector3();
+		const tmpVec2 = new THREE.Vector3();
+
+		const mouse1 = new THREE.Vector3();
+		const mouse2 = new THREE.Vector3();
+
+		gizmo.handleMouse = function( event ) {
+			mouse2.set( event.clientX, event.clientY, 0 );
+			if( event.type === 'mousedown' ) mouse1.copy( mouse2 );
+
+			// try to estimate the offset in screen space
+
+			this.updateMatrixWorld( true );
+			this.localToWorld( tmpVec1.setScalar( 0 ) ).project( camera );
+			this.localToWorld( tmpVec2.set( 0, 0, 1 ) ).project( camera ).sub( tmpVec1 );
+
+			tmpVec2.y *= -1;
+
+			let offset = tmpVec1.copy( mouse2 ).sub( mouse1 ).dot( tmpVec2 ) / tmpVec2.lengthSq();
+
+			offset = ( offset / ( 0.3 * renderer.domElement.height ) ) | 0;
+
+			if( offset != 0 ) {
+
+				// move
+				minecraft(
+					this.object.userData.tile,
+					this.localToWorld( tmpVec1.set( 0, 0, 1 ) ).normalize().multiplyScalar( offset )
+				);
+
+				// reset
+				mouse1.copy( mouse2 );
+
+				// let them know we did something
+				return true;
+			}
+		};
+
 		gizmo.attach = function( object ) {
+			const firstTime = ( object === this.object );
+
 			this.position.copy( object.position );
 			this.rotation.copy( object.rotation );
 			this.object = object;
 			this.visible = true;
+
+			// try to make sure that gizmo arrow is facing the camera
+			this.updateMatrixWorld( true );
+			if( firstTime && ( this.worldToLocal( tmpVec1.copy( camera.position ) ).z < 0 ) ) {
+				if( Math.abs( this.rotation.y ) > 0.01 ) this.rotation.y += Math.PI; else this.rotation.x += Math.PI;
+			}
 
 			// with the code above tile gizmo ends up behind tile planes with depthTest already set to false, so...
 			this.position.multiplyScalar( 1 - 0.01 ).addScaledVector( camera.position, 0.01 );
@@ -1309,8 +1360,35 @@ function Atlas() {
 				}
 			} );
 
-			renderer.domElement.addEventListener( 'mousedown', function() {
+			renderer.domElement.addEventListener( 'mousedown', function( event ) {
 				shouldRaycast = true;
+
+				raycaster.setFromCamera( {
+					x: ( event.layerX / renderer.domElement.offsetWidth ) * 2 - 1,
+					y: ( event.layerY / renderer.domElement.offsetHeight ) * -2 + 1
+				}, camera );
+
+				var intersections = raycaster.intersectObjects( tileGizmo.children );
+				if( intersections.length ) {
+					shouldRaycast = false;
+
+					tileGizmo.handleMouse( event );
+
+					const handler1 = function( event ) {
+						if( tileGizmo.handleMouse( event ) ) {
+							debugUpdate( true );
+						}
+					};
+					const handler2 = function() {
+						renderer.domElement.removeEventListener( 'mousedown', handler2 );
+						renderer.domElement.removeEventListener( 'mousemove', handler1 );
+						renderer.domElement.removeEventListener( 'mouseup', handler2 );
+					};
+
+					renderer.domElement.addEventListener( 'mousedown', handler2 );
+					renderer.domElement.addEventListener( 'mousemove', handler1 );
+					renderer.domElement.addEventListener( 'mouseup', handler2 );
+				}
 			} );
 
 			raycaster = new THREE.Raycaster();
@@ -1373,6 +1451,28 @@ function Atlas() {
 
 				box.raycast = function() {};
 				mesh.add( box );
+			}
+
+
+			const planeGeometry = new THREE.BufferGeometry();
+			planeGeometry.setAttribute( 'position', new THREE.Float32BufferAttribute( [
+				1, -1, 0, -1, 1, 0, -1, -1, 0, 1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0, 1, 1, 0
+			], 3 ) );
+
+			const planeMaterial = new THREE.LineBasicMaterial( {
+				color: 0xffff00,
+				transparent: true,
+				depthTest: false,
+				opacity: 0.3
+			} );
+
+			for( let i = 0; i < 2; i++ ) {
+				let mesh = new THREE.Line( planeGeometry, planeMaterial );
+
+				mesh.name = 'plane' ;
+				helpers.add( mesh );
+
+				mesh.raycast = function() {};
 			}
 
 
@@ -1568,7 +1668,7 @@ function Atlas() {
 
 	//
 
-	const closestTiles = [], closestCubes = [], closestCompare = function( a, b ) { return b.distance - a.distance };
+	const closestTiles = [], closestCubes = [], closestPlanes = [], closestCompare = function( a, b ) { return b.distance - a.distance };
 
 	function debugUpdate( mustUpdate, selectedCube ) {
 
@@ -1610,6 +1710,16 @@ function Atlas() {
 
 		closestTiles.sort ( closestCompare );
 		closestCubes.sort ( closestCompare );
+
+		closestPlanes.length = planes.length;
+		for ( let i = 0; i < planes.length; i++ ) {
+			closestPlanes[i] = {
+				plane: planes[i],
+				distance: Math.abs( planes[i].distanceToPoint( shiftedPlayerPos ) )
+			};
+		}
+		closestPlanes.sort ( closestCompare );
+
 
 		let selectedTile = tileGizmo.object ? tileGizmo.object.userData.tile : undefined ;
 
@@ -1671,6 +1781,19 @@ function Atlas() {
 					mesh.scale.copy ( logicCube.scale );
 
 					mesh.userData.cube = logicCube;
+				}
+			} else
+
+			if ( mesh.name == 'plane' ) {
+
+				if ( mesh.visible = ( closestPlanes.length > 0 ) && ( closestPlanes[ closestPlanes.length -1 ].distance < 1.5 ) ) {
+
+					let plane = closestPlanes.pop ().plane;
+
+					mesh.position.setScalar ( 0 );
+					mesh.lookAt ( plane.normal );
+
+					plane.projectPoint ( shiftedPlayerPos, mesh.position );
 				}
 			}
 		}
