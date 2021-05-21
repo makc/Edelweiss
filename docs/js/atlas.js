@@ -1038,7 +1038,7 @@ function Atlas() {
 
 		let exists = false ;
 
-		// calculate the center the hypotetic tile
+		// calculate the center of the hypotetic tile
 
 		testTileVecs[ 0 ].copy( testTile.points[ 0 ] ).add( testTile.points[ 1 ] ).multiplyScalar( 0.5 );
 
@@ -1224,6 +1224,8 @@ function Atlas() {
 		const mouse2 = new THREE.Vector3();
 
 		gizmo.handleMouse = function( event ) {
+			if( !this.object ) return false ;
+
 			mouse2.set( event.clientX, event.clientY, 0 );
 			if( event.type === 'mousedown' ) mouse1.copy( mouse2 );
 
@@ -1244,7 +1246,7 @@ function Atlas() {
 				// move
 				minecraft(
 					this.object.userData.tile,
-					this.localToWorld( tmpVec1.set( 0, 0, 1 ) ).normalize().multiplyScalar( offset )
+					this.localToWorld( tmpVec1.set( 0, 0, 1 ) ).sub( this.position ).normalize().round().multiplyScalar( offset )
 				);
 
 				// reset
@@ -1256,8 +1258,6 @@ function Atlas() {
 		};
 
 		gizmo.attach = function( object ) {
-			const firstTime = ( object === this.object );
-
 			this.position.copy( object.position );
 			this.rotation.copy( object.rotation );
 			this.object = object;
@@ -1265,7 +1265,7 @@ function Atlas() {
 
 			// try to make sure that gizmo arrow is facing the camera
 			this.updateMatrixWorld( true );
-			if( firstTime && ( this.worldToLocal( tmpVec1.copy( camera.position ) ).z < 0 ) ) {
+			if( this.worldToLocal( tmpVec1.copy( camera.position ) ).z < 0 ) {
 				if( Math.abs( this.rotation.y ) > 0.01 ) this.rotation.y += Math.PI; else this.rotation.x += Math.PI;
 			}
 
@@ -1287,6 +1287,37 @@ function Atlas() {
 		};
 
 		return gizmo;
+	};
+
+	function injectTileGizmoHandlers( event ) {
+		shouldRaycast = true;
+
+		raycaster.setFromCamera( {
+			x: ( event.layerX / renderer.domElement.offsetWidth ) * 2 - 1,
+			y: ( event.layerY / renderer.domElement.offsetHeight ) * -2 + 1
+		}, camera );
+
+		var intersections = raycaster.intersectObjects( tileGizmo.children );
+		if( intersections.length ) {
+			shouldRaycast = false;
+
+			tileGizmo.handleMouse( event );
+
+			const handler1 = function( event ) {
+				if( tileGizmo.handleMouse( event ) ) {
+					debugUpdate( true );
+				}
+			};
+			const handler2 = function() {
+				renderer.domElement.removeEventListener( 'mousedown', handler2 );
+				renderer.domElement.removeEventListener( 'mousemove', handler1 );
+				renderer.domElement.removeEventListener( 'mouseup', handler2 );
+			};
+
+			renderer.domElement.addEventListener( 'mousedown', handler2 );
+			renderer.domElement.addEventListener( 'mousemove', handler1 );
+			renderer.domElement.addEventListener( 'mouseup', handler2 );
+		}
 	};
 
 	//
@@ -1314,6 +1345,7 @@ function Atlas() {
 			helpers = undefined;
 
 			raycaster = undefined;
+			renderer.domElement.removeEventListener( 'mousedown', injectTileGizmoHandlers );
 			renderer.domElement.removeEventListener( 'click', raycastOnClick );
 
 		} else {
@@ -1360,38 +1392,9 @@ function Atlas() {
 				}
 			} );
 
-			renderer.domElement.addEventListener( 'mousedown', function( event ) {
-				shouldRaycast = true;
-
-				raycaster.setFromCamera( {
-					x: ( event.layerX / renderer.domElement.offsetWidth ) * 2 - 1,
-					y: ( event.layerY / renderer.domElement.offsetHeight ) * -2 + 1
-				}, camera );
-
-				var intersections = raycaster.intersectObjects( tileGizmo.children );
-				if( intersections.length ) {
-					shouldRaycast = false;
-
-					tileGizmo.handleMouse( event );
-
-					const handler1 = function( event ) {
-						if( tileGizmo.handleMouse( event ) ) {
-							debugUpdate( true );
-						}
-					};
-					const handler2 = function() {
-						renderer.domElement.removeEventListener( 'mousedown', handler2 );
-						renderer.domElement.removeEventListener( 'mousemove', handler1 );
-						renderer.domElement.removeEventListener( 'mouseup', handler2 );
-					};
-
-					renderer.domElement.addEventListener( 'mousedown', handler2 );
-					renderer.domElement.addEventListener( 'mousemove', handler1 );
-					renderer.domElement.addEventListener( 'mouseup', handler2 );
-				}
-			} );
 
 			raycaster = new THREE.Raycaster();
+			renderer.domElement.addEventListener( 'mousedown', injectTileGizmoHandlers );
 			renderer.domElement.addEventListener( 'click', raycastOnClick );
 
 

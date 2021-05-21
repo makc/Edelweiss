@@ -68,6 +68,7 @@ function MapManager() {
 	function addMapGroup( groupName ) {
 
 		maps[ groupName ] = new THREE.Group();
+		maps[ groupName ].name = 'map ' + groupName;
 		maps[ groupName ].visible = false;
 		scene.add( maps[ groupName ] );
 
@@ -104,6 +105,8 @@ function MapManager() {
 						};
 
 					});
+
+					glb.scene.name = url.replace( /^.*\//, 'file ' );
 					
 					maps[ mapName ].add( glb.scene );
 
