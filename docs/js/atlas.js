@@ -1034,9 +1034,32 @@ function Atlas() {
 		new THREE.Vector3()
 	];
 
-	function adjTileExists( testTile, dir, sign ) {
+	function getTileAt( midpoint ) {
 
-		let exists = false ;
+		let tileInfo;
+
+		const stage = Math.floor( midpoint.y );
+
+		if ( !sceneGraph.tilesGraph[ stage ] ) return;
+
+		sceneGraph.tilesGraph[ stage ].forEach( function( logicTile, index ) {
+
+			if ( tileInfo ) return;
+
+			testTileVecs[ 1 ].copy( logicTile.points[ 0 ] ).add( logicTile.points[ 1 ] ).multiplyScalar( 0.5 );
+
+			if ( utils.vecEquals( midpoint, testTileVecs[ 1 ] ) ) {
+
+				tileInfo = { logicTile, index };
+
+			};
+
+		});
+
+		return tileInfo;
+	};
+
+	function adjTileExists( testTile, dir, sign ) {
 
 		// calculate the center of the hypotetic tile
 
@@ -1044,25 +1067,8 @@ function Atlas() {
 
 		testTileVecs[ 0 ][ dir ] += sign ;
 
-		// test each tile of this tilesGraph stage for equality
 
-		const stage = Math.floor( testTileVecs[0].y );
-
-		if ( !sceneGraph.tilesGraph[ stage ] ) return;
-
-		sceneGraph.tilesGraph[ stage ].forEach( function( logicTile, index ) {
-
-			testTileVecs[ 1 ].copy( logicTile.points[ 0 ] ).add( logicTile.points[ 1 ] ).multiplyScalar( 0.5 );
-
-			if ( utils.vecEquals( testTileVecs[ 0 ], testTileVecs[ 1 ] ) ) {
-
-				exists = true ;
-
-			};
-
-		});
-
-		return exists ;
+		return !!getTileAt( testTileVecs[ 0 ] );
 
 	};
 
@@ -1105,14 +1111,88 @@ function Atlas() {
 
 	//
 
-	function minecraft( logicTile, direction ) {
+	function round2( vector ) {
+		return vector.multiplyScalar( 2 ).round().multiplyScalar( 0.5 );
+	};
+
+	function minecraft( offset ) {
+
+		const logicTile = tileGizmo.object.userData.tile;
+		const direction = tileGizmo.localToWorld( new THREE.Vector3( 0, 0, 1 ) ).sub( tileGizmo.position ).normalize().round().multiplyScalar( offset > 0 ? 1 : -1 );
+
+		const destination = new THREE.Vector3();
+		destination.copy( logicTile.points[ 0 ] ).add( logicTile.points[ 1 ] ).multiplyScalar( 0.5 ).add( direction );
+
+		const tileAtDestinaion = getTileAt( destination );
+		if( tileAtDestinaion ) {
+			sceneGraph.tilesGraph[ Math.floor( destination.y ) ].splice( tileAtDestinaion.index, 1 );
+		}
+
 		for( let point of logicTile.points ) {
 			point.x = Math.round( point.x + direction.x );
 			point.y = Math.round( point.y + direction.y );
 			point.z = Math.round( point.z + direction.z );
 		}
 
-		// TODO add or remove neighbour tiles
+		// add or remove neighbour tiles
+
+		const corners = [
+			tileGizmo.localToWorld( new THREE.Vector3(-0.5, 0.5, 0 ) ).round(),
+			tileGizmo.localToWorld( new THREE.Vector3( 0.5, 0.5, 0 ) ).round(),
+			tileGizmo.localToWorld( new THREE.Vector3( 0.5,-0.5, 0 ) ).round(),
+			tileGizmo.localToWorld( new THREE.Vector3(-0.5,-0.5, 0 ) ).round()
+		];
+
+		const neighbourCorners = [
+			[ corners[1], corners[2] ],
+			[ corners[0], corners[3] ],
+			[ corners[0], corners[1] ],
+			[ corners[2], corners[3] ]
+		];
+
+		const neighbourCoords = [
+			round2( tileGizmo.localToWorld( new THREE.Vector3( 0.5, 0.0, 0 ) ).addScaledVector( direction, 0.5 ) ),
+			round2( tileGizmo.localToWorld( new THREE.Vector3(-0.5, 0.0, 0 ) ).addScaledVector( direction, 0.5 ) ),
+			round2( tileGizmo.localToWorld( new THREE.Vector3( 0.0, 0.5, 0 ) ).addScaledVector( direction, 0.5 ) ),
+			round2( tileGizmo.localToWorld( new THREE.Vector3( 0.0,-0.5, 0 ) ).addScaledVector( direction, 0.5 ) )
+		];
+
+		neighbourCoords.forEach( function( midpoint, index ) {
+
+			const tileInfo = getTileAt( midpoint );
+			if( tileInfo ) {
+				sceneGraph.tilesGraph[ Math.floor( midpoint.y ) ].splice( tileInfo.index, 1 );
+			} else {
+
+				// create new tile
+				const cornersPair = neighbourCorners[ index ];
+
+				const tile = {
+					points: [
+						{
+							x: cornersPair[0].x,
+							y: cornersPair[0].y,
+							z: cornersPair[0].z
+						}, {
+							x: Math.round( cornersPair[1].x + direction.x ),
+							y: Math.round( cornersPair[1].y + direction.y ),
+							z: Math.round( cornersPair[1].z + direction.z )
+						}
+					]
+				};
+
+				if( tile.points[ 0 ].y !== tile.points[ 1 ].y ) tile.isWall = true;
+				if( tile.points[ 0 ].z === tile.points[ 1 ].z ) tile.isXAligned = true;
+
+				// TODO inherit surrounding tiles type
+				tile.type = tile.isWall ? 'wall-limit' : 'ground-basic';
+
+				( sceneGraph.tilesGraph[ Math.floor( midpoint.y ) ] = sceneGraph.tilesGraph[ Math.floor( midpoint.y ) ] || [] ).push( tile );
+
+			}
+
+		});
+
 	};
 
 	//
@@ -1244,10 +1324,7 @@ function Atlas() {
 			if( offset != 0 ) {
 
 				// move
-				minecraft(
-					this.object.userData.tile,
-					this.localToWorld( tmpVec1.set( 0, 0, 1 ) ).sub( this.position ).normalize().round().multiplyScalar( offset )
-				);
+				minecraft( offset );
 
 				// reset
 				mouse1.copy( mouse2 );
