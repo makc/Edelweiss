@@ -1157,6 +1157,13 @@ function Atlas() {
 			round2( tileGizmo.localToWorld( new THREE.Vector3( 0.0,-0.5, 0 ) ).addScaledVector( direction, 0.5 ) )
 		];
 
+		const surroundingCoords = [
+			[ round2( tileGizmo.localToWorld( new THREE.Vector3( 1.0, 0.0, 0 ) ) ), neighbourCoords[0].clone().sub( direction ) ],
+			[ round2( tileGizmo.localToWorld( new THREE.Vector3(-1.0, 0.0, 0 ) ) ), neighbourCoords[1].clone().sub( direction ) ],
+			[ round2( tileGizmo.localToWorld( new THREE.Vector3( 0.0, 1.0, 0 ) ) ), neighbourCoords[2].clone().sub( direction ) ],
+			[ round2( tileGizmo.localToWorld( new THREE.Vector3( 0.0,-1.0, 0 ) ) ), neighbourCoords[3].clone().sub( direction ) ]
+		];
+
 		neighbourCoords.forEach( function( midpoint, index ) {
 
 			const tileInfo = getTileAt( midpoint );
@@ -1184,8 +1191,18 @@ function Atlas() {
 				if( tile.points[ 0 ].y !== tile.points[ 1 ].y ) tile.isWall = true;
 				if( tile.points[ 0 ].z === tile.points[ 1 ].z ) tile.isXAligned = true;
 
-				// TODO inherit surrounding tiles type
-				tile.type = tile.isWall ? 'wall-limit' : 'ground-basic';
+				if( tile.isWall ) {
+					tile.type = 'wall-limit';
+
+					// try to inherit surrounding tiles type
+
+					const inheritFrom = getTileAt( surroundingCoords[ index ][ 0 ] ) || getTileAt( surroundingCoords[ index ][ 1 ] );
+					if( inheritFrom ) {
+						tile.type = inheritFrom.logicTile.type;
+					}
+				} else {
+					tile.type = 'ground-basic';
+				}
 
 				( sceneGraph.tilesGraph[ Math.floor( midpoint.y ) ] = sceneGraph.tilesGraph[ Math.floor( midpoint.y ) ] || [] ).push( tile );
 
@@ -1480,7 +1497,7 @@ function Atlas() {
 
 			tileTexture.anisotropy = ( renderer.capabilities.getMaxAnisotropy() >> 1 );
 
-			for( let i = 0; i < 20; i++ ) {
+			for( let i = 0; i < 50; i++ ) {
 				let mesh = new THREE.Mesh( tileGeometry, new THREE.ShaderMaterial( {
 					vertexShader : `
 						varying vec2 textureCoordinates;
