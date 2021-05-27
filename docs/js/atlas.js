@@ -1214,9 +1214,10 @@ function Atlas() {
 
 	//
 
-	function openPropertiesDialog( node, types, onChange ) {
+	function openPropertiesDialog( node, types, onChange, className ) {
 		const select = document.querySelector( '#properties select' );
-		select.innerHTML = types.map( function( type ) {
+		select.innerHTML = ( node.type ? '' : '<option value="" disabled selected>(select one)</option>' ) +
+		types.map( function( type ) {
 			return '<option value="' + type + '"' + (( type === node.type ) ? ' selected' : '') + '>' + type + '</option>';
 		}).join( '' );
 		select.onchange = function() {
@@ -1240,7 +1241,9 @@ function Atlas() {
 			}
 		};
 
-		document.getElementById( 'properties' ).style.display = 'block';
+		const dialog = document.getElementById( 'properties' );
+		dialog.className = className || 'dialog';
+		dialog.style.display = 'block';
 	};
 
 	//
@@ -1579,6 +1582,62 @@ function Atlas() {
 
 			document.getElementById( 'gui' ).style.display = 'block';
 
+
+			document.getElementById( 'tile-add' ).onclick = function() {
+				if( tileGizmo.object ) {
+					const logicTile = tileGizmo.object.userData.tile;
+					const midpoint = new THREE.Vector3().copy( logicTile.points[ 0 ] ).add( logicTile.points[ 1 ] ).multiplyScalar( 0.5 );
+
+					const A = new THREE.Vector3( 0, 0, -1 ), B = new THREE.Vector3( 1, 0, 0 );
+					if( logicTile.isWall ) {
+						if( logicTile.isXAligned ) { A.set( 0, 1, 0 ); } else { B.set( 0, 1, 0 ); }
+					}
+
+					const types = [
+						'north', 'north-east', 'east', 'south-east',
+						'south', 'south-west', 'west', 'north-west'
+					];
+
+					openPropertiesDialog( {
+						// this is abusing properties dialog function, but I really don't want to make another dialog popup :'(
+						set type( selected ) {
+							// [f]orward, [s]ideways
+							const { f, s } = [
+								{ f:  1, s: 0 }, { f:  1, s:  1 }, { f: 0, s:  1 }, { f: -1, s:  1 },
+								{ f: -1, s: 0 }, { f: -1, s: -1 }, { f: 0, s: -1 }, { f:  1, s: -1 }
+							][ types.indexOf( selected ) ];
+
+							const destination = midpoint.clone().addScaledVector( A, f ).addScaledVector( B, s );
+							if( !getTileAt( destination ) ) {
+								const tilesGraph = ( sceneGraph.tilesGraph[ Math.floor( destination.y ) ] = sceneGraph.tilesGraph[ Math.floor( destination.y ) ] || [] );
+								const tileClone = JSON.parse( JSON.stringify( logicTile ) );
+								for( let i = 0; i < 2; i++ ) {
+									tileClone.points[ i ].x = Math.round( tileClone.points[ i ].x + A.x * f + B.x * s );
+									tileClone.points[ i ].y = Math.round( tileClone.points[ i ].y + A.y * f + B.y * s );
+									tileClone.points[ i ].z = Math.round( tileClone.points[ i ].z + A.z * f + B.z * s );
+								}
+								tilesGraph.push( tileClone );
+							}
+
+							debugUpdate( true );
+
+							document.getElementById( 'properties' ).style.display = 'none';
+						}
+					}, types, undefined, 'dialog tile-add' );
+				}
+			};
+
+			document.getElementById( 'tile-remove' ).onclick = function() {
+				if( tileGizmo.object ) {
+					const logicTile = tileGizmo.object.userData.tile;
+					const midpointY = 0.5 * ( logicTile.points[ 0 ].y + logicTile.points[ 1 ].y );
+					const tilesGraph = sceneGraph.tilesGraph[ Math.floor( midpointY ) ];
+					const index = tilesGraph.indexOf( logicTile );
+					if( index > -1 ) {
+						tilesGraph.splice( index, 1 ); debugUpdate( true );
+					}
+				}
+			};
 
 			document.getElementById( 'tile-properties' ).onclick = function() {
 				if( tileGizmo.object && tileGizmo.object.userData.tile ) {
