@@ -1196,7 +1196,11 @@ function Atlas() {
 
 					// try to inherit surrounding tiles type
 
-					const inheritFrom = getTileAt( surroundingCoords[ index ][ 0 ] ) || getTileAt( surroundingCoords[ index ][ 1 ] );
+					const inheritFrom =
+						getTileAt( surroundingCoords[ index ][ 0 ] ) ||
+						getTileAt( surroundingCoords[ index ][ 1 ] ) || (
+							logicTile.isWall ? { logicTile } : null
+						);
 					if( inheritFrom ) {
 						tile.type = inheritFrom.logicTile.type;
 					}
@@ -1222,6 +1226,9 @@ function Atlas() {
 		}).join( '' );
 		select.onchange = function() {
 			node.type = select.value;
+			if (onChange) {
+				onChange (true);
+			}
 		};
 
 		let delayId = 0;
@@ -1346,6 +1353,8 @@ function Atlas() {
 				// move
 				minecraft( offset );
 
+				userTiles.addTiles();
+
 				// reset
 				mouse1.copy( mouse2 );
 
@@ -1444,6 +1453,8 @@ function Atlas() {
 			raycaster = undefined;
 			renderer.domElement.removeEventListener( 'mousedown', injectTileGizmoHandlers );
 			renderer.domElement.removeEventListener( 'click', raycastOnClick );
+
+			userTiles.mesh.visible = true;
 
 		} else {
 
@@ -1619,7 +1630,7 @@ function Atlas() {
 								tilesGraph.push( tileClone );
 							}
 
-							debugUpdate( true );
+							userTiles.addTiles(); debugUpdate( true );
 
 							document.getElementById( 'properties' ).style.display = 'none';
 						}
@@ -1634,9 +1645,24 @@ function Atlas() {
 					const tilesGraph = sceneGraph.tilesGraph[ Math.floor( midpointY ) ];
 					const index = tilesGraph.indexOf( logicTile );
 					if( index > -1 ) {
-						tilesGraph.splice( index, 1 ); debugUpdate( true );
+						tilesGraph.splice( index, 1 );
+
+						userTiles.addTiles(); debugUpdate( true );
 					}
 				}
+			};
+
+			document.getElementById( 'tile-save' ).onclick = function() {
+				const exporter = new THREE.GLTFExporter();
+				exporter.parse( userTiles.mesh, function( result ) {
+					const output = JSON.stringify( result, null, 2 );
+					const link = document.createElement( 'a' );
+					link.download = 'userTiles.gltf';
+					link.href = URL.createObjectURL( new File( [output], link.download, { type: 'text/plain;charset=utf-8' } ) );
+					link.dispatchEvent( new MouseEvent( 'click' ) );
+				}, {
+					onlyVisible: false
+				} );
 			};
 
 			document.getElementById( 'tile-properties' ).onclick = function() {
@@ -1646,7 +1672,11 @@ function Atlas() {
 							'wall-limit', 'wall-slip', 'wall-easy', 'wall-medium', 'wall-hard', 'wall-fall'
 						] : [
 							'ground-basic', 'ground-special', 'ground-start'
-						]
+						], function( typeChanged ) {
+							if( typeChanged ) {
+								userTiles.addTiles();
+							}
+						}
 					);
 				}
 			};
@@ -1725,7 +1755,8 @@ function Atlas() {
 					var lastCubeTag = cube.tag;
 					openPropertiesDialog( cube, [
 						'cube-inert', 'cube-interactive', 'cube-trigger', 'cube-trigger-invisible', 'cube-anchor'
-					], function() {
+					], function( typeChanged ) {
+						if( typeChanged ) return;
 						assetManager.deleteObject( { tag: lastCubeTag } ) || assetManager.deleteObject( cube );
 						addCubeObject( cube );
 						lastCubeTag = cube.tag;
@@ -1800,6 +1831,10 @@ function Atlas() {
 
 				document.getElementById( 'destinations' ).style.display = 'block';
 			};
+
+			debugUpdate( true );
+
+			userTiles.mesh.visible = false;
 		}
 	}
 

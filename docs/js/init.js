@@ -56,6 +56,8 @@ function init() {
 
     //
 
+    userTiles.init();
+
     assetManager = AssetManager();
 
     // event handlers for multiplayer

@@ -250,7 +250,11 @@ function GameState() {
 
         };
 
-        return JSON.parse( data ) ;
+        let json = JSON.parse( data );
+
+        json.tilesGraph.forEach( userTiles.addTiles );
+
+        return json;
     };
 
     //
@@ -275,7 +279,7 @@ function GameState() {
 
                 link.download = graphName + '.json';
 
-                link.href = URL.createObjectURL( new File( [lzjs.compress( data )], graphName + '.json', { type: 'text/plain;charset=utf-8' } ) );
+                link.href = URL.createObjectURL( new File( [lzjs.compress( data )], link.download, { type: 'text/plain;charset=utf-8' } ) );
 
                 link.dispatchEvent( new MouseEvent( 'click' ) );
             }
@@ -374,6 +378,8 @@ function GameState() {
 	            };
 
 	        } else {
+
+                 userTiles.addTiles();
 
 	             atlas.switchGraph( graphName, gateName );
 
