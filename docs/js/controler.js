@@ -936,7 +936,7 @@ function Controler( player ) {
     
             let x, z ;
 
-            // blick switching, because we don't want the player to be able
+            // block switching, because we don't want the player to be able
             // to swith to a non-climbable tile.
             if ( xCollision.majorWallType == 'wall-slip' ) {
 
@@ -1668,6 +1668,10 @@ function Controler( player ) {
             charaAnim.fall();
 
         };
+
+        // No matter what happens above, we want to stay within the planes
+
+        atlas.collidePlayerPlanes();
 
     };
 

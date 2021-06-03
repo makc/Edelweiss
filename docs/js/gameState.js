@@ -95,35 +95,35 @@ function GameState() {
 
         sceneGraphs[ graphName ] = sceneGraph;
 
+        // try to place the player on the ground
+
+        gameState.gateTilePos.setScalar( 0 );
+
+        for ( let tilesGraphStage of sceneGraph.tilesGraph ) {
+
+            if ( tilesGraphStage && !gameState.gateTilePos.lengthSq() ) {
+
+                for ( let logicTile of tilesGraphStage ) {
+
+                    if ( /ground-s/.test( logicTile.type ) ) {
+
+                        gameState.gateTilePos.set(
+                            (logicTile.points[0].x + logicTile.points[1].x) / 2,
+                            (logicTile.points[0].y + logicTile.points[1].y) / 2,
+                            (logicTile.points[0].z + logicTile.points[1].z) / 2
+                        );
+
+                        break;
+                    };
+                };
+            };
+        };
+
         atlas.switchGraph( graphName, null, function() {
 
             soundMixer.animEnd();
 
-            // try to place the player on the ground
-
-            var pos;
-
-            for ( let tilesGraphStage of sceneGraph.tilesGraph ) {
-
-                if ( tilesGraphStage && !pos ) {
-
-                    for ( let logicTile of tilesGraphStage ) {
-
-                        if ( /ground-s/.test( logicTile.type ) ) {
-
-                            pos = new THREE.Vector3 (
-                                (logicTile.points[0].x + logicTile.points[1].x) / 2,
-                                (logicTile.points[0].y + logicTile.points[1].y) / 2,
-                                (logicTile.points[0].z + logicTile.points[1].z) / 2
-                            );
-
-                            break;
-                        };
-                    };
-                };
-            };
-
-            resetPlayerPos( pos );
+            resetPlayerPos( gameState.gateTilePos );
 
             controler.setSpeedUp( 0 );
 

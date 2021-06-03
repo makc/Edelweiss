@@ -156,6 +156,8 @@ function Atlas() {
 		// Can remove conditional later
 		if ( sceneGraph.planes ) {
 
+			const pointInside = gameState.gateTilePos.lengthSq() ? gameState.gateTilePos : gameState.respawnPos;
+
 			for ( let importedPlane of sceneGraph.planes ) {
 
 				var plane = new THREE.Plane(
@@ -166,6 +168,10 @@ function Atlas() {
 					),
 					importedPlane.const
 				);
+
+				// relax plane definition requirements
+
+				plane.normal.normalize(); if ( plane.distanceToPoint( pointInside ) < 0 ) plane.negate();
 
 				planes.push( plane );
 
@@ -334,6 +340,20 @@ function Atlas() {
 		checkInvisibleCubes();
 
 		return cubeCollision
+
+	};
+
+	//
+
+	function collidePlayerPlanes() {
+
+		for( let plane of planes ) {
+
+			player.position.addScaledVector( plane.normal, Math.max( 0,
+				atlas.PLAYERWIDTH / 2 - plane.distanceToPoint( player.position )
+			) );
+
+		};
 
 	};
 
@@ -655,8 +675,6 @@ function Atlas() {
 		checkStage( Math.floor( player.position.y ) + 1 );
 		checkStage( Math.floor( player.position.y ) - 1 );
 
-		checkPlanes();
-
 		if ( collidedWalls.length == 1 ) {
 
 			// Set xCollision according to the only wall collided
@@ -701,59 +719,6 @@ function Atlas() {
 		};
 
 		return xCollision ;
-
-		// This function check for collision with the scene's limit planes
-		function checkPlanes() {
-
-			planes.forEach( (plane)=> {
-
-				// Plane is parallel to camera
-				if ( plane.normal.z != 0 ) {
-
-					let limit = plane.normal.z * (plane.constant * -1);
-
-					if ( player.position.z + (atlas.PLAYERWIDTH / 2) > limit &&
-						 player.position.z - (atlas.PLAYERWIDTH / 2) < limit ) {
-
-
-						if ( direction > -Math.PI / 2 &&
-							 direction < Math.PI / 2 ) {
-
-							xCollision.zPoint = plane.constant - (atlas.PLAYERWIDTH / 2) ;
-
-						} else {
-
-							xCollision.zPoint = - plane.constant + (atlas.PLAYERWIDTH / 2) ;
-
-						};
-						
-					};
-
-				// plane is right or left
-				} else {
-
-					let limit = plane.normal.x * (plane.constant * -1);
-
-					if ( player.position.x + (atlas.PLAYERWIDTH / 2) > limit &&
-						 player.position.x - (atlas.PLAYERWIDTH / 2) < limit ) {
-
-						if ( direction > 0 ) {
-
-							xCollision.xPoint = plane.constant - (atlas.PLAYERWIDTH / 2) ;
-
-						} else {
-
-							xCollision.xPoint = - plane.constant + (atlas.PLAYERWIDTH / 2) ;
-
-						};
-
-					};
-
-				};
-
-			});
-
-		};
 
 		// Check for collistion with the player at one given stage
 		function checkStage( stage ) {
@@ -2011,6 +1976,7 @@ function Atlas() {
 		collidePlayerGrounds,
 		collidePlayerWalls,
 		collidePlayerCubes,
+		collidePlayerPlanes,
 		intersectRay,
 		PLAYERHEIGHT,
 		PLAYERWIDTH,
