@@ -26,8 +26,6 @@ userTiles.init = function() {
             );
         };
     } );
-
-    scene.add( userTiles.mesh );
 };
 
 
@@ -140,4 +138,6 @@ userTiles.update = function() {
     userTiles.mesh.geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( ps, 3 ) );
     userTiles.mesh.geometry.setAttribute( 'uv', new THREE.Float32BufferAttribute( uvs, 2 ) );
     userTiles.mesh.geometry.computeVertexNormals();
+
+    if( !userTiles.mesh.parent ) scene.add( userTiles.mesh );
 };
