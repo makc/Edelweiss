@@ -1093,6 +1093,17 @@ function Atlas() {
 			sceneGraph.tilesGraph[ Math.floor( destination.y ) ].splice( tileAtDestinaion.index, 1 );
 		}
 
+		if( direction.y !== 0 ) {
+
+			// in case of vertical direction, logicTile needs to be re-inserted into tilesGraph
+
+			const current = Math.floor( logicTile.points[ 0 ].y ), next = Math.floor( destination.y );
+
+			sceneGraph.tilesGraph[ current ].splice( sceneGraph.tilesGraph[ current ].indexOf( logicTile ), 1 );
+
+			( sceneGraph.tilesGraph[ next ] = sceneGraph.tilesGraph[ next ] || [] ).push( logicTile );
+		}
+
 		for( let point of logicTile.points ) {
 			point.x = Math.round( point.x + direction.x );
 			point.y = Math.round( point.y + direction.y );

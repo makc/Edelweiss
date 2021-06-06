@@ -259,7 +259,9 @@ function GameState() {
 
     //
 
-    document.getElementById( 'json-save' ).onclick = function() {
+    document.getElementById( 'json-save' ).onclick = function( event ) {
+
+        const compressData = !event.shiftKey;
 
         const curentSceneGraph = atlas.getSceneGraph();
 
@@ -269,17 +271,22 @@ function GameState() {
 
                 let data = JSON.stringify( curentSceneGraph );
 
-                for ( let valueToReplace of Object.keys( hashTable ) ) {
+                if( compressData ) {
 
-                    data = data.replace( new RegExp( valueToReplace, 'g' ), hashTable[ valueToReplace ] );
+                    for ( let valueToReplace of Object.keys( hashTable ) ) {
 
-                };
+                        data = data.replace( new RegExp( valueToReplace, 'g' ), hashTable[ valueToReplace ] );
+
+                    };
+
+                    data = lzjs.compress( data );
+                }
 
                 let link = document.createElement( 'a' );
 
                 link.download = graphName + '.json';
 
-                link.href = URL.createObjectURL( new File( [lzjs.compress( data )], link.download, { type: 'text/plain;charset=utf-8' } ) );
+                link.href = URL.createObjectURL( new File( [data], link.download, { type: 'text/plain;charset=utf-8' } ) );
 
                 link.dispatchEvent( new MouseEvent( 'click' ) );
             }

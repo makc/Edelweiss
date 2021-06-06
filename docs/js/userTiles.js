@@ -1,5 +1,6 @@
 var userTiles = {
     updateTimeout : 0,
+    doubleSided : true,
     tiles : new WeakMap(),
     mesh : new THREE.Mesh(
         new THREE.BufferGeometry(),
@@ -74,7 +75,7 @@ userTiles.update = function() {
         }
 
         // side 2
-        for( let k = 0, n = ia.length; k < n; k++ ) {
+        for( let k = 0, n = ia.length; userTiles.doubleSided && ( k < n ); k++ ) {
             let i = ia[ k ] * 3;
             let j = ia[ k ] * 2;
 
