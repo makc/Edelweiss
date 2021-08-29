@@ -7,14 +7,21 @@ function init() {
 
     // a directional light is later added on the CameraControl module,
     // since this latter will follow the camera movements
-    ambientLight = new THREE.AmbientLight( 0xffffff, 0.48 );
+    ambientLight = new THREE.HemisphereLight();
 	scene.add( ambientLight );
 
     //////////////
     /// RENDERER
     //////////////
 
-    renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('world') });
+    renderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById('world'),
+        powerPreference: 'high-performance'
+    });
+
+    renderer.domElement.addEventListener( 'webglcontextlost', function() {
+        location.reload();
+    });
 
     renderer.autoClear = false;
     renderer.setPixelRatio( window.devicePixelRatio );

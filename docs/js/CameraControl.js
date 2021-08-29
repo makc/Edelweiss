@@ -50,7 +50,7 @@ function CameraControl( player, camera ) {
 	///  LIGHT
 	/////////////
 
-	var directionalLight = addShadowedLight( 3, 25, 7, 0xffffff, 0.85 );
+	var directionalLight = addShadowedLight( 3, 25, 7, 0xffffff, 0.75 );
     group.add( directionalLight );
     group.add( directionalLight.target );
 

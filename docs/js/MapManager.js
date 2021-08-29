@@ -5,8 +5,11 @@ function MapManager() {
 
 	// LIGHTS
 
-	const LIGHT_BASE_INTENS = 0.48;
+	const LIGHT_BASE_INTENS = 0.58;
 	const LIGHT_CAVE_INTENS = 0.30;
+
+	const LIGHT_BASE_SHADE = 0xaa9977;
+	const LIGHT_CAVE_SHADE = 0xffffff;
 
 	const POINT_LIGHT_INTENS = 0.5;
 	const POINT_LIGHT_LENGTH = 9;
@@ -164,12 +167,14 @@ function MapManager() {
 			scene.fog = FOG;
 			scene.background = reflectionCube;
 			ambientLight.intensity = LIGHT_BASE_INTENS;
+			ambientLight.groundColor.setHex( LIGHT_BASE_SHADE );
 
 		} else {
 
 			scene.fog = undefined;
 			scene.background = caveBackground;
 			ambientLight.intensity = LIGHT_CAVE_INTENS;
+			ambientLight.groundColor.setHex( LIGHT_CAVE_SHADE );
 
 		};
 
