@@ -13,6 +13,9 @@ function AssetManager() {
 	const SCALE_CHAR = 0.075 ;
 	const SCALE_EDELWEISS = 0.02 ;
 
+	const CAVE_EXIT_LIGHT_INTENS = 0.5;
+	const CAVE_EXIT_LIGHT_LENGTH = 9;
+
 	const OFFSET_EDELWEISS = new THREE.Vector3( 0, 0.1, 0 );
 
 	const particleGeometry = new THREE.SphereBufferGeometry( 0.03, 4, 3 );
@@ -263,7 +266,7 @@ function AssetManager() {
 
 		if( bonusWasDeleted[ logicCube.tag ] ) return;
 
-		var url, floor, bubbleOffset, offset = 0, rotation = 0, scale = 1, bonus = false;
+		var url, floor, bubbleOffset, offset = 0, rotation = 0, scale = 1, bonus = false, light;
 
 		// decide what model do we need to load
 
@@ -301,6 +304,29 @@ function AssetManager() {
 
 				bonus = true;
 			}
+
+			else if ( /^cave-/.test( logicCube.tag ) && ( currentGraph != 'mountain' ) ) {
+
+				url = 'light';
+
+				light = new THREE.PointLight(
+					0xffffff,
+					CAVE_EXIT_LIGHT_INTENS,
+					CAVE_EXIT_LIGHT_LENGTH
+				);
+			}
+
+			else if ( /^light-[^\-]+-[\.\d]+/.test( logicCube.tag ) ) {
+
+				url = 'light';
+
+				// set key light params via cube tag: light-#f7c-4.2
+				const params = logicCube.tag.split( '-' );
+
+				light = new THREE.PointLight(
+					params[ 1 ], 1.0, parseFloat( params[ 2 ] )
+				);
+			}
 		}
 
 		else if ( logicCube.type == 'cube-inert' ) {
@@ -322,13 +348,34 @@ function AssetManager() {
 		// if we have the url - load it
 		if( !url ) return;
 
-		const promise = glbs[url] || new Promise( ( url === 'bonus' ) ? makeBonus : function( resolve ) {
+		let key = light ? logicCube.tag : url;
 
-			gltfLoader.load( url, resolve );
+		let promise = glbs[ key ];
 
-		});
+		if( !promise ) switch( url ) {
 
-		glbs[url] = promise;
+			case 'bonus':
+				promise = new Promise( makeBonus );
+				break;
+
+			case 'light':
+				promise = new Promise( function( resolve ) {
+
+					resolve( { scene: light, animations: [] } );
+
+				} );
+				break;
+
+			default:
+				promise = new Promise( function( resolve ) {
+
+					gltfLoader.load( url, resolve );
+
+				} );
+				break;
+		}
+
+		glbs[ key ] = promise;
 
 		promise.then( function( glb ) {
 

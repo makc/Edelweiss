@@ -11,9 +11,6 @@ function MapManager() {
 	const LIGHT_BASE_SHADE = 0xaa9977;
 	const LIGHT_CAVE_SHADE = 0xffffff;
 
-	const POINT_LIGHT_INTENS = 0.5;
-	const POINT_LIGHT_LENGTH = 9;
-
 	// FOG
 
 	const FOG = new THREE.FogExp2( 0xd7cbb1, 0.06 );
@@ -193,68 +190,16 @@ function MapManager() {
 			if ( newMapName == 'mountain' ) {
 
 				cameraControl.showLight();
-				removeCaveLights();
 
 			} else {
 
 				cameraControl.hideLight();
-				createCaveLights( newMapName );
 
 			};
 
 			loadMap( newMapName, resolve );
 
 		});
-
-	};
-
-	//
-
-	var caveLights = [];
-
-	function createCaveLights( graphName ) {
-
-		var graph = gameState.sceneGraphs[ graphName ].cubesGraph;
-
-		for (let i = 0 ; i < graph.length ; i++ ) {
-
-			if ( !graph[ i ] ) continue ;
-
-			graph[ i ].forEach( ( cube )=> {
-
-				if ( cube.tag && cube.tag.match( /cave-/ ) ) {
-
-					var pos = cube.position ;
-
-					var light = new THREE.PointLight(
-						0xffffff,
-						POINT_LIGHT_INTENS,
-						POINT_LIGHT_LENGTH
-					);
-
-					light.position.set( pos.x, pos.y, pos.z );
-					scene.add( light );
-					caveLights.push( light );
-
-				};
-
-			});
-
-		};
-
-	};
-
-	//
-
-	function removeCaveLights() {
-
-		caveLights.forEach( ( light )=> {
-
-			scene.remove( light );
-
-		});
-
-		caveLights = [];
 
 	};
 
