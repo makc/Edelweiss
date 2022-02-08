@@ -1,0 +1,33 @@
+// https://console.firebase.google.com/project/edelweiss-game/database/edelweiss-game/rules
+
+{
+  "rules": {
+    "updates": {
+      ".read": true,
+      ".indexOn": [ "time", "pass" ],
+      "$update_id": {
+        ".write": true,
+        // an update must have all the fields and good id
+        ".validate": "$update_id.matches(/^[0-9a-z]{15}$/) && newData.hasChildren(['time','name','pass','x','y','z','r','a','f','m','s'])",
+        // time, at least quarter a second since last update
+        "time": { ".validate": "(newData.val() == now) && (!data.exists() || (data.val() < now - 250))" },
+        // game name, 1-15 characters
+        "name": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 16" },
+        // game pass, 1-15 characters
+        "pass": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 16" },
+        // position and rotation, numbers
+        "x": { ".validate": "newData.isNumber()" },
+        "y": { ".validate": "newData.isNumber()" },
+        "z": { ".validate": "newData.isNumber()" },
+        "r": { ".validate": "newData.isNumber()" },
+        // animation state
+        "a": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length < 20" },
+        "f": { ".validate": "newData.isString() && newData.val().length < 6" },
+        "m": { ".validate": "newData.isNumber()" },
+        "s": { ".validate": "newData.isNumber()" },
+        // no other fields
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}
