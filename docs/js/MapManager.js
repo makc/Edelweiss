@@ -94,7 +94,8 @@ function MapManager() {
 
 						if ( child.material ) {
 
-							child.material = new THREE.MeshLambertMaterial({
+							child.material = new THREE.MeshPhongMaterial({
+								shininess: 0, specular: 0, dithering: true,
 								map: child.material.map,
 								side: THREE.FrontSide
 							});

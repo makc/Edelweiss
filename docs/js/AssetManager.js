@@ -454,7 +454,8 @@ function AssetManager() {
 			if(( obj.type == 'Mesh' ||
 				 obj.type == 'SkinnedMesh' ) && ( obj.material !== particleMaterial )) {
 
-				obj.material = new THREE.MeshLambertMaterial({
+				obj.material = new THREE.MeshPhongMaterial({
+					shininess: 0, specular: 0,
 					map: obj.material.map,
 					side: obj.material.side,
 					skinning: obj.material.skinning,
