@@ -539,6 +539,18 @@ function AssetManager() {
 		return model !== undefined;
 	};
 
+	// hack THREE.AnimationMixer to stop animating when too far from the player
+
+	var updateMixer = THREE.AnimationMixer.prototype.update;
+	THREE.AnimationMixer.prototype.update = function( delta ) {
+		if( atlas ) {
+			var z = this._root.matrixWorld.elements[14];
+			if((z > atlas.player.position.z - 8) && (z < atlas.player.position.z + 3)) {
+				updateMixer.call( this, delta );
+			}
+		}
+	};
+
 	//
 
 	function update( delta ) {
@@ -566,6 +578,15 @@ function AssetManager() {
 	//
 
 	function updateBonus( group ) {
+
+		// stop animating bonuses when too far from the player
+
+		if( atlas ) {
+			var z = group.matrixWorld.elements[14];
+			if((z < atlas.player.position.z - 10) || (z > atlas.player.position.z + 4)) {
+				return;
+			}
+		}
 
 		if ( group.userData.initPos ) {
 

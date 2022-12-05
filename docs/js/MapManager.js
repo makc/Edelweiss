@@ -76,6 +76,8 @@ function MapManager() {
 
 	var queue = Promise.resolve();
 
+	var materials = {}, c32 = document.createElement( 'canvas' ); c32.height = 32;
+
 	function requestChunk( url, mapName ) {
 
 		return new Promise( function( resolve ) {
@@ -90,26 +92,65 @@ function MapManager() {
 
 				gltfLoader.load( url, function( glb ) {
 
+					var meshes = {};
+
 					glb.scene.traverse( function( child ) {
 
 						if ( child.material ) {
 
-							child.material = new THREE.MeshPhongMaterial({
+							// most of Felix maps use the same 32px textures
+							var key;
+							if( child.material.map.image.width === 32 ) {
+								c32.width = 32;
+								c32.getContext( '2d' ).drawImage( child.material.map.image, 0, 0 );
+								key = c32.toDataURL();
+							}
+
+							child.material = materials[key] || new THREE.MeshPhongMaterial({
 								shininess: 0, specular: 0, dithering: true,
 								map: child.material.map,
 								side: THREE.FrontSide
 							});
 
-							child.castShadow = true ;
-							child.receiveShadow = true ;
+							if( key ) {
+								materials[key] = child.material;
+							}
+
+							key = child.material.uuid;
+							meshes[key] = meshes[key] || []; meshes[key].push( child );
 
 						};
 
 					});
 
-					glb.scene.name = url.replace( /^.*\//, 'file ' );
+					glb.scene.updateMatrixWorld( true );
+
+					var group = new THREE.Group();
 					
-					maps[ mapName ].add( glb.scene );
+					for( var key in meshes ) {
+						var geometries = [];
+						for( var i = 0, n = meshes[key].length; i < n; i++ ) {
+							geometries.push( meshes[key][i].geometry.applyMatrix( meshes[key][i].matrixWorld ) );
+						}
+
+						var mesh = new THREE.Mesh(
+							THREE.BufferGeometryUtils.mergeBufferGeometries( geometries ),
+							meshes[key][0].material
+						);
+
+						mesh.castShadow = true;
+						mesh.receiveShadow = true;
+
+						group.add( mesh );
+					}
+
+					if( group.children.length === 1 ) {
+						group = group.children[0];
+					}
+
+					group.name = url.replace( /^.*\//, 'file ' );
+					
+					maps[ mapName ].add( group );
 
 					record[ url ] = true;
 
