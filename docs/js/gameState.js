@@ -234,7 +234,11 @@ function GameState() {
 
         if ( file.charAt( 0 ) === '{' ) {
 
-            return JSON.parse( file );
+            let json = JSON.parse( file );
+
+            json.tilesGraph.forEach( userTiles.addTiles );
+    
+            return json;
 
         }
 

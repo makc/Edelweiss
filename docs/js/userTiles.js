@@ -21,6 +21,16 @@ userTiles.init = function() {
         } );
 
         userTiles.mesh.material.onBeforeCompile = function( hack ) {
+            var chunk = THREE.ShaderChunk.shadowmap_pars_fragment.replace(
+                'z += shadowBias',
+                'z += shadowBias - 0.001'
+            );
+            
+            hack.fragmentShader = hack.fragmentShader.replace(
+                '#include <shadowmap_pars_fragment>',
+                chunk
+            );
+
             hack.fragmentShader = hack.fragmentShader.replace(
                 '<dithering_fragment>\n',
                 '<dithering_fragment>\nif( mod(floor(gl_FragCoord.x) + floor(gl_FragCoord.y), 2.0) > 0.0 ) discard;'
