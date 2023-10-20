@@ -16,6 +16,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({
         canvas: document.getElementById('world'),
+        logarithmicDepthBuffer: true,
         powerPreference: 'high-performance'
     });
 
