@@ -11,12 +11,12 @@ function SocketIO() {
 
 		database = firebase.initializeApp( {
 
-			apiKey: 'AIzaSyCv-Wd_A9sdyLfNeA5kpkq4_3-MKpza-0k',
+			apiKey: 'AIzaSyCxmohXOeTvJv39WBFjyRyPbFpz-R1zOF8',
 			databaseURL: 'https://edelweiss-game.firebaseio.com'
 
 		} ).database();
 
-		const query = database.ref( '/updates' ).orderByChild( 'pass' ).equalTo( pass );
+		const query = database.ref( '/updates-2024' ).orderByChild( 'pass' ).equalTo( pass );
 
 		const handler = function( snapshot ) {
 
@@ -61,7 +61,7 @@ function SocketIO() {
 
 			if( Math.random() < 1.0 / numberOfPlayers ) {
 
-				const ref = database.ref( '/updates' );
+				const ref = database.ref( '/updates-2024' );
 
 				ref.orderByChild( 'time' ).endAt( serverTime - 5555 ).once( 'value' ).then( function( snapshot ) {
 
@@ -104,6 +104,8 @@ function SocketIO() {
 
 	};
 
+	var last_idle = 0
+
 	var socket = {
 
 		emit: function( event, data ) {
@@ -115,7 +117,9 @@ function SocketIO() {
 
 				// the only event that we care about for now
 
-				database.ref( '/updates/' + data.id ).set( {
+				if( (data.a !== 'idleGround') || (Date.now() - last_idle > 2024) )
+
+				database.ref( '/updates-2024/' + data.id ).set( {
 
 					x: data.x, y: data.y, z: data.z, r: data.r,
 					a: data.a, f: data.f, m: data.m, s: data.s,
@@ -131,6 +135,8 @@ function SocketIO() {
 					// whatever
 
 				} );
+
+				last_idle = data.a === 'idleGround' ? Date.now() : 0;
 
 			}
 
