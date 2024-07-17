@@ -875,7 +875,18 @@
 
         <div id="menu-element">
 
-                <div>
+                <div style="min-width: 252px">
+                    <script>
+                        function toggleMultiplayer() {
+                            document.getElementById('multiplayer').style.display =
+                                document.getElementById('singleplayer').checked ? 'none' : '';
+                        }
+                    </script>
+                    <div style="padding-bottom: 15px">
+                        <input id="singleplayer" style="transform: translateY(-2px)" type="checkbox" checked onchange="toggleMultiplayer()" />
+                        <label for="singleplayer" style="color: black"> I will play alone</label>
+                    </div>
+                    <div id="multiplayer" style="display: none">
                     Your display name:
                     <div class="input">
                         <input autocomplete="off" id="game-name" maxlength="15" placeholder="(for multiplayer)" onclick="this.select()"></input><button
@@ -885,6 +896,7 @@
                     <div class="input">
                         <input autocomplete="off" id="game-pass" maxlength="15" placeholder="(for multiplayer)" onclick="this.select()"></input><button
                             onclick="this.previousSibling.value = utils.randomString()">&nbsp;</button>
+                    </div>
                     </div>
                     <div id="start-button">
                         Start
@@ -971,5 +983,6 @@
         </div>
     </div>
 
+    <script src="/ga.js"></script>
 </body>
 </html>
