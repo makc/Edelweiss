@@ -33,6 +33,10 @@
             user-select: none;
         }
 
+        a {
+            color: midnightblue;
+        }
+
         label, input {
             color: grey;
         }
@@ -229,28 +233,26 @@
 
 
         #joystick-container {
-            height: 100vh;
-            width: 100vw;
+            position: fixed;
+            bottom: 90px;
+            left: 72.5px;
             display: none;
+            width: 0;
+            height: 0;
+            overflow: visible;
             -webkit-user-select : none;
             -moz-user-select    : none;
+            user-select         : none;
         }
 
-        #base {
-            width: 75px;
-            height: 75px;
-        }
-
-        #stick {
+        #base, #stick, #cross {
+            position: absolute;
+            margin: -37.5px 0 0 -37.5px;
             width: 75px;
             height: 75px;
         }
 
         #cross {
-            position: fixed;
-            width: 75px;
-            height: 75px;
-            left: 52.5px;
             opacity: 0.0 ;
         }
 
@@ -273,7 +275,7 @@
         #action-button {
             position: fixed;
             height: 75px;
-            widows: 75px;
+            width: 75px;
             bottom: 52.5px;
             right: 35px;
             opacity: 0.5;
@@ -869,7 +871,7 @@
 
             <img id="title" src="assets/title.png">
             <br>
-            a game by Felix Mariotto
+            a daring journey to the top
 
         </div>
 
@@ -928,11 +930,9 @@
 
                 <br>
 
-                <a target="_blank" href="https://twitter.com/intent/follow?screen_name=felix_mariotto">Felix Mariotto</a>
-
-                <br>
-
-                <a href="https://github.com/felixmariotto/Edelweiss#readme"><img src="https://github.com/favicon.ico" alt="GitHub" /></a>
+                <a target="_blank" href="https://twitter.com/intent/follow?screen_name=felix_mariotto">Felix Mariotto</a>,
+                
+                <a href="https://github.com/makc/Edelweiss#readme">Makc</a>
 
             </div>
 

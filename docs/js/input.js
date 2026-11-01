@@ -40,7 +40,6 @@ function Input() {
         domCross = document.createElement('IMG');
         domCross.src = 'assets/cross.png';
         domCross.id = 'cross' ;
-        domCross.style.top = `${ window.innerHeight - 127.5 }px` ;
 
         document.getElementById('joystick-container').appendChild( domCross );
 
@@ -51,9 +50,8 @@ function Input() {
             container : document.getElementById('joystick-container'),
             stickElement : domStick,
             baseElement : domBase, 
-            stationaryBase : true,
-            baseX : 90,
-            baseY :  window.innerHeight - 90,
+            baseX : 0,
+            baseY : 0,
             limitStickTravel: true,
             stickRadius : STICK_TRAVEL_RADIUS
         });
@@ -61,7 +59,6 @@ function Input() {
         api.joystick = joystick ;
 
         params.isTouchScreen = true ;
-
     };
 
     //
