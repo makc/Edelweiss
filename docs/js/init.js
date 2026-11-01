@@ -3,7 +3,7 @@ function init() {
 
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.01, 23.5 );
+    camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.04, 23.5 );
 
     // a directional light is later added on the CameraControl module,
     // since this latter will follow the camera movements
@@ -16,7 +16,6 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({
         canvas: document.getElementById('world'),
-        logarithmicDepthBuffer: true,
         powerPreference: 'high-performance'
     });
 
