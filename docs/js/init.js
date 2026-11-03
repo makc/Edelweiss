@@ -132,7 +132,6 @@ function init() {
         atlas = Atlas();
         input = Input();
         stamina = Stamina();
-        interaction = Interaction();
         dynamicItems = DynamicItems();
         mapManager = MapManager();
         optimizer = Optimizer();

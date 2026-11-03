@@ -189,6 +189,8 @@ function GameState() {
         	document.documentElement.requestFullscreen?.();
         };
 
+        interaction = Interaction();
+
         params.isGamePaused = false ;
 
         const gamePass = document.getElementById( 'game-pass' ).value.substr( 0, 15 );

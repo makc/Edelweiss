@@ -244,7 +244,7 @@ function Interaction() {
 				break;
 
 			case 'npc-dash' :
-				startDialogue( 'npc-dash' );
+				startDialogue( controler.permission.dash ? 'npc-dash-after' : 'npc-dash' );
 				break;
 
 			case 'npc-glide' :
@@ -601,7 +601,7 @@ function Interaction() {
 
 			},
 
-			message : 'You found the Dash Ability ! <br>You can now dash while climbing !'
+			message : 'Strange warm energy filled your body!<br>You should now be able to dash while climbing.'
 
 		},
 
@@ -679,7 +679,7 @@ function Interaction() {
 
 			};
 
-		}, 2000);
+		}, 1500 + 20 * message.length );
 
 	};
 
@@ -1086,6 +1086,14 @@ function Interaction() {
 	///    DIALOGUES TREES
 	///////////////////////////
 
+	var actionButton = `<span class="controls">${
+		input.joystick ? 'the action button' : 'space'
+	}</span>`
+
+	var arrowButtons = `<span class="controls">${
+		input.joystick ? 'the thumbstick' : 'arrow buttons'
+	}</span>`
+
 	var dialogues = {
 
 		///// TUTORIALS
@@ -1104,22 +1112,25 @@ function Interaction() {
 		'npc-jump' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `What do you mean, &laquo;how do you get up there&raquo; ? Just press space or the action button to jump.` }
+				{ m: `What do you mean, &laquo;how do you get up there&raquo;? Just press ${actionButton} to jump.` }
 			]
 		},
 
 		'npc-climb' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `Some walls can be climbed, walk toward the wall on your right to climb it.` }
+				{ m: `No, I don&rsquo;t have a ladder.` },
+				{ m: `But, those plants on the wall are strong enough to hold your weight.` },
+				{ m: `<span class="controls">Walk</span> toward the wall on your right to climb it.` }
 			]
 		},
 
 		'npc-stamina' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `You may be too weak to climb some walls... Try to find some edelweiss, they will increase your stamina and make you stronger !` },
-				{ m: `Have a look into this abandoned mine. Once in a while an edelweiss would bloom there.` }
+				{ m: `You look too weak to climb that wall.` },
+				{ m: `Try to find some edelweiss flowers? They increase your stamina.` },
+				{ m: `Maybe check this abandoned mine — they bloom there occasionally.` }
 			]
 		},
 
@@ -1127,7 +1138,7 @@ function Interaction() {
 		'npc-stamina-after' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `So you have found the flower, I see. You already look stronger !` },
+				{ m: `So you have found the flower, I see. You already look stronger!` },
 				{ m: `These flowers are a true blessing to old folks like me.` }
 			]
 		},
@@ -1135,30 +1146,39 @@ function Interaction() {
 		'npc-climb-jump' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `Did you know you can jump while climbing ? Just press space or the action button while climbing.` }
+				{ m: `Did you try to jump when climbing? It&rsquo;s fun.` },
+				{ m: `Just press ${actionButton} while on the wall.` }
 			]
 		},
 
 		'npc-fall' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `This cliff looks very high... If we fell, we would probably die.` }
+				{ m: `This cliff is very high, you could die if you fall.` },
+				{ m: `But the view is quite nice, isn&rsquo;t it?`}
 			]
 		},
 
 		'npc-jump-slip' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `You can also jump while slipping along a wall, it's super useful when there is nowhere to climb.` }
+				{ m: `You can also jump while slipping along a wall, it&rsquo;s super useful when there is nowhere to climb.` }
 			]
 		},
 
 		'npc-dash' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `Did you find the Dash Ability ?` },
-				{ m: `You can dash on a wall by holding space or the action button while climbing.` },
-				{ m: `When you gathered enough energy, point in the direction you want to dash, then release space or the action button.` },
+				{ m: `These crystals are packed with the energy that helps your muscles work more efficiently.` },
+				{ m: `Just swallow one, and you will feel more agile in no time!` }
+			]
+		},
+
+		'npc-dash-after' : {
+			char: dialogueChars.lady,
+			story: [
+				{ m: `You can dash on a wall by holding ${actionButton} while climbing.` },
+				{ m: `When you gathered enough energy, point in the direction you want to dash using ${arrowButtons}, then release ${actionButton}.` },
 			]
 		},
 
@@ -1175,7 +1195,7 @@ function Interaction() {
 			char: dialogueChars.lady,
 			story: [
 				{ m: `Do you have a the Gliding Ability ?` },
-				{ m: `You can glide in the air by holding space or the action button while in the air, after a jump for instance.` },
+				{ m: `You can glide in the air by holding ${actionButton} while in the air, after a jump for instance.` },
 			]
 		},
 
@@ -1183,7 +1203,7 @@ function Interaction() {
 			char: dialogueChars.lady,
 			story: [
 				{ m: `Do you have the Double-Jump ability ?` },
-				{ m: `With it you can jump in the air once, by pressing space or the action button while in the air.` },
+				{ m: `With it you can jump in the air once, by pressing ${actionButton} while in the air.` },
 			]
 		},
 
@@ -1203,11 +1223,11 @@ function Interaction() {
 			story: [
 				{ m: 'Not a day goes by without some kids injuring themselves up there.' },
 				{ m: 'And then I have to carry them here and nurse back to health.' },
-				{ question: 'Shall I get the tent ready for you, just in case ?', answers: [
+				{ question: 'Shall I get the tent ready for you, just in case?', answers: [
 					{ m: 'Yes, please', next: 'yes' },
-					{ m: 'I will be fine', next: 'no' }
+					{ m: 'I&rsquo;ll be fine', next: 'no' }
 				] },
-				{ label: 'yes', m: 'All right, if anything happens — I&apos;ve got your back.', onCall: ()=> {
+				{ label: 'yes', m: 'All right, if anything happens — I&rsquo;ve got your back.', onCall: ()=> {
 					gameState.setSavedPosition( 0 );
 				}, end: true },
 				{ label: 'no', m: 'Good. Take care.', end: true  }
@@ -1217,32 +1237,33 @@ function Interaction() {
 		'npc-respawn-1' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ m: 'What a hot day. You must be thirsty, right ? I see you have no water on you.' },
+				{ m: 'What a hot day. You must be thirsty, right? I see you have no water on you.' },
 				{ m: 'Everyone must pass this ravine on their way up, so I brought that water pump here — please help yourself.', onCall: ()=> {
 					enableHiddenBonus( 'climb-3' );
 				}, },
-				{ question: 'Shall you find yourself exhausted or in trouble, you can always rest and recover in my tent, okay ?', answers: [
-					{ m: 'Thanks, I will !', next: 'yes' },
+				{ question: 'Shall you find yourself exhausted or in trouble, you can always rest and recover in my tent, okay?', answers: [
+					{ m: 'Thanks, I will!', next: 'yes' },
 					{ m: 'No need, thank you.', next: 'no' }
 				] },
-				{ label: 'yes', m: 'You are welcome ! Stay hydrated.', onCall: ()=> {
+				{ label: 'yes', m: 'You are welcome! Stay hydrated.', onCall: ()=> {
 					gameState.setSavedPosition( 1 );
 				}, end: true },
-				{ label: 'no', m: 'Suit yourself. Good luck !', end: true  }
+				{ label: 'no', m: 'Suit yourself. Good luck!', end: true  }
 			]
 		},
 
 		'npc-respawn-2' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Hi ! Do you want to save your progression ?', answers: [
-					{ m: 'Yes', next: 'yes' },
-					{ m: 'No', next: 'no' }
+				{ m: 'Remember, the higher you climb, the harder you&rsquo;ll fall!'},
+				{ question: 'Would you like to recover in my tent when that happens?', answers: [
+					{ m: 'Umm... yes?', next: 'yes' },
+					{ m: 'Nope, I&rsquo;m good', next: 'no' }
 				] },
-				{ label: 'yes', m: 'Your progression is saved, see you soon !', onCall: ()=> {
+				{ label: 'yes', m: 'Well then I&rsquo;ll see you soon.', onCall: ()=> {
 					gameState.setSavedPosition( 2 );
 				}, end: true },
-				{ label: 'no', m: 'Ho ? OK...', end: true  }
+				{ label: 'no', m: 'I&rsquo;ll be here when you change your mind.', end: true  }
 			]
 		},
 
@@ -1417,7 +1438,7 @@ function Interaction() {
 		'npc-river' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: "Are you wondering how to get down this cliff ?" },
+				{ m: "Are you wondering how to get down this cliff?" },
 				{ m: "You just have to climb down the roots just in front of me." },
 				{ m: "I did that a lot, back in the days..." }
 			]
