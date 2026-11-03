@@ -100,7 +100,7 @@ function Input() {
             // virtual joystick's position deltas
             moveVec.set( joystick.deltaY(), joystick.deltaX() );
 
-            joystickAngle = ( Math.round( ( moveVec.angle() / 6 ) * 4 ) / 4 ) * ( Math.PI * 2 ) ;
+            joystickAngle = Math.round( moveVec.angle() / ( Math.PI / 4 ) ) * ( Math.PI / 4 ) ;
 
             if ( joystickState != joystickAngle ) {
 

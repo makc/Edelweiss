@@ -702,13 +702,6 @@ function Interaction() {
 
 		isInAnim = true ;
 
-		// Hide joystick div
-
-		document.getElementById('joystick-container').style.display = 'inherit' ;
-		if ( input.params.isTouchScreen ) {
-			document.getElementById('action-button').style.display = 'inherit' ;
-		};
-
 		// Dialogue UI animations
 
 		domChar.classList.remove( 'show-char' );
@@ -729,6 +722,18 @@ function Interaction() {
 
 		}, 300);
 
+		setTimeout( ()=> {
+
+			domTextContainer.innerHTML = '';
+
+			if ( input.params.isTouchScreen ) {
+	
+				document.getElementById('joystick-container').style.display = 'inherit' ;
+				document.getElementById('action-button').style.display = 'inherit' ;
+
+			};
+
+		}, 500);
 	};
 
 	// SHOW THE DISCUSSION UI
@@ -801,8 +806,6 @@ function Interaction() {
 	function endDialogue() {
 
 		hideDialogueUI();
-
-		domTextContainer.innerHTML = '';
 
 		currentDialogue = undefined ;
 		currentLine = undefined ;
@@ -1087,11 +1090,11 @@ function Interaction() {
 	///////////////////////////
 
 	var actionButton = `<span class="controls">${
-		input.joystick ? 'the action button' : 'space'
+		input.params.isTouchScreen ? 'the action button' : 'space'
 	}</span>`
 
 	var arrowButtons = `<span class="controls">${
-		input.joystick ? 'the thumbstick' : 'arrow buttons'
+		input.params.isTouchScreen ? 'the thumbstick' : 'arrow buttons'
 	}</span>`
 
 	var dialogues = {
