@@ -871,11 +871,19 @@ function Interaction() {
 
 		if ( currentDialogue && currentLine != undefined ) {
 
+			let size = '1em' ;
 			let line = dialogues[ currentDialogue ].story[ currentLine ] ;
 
 			// If the requested line is a question, special
 			// behavior is requered for the dialogue.
 			if ( line.question ) {
+
+				if ( window.innerWidth < 600 ) {
+					size = '0.8em' ;
+					if ( line.question.length > 80 ) {
+						size = '0.7em' ;
+					}
+				}
 
 				setupQuestion( line );
 
@@ -883,9 +891,17 @@ function Interaction() {
 
 			} else {
 
+				if ( window.innerWidth < 600 ) {
+					if ( line.m.length > 80 ) {
+						size = '0.8em' ;
+					}
+				}
+
 				executeLine( line );
 
 			};
+
+			domTalkContainer.style.fontSize = size ;
 
 		};
 

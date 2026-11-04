@@ -438,7 +438,9 @@
             transform: translate(-50%);
             background-color: white;
             padding: 20px;
-            font-size: calc( 100% + 1.5vh );
+            width: max-content;
+            max-width: calc(80% - 40px);
+            font-size: 1.5em;
             text-align: center;
             display: none;
         }
@@ -553,22 +555,10 @@
         #talk-container {
             position: fixed;
             padding: 20px 0px 20px 0px;
-            bottom: -210px;
             left: 10px;
             width: calc( 100vw - 10px - 20px );
-            height: 160px;
-            max-height: calc( 25vh - 40px );
+            height: calc( 25vh - 40px );
         }
-
-            @media screen and ( max-height: 750px ) {
-
-                #talk-container {
-                    padding: 5px 0px 5px 0px;
-                    height: 190px;
-                    max-height: calc( 25vh - 10px );
-                }
-
-            }
 
             #talk-subcontainer {
                 position: relative;
@@ -631,7 +621,7 @@
 
             @keyframes show_talk {
                 0% {
-                    bottom: -210px;
+                    bottom: calc( -25vh - 40px );
                 }
                 100% {
                     bottom: 10px;
@@ -643,7 +633,7 @@
                     bottom: 10px;
                 }
                 100% {
-                    bottom: -210px;
+                    bottom: calc( -25vh - 40px );
                 }
             }
 
@@ -828,7 +818,7 @@
 
     </div>
 
-    <div id="talk-container" class='dialogue-box'>
+    <div id="talk-container" class='dialogue-box hide-talk'>
 
         <div id="talk-subcontainer">
 
