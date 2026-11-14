@@ -260,6 +260,28 @@ function AssetManager() {
 
 	var glbs = {};
 
+	function parseUrlFromTag( logicCube ) {
+
+		const parsedTag = logicCube.tag.match( /^(.+glb)\??(.*)?$/i );
+
+		if ( parsedTag ) {
+
+			const url = 'assets/models/' + parsedTag[1];
+
+			// rotate the model if the tag has r=<degrees>
+			const pattern = /r=(\d+)/;
+			if ( pattern.test( parsedTag[2] ) ) {
+				return {
+					url, rotation: Math.PI * parseInt( parsedTag[2].match( pattern )[1] ) / 180
+				};
+			}
+
+			return {
+				url, rotation: 0
+			}
+		}
+	}
+
 	function createNewObject( logicCube ) {
 
 		if( miscModels.get( logicCube ) ) return;
@@ -327,21 +349,21 @@ function AssetManager() {
 					params[ 1 ], 1.0, parseFloat( params[ 2 ] )
 				);
 			}
+
+			else {
+
+				const parsed = parseUrlFromTag( logicCube );
+				if ( parsed ) {
+					url = parsed.url; rotation = parsed.rotation;
+				}
+			}
 		}
 
 		else if ( logicCube.type == 'cube-inert' ) {
 
-			const parsedTag = logicCube.tag.match( /^(.+glb)\??(.*)?$/i );
-
-			if ( parsedTag ) {
-
-				url = 'assets/models/' + parsedTag[1];
-
-				// rotate the model if the tag has r=<degrees>
-				const pattern = /r=(\d+)/;
-				if ( pattern.test( parsedTag[2] ) ) {
-					rotation = Math.PI * parseInt( parsedTag[2].match( pattern )[1] ) / 180;
-				}
+			const parsed = parseUrlFromTag( logicCube );
+			if ( parsed ) {
+				url = parsed.url; rotation = parsed.rotation;
 			}
 		}
 
