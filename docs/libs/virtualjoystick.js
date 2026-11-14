@@ -3,34 +3,27 @@ var VirtualJoystick	= function(opts)
 
 	opts			= opts			|| {};
 	this._container		= opts.container	|| document.body;
+	this._containerPos  = this._container.getBoundingClientRect();
+	this.resize = (function () {
+		this._containerPos = this._container.getBoundingClientRect();
+	}).bind(this);
 	this._strokeStyle	= opts.strokeStyle	|| 'cyan';
 	this._stickEl		= opts.stickElement	|| this._buildJoystickStick();
 	this._baseEl		= opts.baseElement	|| this._buildJoystickBase();
 	this._mouseSupport	= opts.mouseSupport !== undefined ? opts.mouseSupport : false;
-	this._stationaryBase	= opts.stationaryBase || false;
 	this._baseX		= this._stickX = opts.baseX || 0
 	this._baseY		= this._stickY = opts.baseY || 0
 	this._limitStickTravel	= opts.limitStickTravel || false
 	this._stickRadius	= opts.stickRadius !== undefined ? opts.stickRadius : 100
 	this._useCssTransform	= opts.useCssTransform !== undefined ? opts.useCssTransform : false
 
-	this._container.style.position	= "relative"
-
 	this._container.appendChild(this._baseEl)
-	this._baseEl.style.position	= "absolute"
-	this._baseEl.style.display	= "none"
 	this._container.appendChild(this._stickEl)
 	this._stickEl.style.position	= "absolute"
 	this._stickEl.style.display	= "none"
 
 	this._pressed	= false;
 	this._touchIdx	= null;
-	
-	if(this._stationaryBase === true){
-		this._baseEl.style.display	= "";
-		this._baseEl.style.left		= (this._baseX - this._baseEl.clientWidth /2)+"px";
-		this._baseEl.style.top		= (this._baseY - this._baseEl.clientHeight/2)+"px";
-	}
     
 	this._transform	= this._useCssTransform ? this._getTransformProperty() : false;
 	this._has3d	= this._check3D();
@@ -150,24 +143,11 @@ VirtualJoystick.prototype._onUp	= function()
 {
 	this._pressed	= false; 
 	this._stickEl.style.display	= "none";
-	
-	if(this._stationaryBase == false){	
-		this._baseEl.style.display	= "none";
-	
-		this._baseX	= this._baseY	= 0;
-		this._stickX	= this._stickY	= 0;
-	}
 }
 
 VirtualJoystick.prototype._onDown	= function(x, y)
 {
 	this._pressed	= true; 
-	if(this._stationaryBase == false){
-		this._baseX	= x;
-		this._baseY	= y;
-		this._baseEl.style.display	= "";
-		this._move(this._baseEl.style, (this._baseX - this._baseEl.width /2), (this._baseY - this._baseEl.height/2));
-	}
 	
 	this._stickX	= x;
 	this._stickY	= y;
@@ -186,7 +166,7 @@ VirtualJoystick.prototype._onDown	= function(x, y)
 	}
 	
 	this._stickEl.style.display	= "";
-	this._move(this._stickEl.style, (this._stickX - this._stickEl.width /2), (this._stickY - this._stickEl.height/2));	
+	this._move(this._stickEl.style, this._stickX, this._stickY);
 }
 
 VirtualJoystick.prototype._onMove	= function(x, y)
@@ -208,7 +188,7 @@ VirtualJoystick.prototype._onMove	= function(x, y)
 			} 		
 		}
 		
-        	this._move(this._stickEl.style, (this._stickX - this._stickEl.width /2), (this._stickY - this._stickEl.height/2));	
+        this._move(this._stickEl.style, this._stickX, this._stickY);
 	}	
 }
 
@@ -225,15 +205,15 @@ VirtualJoystick.prototype._onMouseUp	= function(event)
 VirtualJoystick.prototype._onMouseDown	= function(event)
 {
 	event.preventDefault();
-	var x	= event.clientX;
-	var y	= event.clientY;
+	var x	= event.clientX - this._containerPos.x;
+	var y	= event.clientY - this._containerPos.y;
 	return this._onDown(x, y);
 }
 
 VirtualJoystick.prototype._onMouseMove	= function(event)
 {
-	var x	= event.clientX;
-	var y	= event.clientY;
+	var x	= event.clientX - this._containerPos.x;
+	var y	= event.clientY - this._containerPos.y;
 	return this._onMove(x, y);
 }
 
@@ -260,8 +240,8 @@ VirtualJoystick.prototype._onTouchStart	= function(event)
 	this._touchIdx	= touch.identifier;
 
 	// forward the action
-	var x		= touch.pageX;
-	var y		= touch.pageY;
+	var x		= touch.clientX - this._containerPos.x;
+	var y		= touch.clientY - this._containerPos.y;
 	return this._onDown(x, y)
 }
 
@@ -303,8 +283,8 @@ VirtualJoystick.prototype._onTouchMove	= function(event)
 
 	event.preventDefault();
 
-	var x		= touch.pageX;
-	var y		= touch.pageY;
+	var x		= touch.clientX - this._containerPos.x;
+	var y		= touch.clientY - this._containerPos.y;
 	return this._onMove(x, y)
 }
 

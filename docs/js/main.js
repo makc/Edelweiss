@@ -44,13 +44,9 @@ window.addEventListener( 'resize', ()=> {
 
         if ( input && input.joystick ) {
 
-            document.getElementById( 'cross' ).style.top = `${ world.clientHeight - 127.5 }px` ;
-
-            input.joystick._baseX = 90 ;
-            input.joystick._baseY = world.clientHeight - 90 ;
-
-            input.joystick._baseEl.style.top = `${ world.clientHeight - ( 90 + ( input.joystick._baseEl.clientHeight / 2 ) ) }px` ;
-
+            setTimeout( function () {
+                input.joystick.resize();
+            }, 123 );
         };
     };
 });

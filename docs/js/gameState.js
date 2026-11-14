@@ -36,7 +36,7 @@ function GameState() {
 
 	/// EVENTS
 
-    domStartButton.addEventListener( 'touchstart', (e)=> {
+    domStartButton.addEventListener( 'touchend', (e)=> {
 
         if ( loadingFinished ) {
             startGame( true );
@@ -186,7 +186,10 @@ function GameState() {
 
         	input.initJoystick();
 
+        	document.documentElement.requestFullscreen?.();
         };
+
+        interaction = Interaction();
 
         params.isGamePaused = false ;
 
