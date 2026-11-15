@@ -557,7 +557,7 @@
             padding: 20px 0px 20px 0px;
             left: 10px;
             width: calc( 100vw - 10px - 20px );
-            height: calc( 25vh - 40px );
+            height: calc( max( 130px, 25vh ) - 40px );
         }
 
             #talk-subcontainer {
@@ -621,7 +621,7 @@
 
             @keyframes show_talk {
                 0% {
-                    bottom: calc( -25vh - 40px );
+                    bottom: calc( min( -25vh, -130px ) - 40px );
                 }
                 100% {
                     bottom: 10px;
@@ -633,7 +633,7 @@
                     bottom: 10px;
                 }
                 100% {
-                    bottom: calc( -25vh - 40px );
+                    bottom: calc( min( -25vh, -130px ) - 40px );
                 }
             }
 
@@ -661,13 +661,13 @@
                     bottom: -80px;
                 }
                 100% {
-                    bottom: 25vh;
+                    bottom: max( 130px, 25vh );
                 }
             }
 
             @keyframes hide_talker_name {
                 0% {
-                    bottom: 30vh;
+                    bottom: max( 130px, 25vh );
                 }
                 100% {
                     bottom: -80px;
