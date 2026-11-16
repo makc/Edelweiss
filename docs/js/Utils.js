@@ -129,6 +129,7 @@ function Utils() {
 
     // This function returns certain numeric hash of the string (we want the
     // result % 4 to be evenly distributed when passed randomString output).
+
     function stringHash( s ) {
 
         return s.charCodeAt( 0 ) + s.charCodeAt( 1 );
@@ -136,10 +137,70 @@ function Utils() {
     };
 
 
+    // Orbiting particles shared by the dash charge and the bonuses.
+
+    var particleGeometry = new THREE.SphereBufferGeometry( 0.03, 4, 3 );
+
+    function makeParticles( parent, options ) {
+
+        var container = options.container;
+
+        if(!container ) {
+
+            container = new THREE.Group();
+            container.visible = !!options.visible;
+            parent.add( container );
+
+        };
+
+        var particles = [];
+
+        for ( var i = 0; i < 20; i++ ) {
+
+            var mesh = new THREE.Mesh( particleGeometry, options.material );
+            var pivot = new THREE.Group();
+            var rotationSpeed = ( Math.random() * 0.1 ) + 0.02;
+            pivot.rotation.y = Math.random() * ( Math.PI * 2 );
+            pivot.scale.setScalar( 1 / parent.scale.x );
+            container.add( pivot );
+            pivot.add( mesh );
+
+            particles.push( {
+                mesh, pivot, rotationSpeed
+            } );
+
+            options.init?.( mesh );
+
+        };
+
+        function update() {
+
+            if ( container.visible ) {
+
+                for ( var i = 0; i < particles.length; i++ ) {
+
+                    particles[ i ].pivot.rotation.y += particles[ i ].rotationSpeed;
+
+                    options.update?.( particles[ i ].mesh );
+
+                };
+
+            };
+
+        };
+
+        return {
+            group: container,
+            update: update
+        };
+
+    };
+
 
 
 
     return {
+        makeParticles,
         randomDisplayName,
         randomString,
         stringHash,

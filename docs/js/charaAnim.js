@@ -147,32 +147,16 @@ function CharaAnim( player ) {
     within the character group inside the scene. They will be
     hided, and showed when the player charges a dash
     */
-    var chargeGroup = new THREE.Group();
-    chargeGroup.visible = false ;
-    group.add( chargeGroup );
-
     var dashMaterial = new THREE.MeshBasicMaterial( {color: 0x2fde2c} );
 
-    var chargeCubes = [];
-
-    for ( let i = 0 ; i < 20 ; i++ ) {
-
-        var geometry = new THREE.BoxBufferGeometry( 0.03, 0.03, 0.03 );
-        var cube = new THREE.Mesh( geometry, dashMaterial );
-
-        cube.position.y = ( Math.random() * 0.35 ) + 0.1 ;
-        cube.position.x = ( Math.random() * 0.15 ) + 0.05 ;
-
-        chargeCubes.push( cube );
-
-        let group = new THREE.Group();
-
-        group.rotation.y = Math.random() * ( Math.PI * 2 );
-
-        chargeGroup.add( group );
-        group.add( cube );
-
-    };
+    var charge = utils.makeParticles( group, {
+        material: dashMaterial,
+        init: function ( particle ) {
+            particle.position.y = ( Math.random() * 0.35 ) + 0.1 ;
+            particle.position.x = ( Math.random() * 0.15 ) + 0.05 ;
+            particle.scale.setScalar( Math.random() * 0.4 + 0.3 ) ;
+        }
+    });
 
     /*
     Direction pointer animation, to tell the player where
@@ -224,15 +208,8 @@ function CharaAnim( player ) {
 
         if ( currentState == 'chargingDash' ) {
 
-            chargeGroup.visible = true ;
-            
-            chargeGroup.children.forEach( (child)=> {
-                child.rotation.y += 0.06 ;
-            });
-
-            chargeCubes.forEach( (mesh)=> {
-                mesh.scale.setScalar( (Math.sin(Date.now() / 20) * 0.2) + 0.7 );
-            });
+            charge.group.visible = true ;
+            charge.update();
 
             /*
             Point Animation
@@ -260,7 +237,7 @@ function CharaAnim( player ) {
 
         } else {
 
-            chargeGroup.visible = false ;
+            charge.group.visible = false ;
             pointerContainer.visible = false ;
 
         };

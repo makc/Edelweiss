@@ -18,7 +18,6 @@ function AssetManager() {
 
 	const OFFSET_EDELWEISS = new THREE.Vector3( 0, 0.1, 0 );
 
-	const particleGeometry = new THREE.SphereBufferGeometry( 0.03, 4, 3 );
 	const particleMaterial = new THREE.MeshBasicMaterial({ color:0xffffff });
 
 	// What graph the player is currently playing in ?
@@ -66,30 +65,33 @@ function AssetManager() {
 	// create animation of little balls spinning around bonuses
 	function addParticles( group ) {
 
-		for ( let i = 0 ; i < 26 ; i ++ ) {
-
-			let particle = new THREE.Mesh(
-				particleGeometry,
-				particleMaterial
-			);
-
-			let particleGroup = new THREE.Group();
-			particleGroup.scale.setScalar( 1 / group.scale.x );
-
-			let yOffset = Math.random() ;
-
-			particle.position.y += ( yOffset * 1.7 ) - 0.3 ;
-			particle.position.x += ( Math.random() * 0.1 ) + ( ( 1 - yOffset ) * 0.2 ) + 0.1 ;
-
-			particle.scale.setScalar( (1 - yOffset) + 0.1 );
-
-			particleGroup.rotation.y = Math.random() * ( Math.PI * 2 );
-			particleGroup.userData.rotationSpeed = ( Math.random() * 0.1 ) + 0.02 ;
-
-			particleGroup.add( particle );
-			group.add( particleGroup );
-
+		const yMin = -0.3, yMax = 1.4, place = function ( particle, p, q ) {
+			// p is 0 at the bottom and 1 at the top, q is fixed
+			particle.position.y = yMin + p * ( yMax - yMin );
+			particle.position.x = ( 1 - p ) * 0.2 + ( 2 - q ) * 0.1;
+			particle.scale.setScalar( 1.1 - p );
 		};
+
+		group.userData.particles = utils.makeParticles( group, {
+			container: group,
+			material: particleMaterial,
+			init: function ( particle ) {
+				const p = Math.random();
+				const q = Math.random();
+				place( particle, p, q );
+				particle.userData.q = q;
+			},
+			update: function ( particle ) {
+				particle.position.y += 0.006;
+				if( particle.position.y > yMax ) {
+				    particle.position.y = yMin;
+				};
+
+				const p = ( particle.position.y - yMin ) / ( yMax - yMin );
+				const q = particle.userData.q;
+				place( particle, p, q );
+			}
+		});
 
 	};
 
@@ -617,15 +619,7 @@ function AssetManager() {
 			group.position.copy( group.userData.initPos );
 			group.position.y += ( Math.sin( Date.now() / 700 ) * 0.08 );
 
-			for ( let child of group.children ) {
-
-				if ( child.userData.rotationSpeed ) {
-
-					child.rotation.y += child.userData.rotationSpeed ;
-
-				};
-
-			};
+			group.userData.particles.update();
 
 		};
 
