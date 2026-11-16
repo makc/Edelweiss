@@ -483,7 +483,9 @@ function AssetManager() {
 					map: obj.material.map,
 					side: obj.material.side,
 					skinning: obj.material.skinning,
-					emissive: lightEmissive ? 0x191919 : 0x000000
+					emissive: lightEmissive ? 0x191919 : (
+						obj.material.emissive?.getHex() ?? 0
+					)
 				});
 
 				// fix self-shadows on double-sided materials
