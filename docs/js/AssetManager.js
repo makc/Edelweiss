@@ -454,8 +454,8 @@ function AssetManager() {
 
 				// add the light source when in caves
 				if( currentGraph != 'mountain' ) {
-					const light = new THREE.PointLight( 0xffffff, 1, 1.5 );
-					light.position.y = 0.5;
+					const light = new THREE.PointLight( 0xffffff, 1, 0.02 / scale );
+					light.position.y = 0.5 / scale;
 					model.add( light );
 				}
 
