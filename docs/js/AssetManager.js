@@ -473,6 +473,11 @@ function AssetManager() {
 			if ( /^fire/.test( logicCube.tag ) ) {
 				utils.makeFire( model );
 			}
+
+			// make npc-respawn-3 face his fire
+			if ( logicCube.tag == 'npc-respawn-3' ) {
+				model.rotation.y = -0.8;
+			}
 		});
 
 	};
