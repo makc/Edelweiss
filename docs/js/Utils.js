@@ -211,9 +211,8 @@ function Utils() {
             color, blending: THREE.AdditiveBlending, transparent: true
         });
 
-		const yMin = 0, yMax = 1, place = function ( particle, p ) {
-			// p is 0 at the bottom and 1 at the top
-			particle.position.y = yMin + p * ( yMax - yMin );
+		const place = function ( particle, p ) {
+			particle.position.y = p;
 			particle.position.x = particle.userData.q * 0.2 - 0.1 + 0.05 * Math.sin( 7 * p + particle.userData.r );
 			particle.position.z = particle.userData.r * 0.2 - 0.1;
 			particle.scale.setScalar(
@@ -233,13 +232,11 @@ function Utils() {
                 particle.parent.rotation.y = 0;
 
 				particle.position.y += 0.003;
-				if( particle.position.y > yMax ) {
-				    particle.position.y = yMin;
+				if( particle.position.y > 1 ) {
+				    particle.position.y = 0;
 				};
 
-				place( particle,
-                    ( particle.position.y - yMin ) / ( yMax - yMin )
-                );
+				place( particle, particle.position.y );
 			}
 		});
 
