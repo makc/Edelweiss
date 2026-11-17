@@ -65,8 +65,9 @@ function AssetManager() {
 	// create animation of little balls spinning around bonuses
 	function addParticles( group ) {
 
-		const yMin = -0.3, yMax = 1.4, place = function ( particle, p, q ) {
+		const yMin = -0.3, yMax = 1.4, place = function ( particle, p ) {
 			// p is 0 at the bottom and 1 at the top, q is fixed
+			const q = particle.userData.q;
 			particle.position.y = yMin + p * ( yMax - yMin );
 			particle.position.x = ( 1 - p ) * 0.2 + ( 2 - q ) * 0.1;
 			particle.scale.setScalar( 1.1 - p );
@@ -76,10 +77,8 @@ function AssetManager() {
 			container: group,
 			material: particleMaterial,
 			init: function ( particle ) {
-				const p = Math.random();
-				const q = Math.random();
-				place( particle, p, q );
-				particle.userData.q = q;
+				particle.userData.q = Math.random();
+				place( particle, Math.random() );
 			},
 			update: function ( particle ) {
 				particle.position.y += 0.006;
@@ -87,9 +86,9 @@ function AssetManager() {
 				    particle.position.y = yMin;
 				};
 
-				const p = ( particle.position.y - yMin ) / ( yMax - yMin );
-				const q = particle.userData.q;
-				place( particle, p, q );
+				place( particle,
+					( particle.position.y - yMin ) / ( yMax - yMin )
+				);
 			}
 		});
 
@@ -363,9 +362,17 @@ function AssetManager() {
 
 		else if ( logicCube.type == 'cube-inert' ) {
 
-			const parsed = parseUrlFromTag( logicCube );
-			if ( parsed ) {
-				url = parsed.url; rotation = parsed.rotation;
+			if ( /^fire/.test( logicCube.tag ) ) {
+
+				url = 'assets/models/fire.glb';
+			}
+
+			else {
+
+				const parsed = parseUrlFromTag( logicCube );
+				if ( parsed ) {
+					url = parsed.url; rotation = parsed.rotation;
+				}
 			}
 		}
 
@@ -462,6 +469,10 @@ function AssetManager() {
 				bonusCubes[ logicCube.tag ] = logicCube;
 			}
 
+			// make fires burn
+			if ( /^fire/.test( logicCube.tag ) ) {
+				utils.makeFire( model );
+			}
 		});
 
 	};

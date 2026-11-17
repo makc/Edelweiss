@@ -155,7 +155,7 @@ function Utils() {
 
         var particles = [];
 
-        for ( var i = 0; i < 20; i++ ) {
+        for ( var i = 0, n = options.count ?? 20; i < n; i++ ) {
 
             var mesh = new THREE.Mesh( particleGeometry, options.material );
             var pivot = new THREE.Group();
@@ -196,10 +196,143 @@ function Utils() {
 
     };
 
+    function makeFire( group ) {
+        const color = '#f90'
+        const light = new THREE.PointLight( color, 1, 1 );
+        light.position.y = 0.3;
+        group.add( light );
+
+        const prop = group.getObjectByName( 'Prop' );
+        prop.material.vertexColors = true;
+        prop.castShadow = false;
+
+
+        const particleMaterial = new THREE.MeshBasicMaterial({
+            color, blending: THREE.AdditiveBlending, transparent: true
+        });
+
+		const yMin = 0, yMax = 1, place = function ( particle, p ) {
+			// p is 0 at the bottom and 1 at the top
+			particle.position.y = yMin + p * ( yMax - yMin );
+			particle.position.x = particle.userData.q * 0.2 - 0.1 + 0.05 * Math.sin( 7 * p + particle.userData.r );
+			particle.position.z = particle.userData.r * 0.2 - 0.1;
+			particle.scale.setScalar(
+                Math.min( 0.2, 0.5 * ( 1 - p ) )
+            );
+		};
+
+        const particles = makeParticles( group, {
+			container: group, count: 7,
+			material: particleMaterial,
+			init: function ( particle ) {
+				particle.userData.q = Math.random();
+				particle.userData.r = Math.random();
+				place( particle, Math.random() );
+			},
+			update: function ( particle ) {
+                particle.parent.rotation.y = 0;
+
+				particle.position.y += 0.003;
+				if( particle.position.y > yMax ) {
+				    particle.position.y = yMin;
+				};
+
+				place( particle,
+                    ( particle.position.y - yMin ) / ( yMax - yMin )
+                );
+			}
+		});
+
+        const centers = [
+            [ 0, 0, 0 ], [ 0.2, 0, 0 ], [ -0.2, 0, 0 ]
+        ];
+
+        const fire = group.getObjectByName( 'Fire' );
+        fire.geometry.scale( 1, 1, 0.5 );
+        fire.castShadow = false;
+		fire.receiveShadow = false;
+        fire.material = new THREE.ShaderMaterial( {
+            uniforms: {
+                uCenter0: { get value() {
+                    particles.update();
+
+                    // get the times
+                    const now = Date.now();
+                    light.intensity = 0.5 * ( 1 + ( now % 100 ) / 100 );
+
+                    for ( let i = 0; i < 3; i++ ) {
+                        const t = ( (now - 100 * i ) % 300 ) / 300;
+                        centers[ i ][ 1 ] = 0.8 * t - 0.2;
+                    }
+
+                    return centers[ 0 ]
+                } },
+                uRadius0: { value: 0.13 },
+
+                uCenter1: { value: centers[ 1 ] },
+                uRadius1: { value: 0.23 },
+
+                uCenter2: { value: centers[ 2 ] },
+                uRadius2: { value: 0.23  }
+            },
+            vertexShader: `
+                uniform vec3 uCenter0;
+                uniform float uRadius0;
+                uniform vec3 uCenter1;
+                uniform float uRadius1;
+                uniform vec3 uCenter2;
+                uniform float uRadius2;
+
+                varying vec3 vNormal;
+
+                vec3 push( vec3 pos, vec3 center, float radius ) {
+                    vec3 d = pos - center;
+                    float l = length( d );
+
+                    vec3 dir = l > 1e-6 ? d / l : vec3( 0.0, 1.0, 0.0 );
+
+                    float len = max( l, radius ) + 0.1 * radius * (
+                        1.0 - smoothstep( radius, 1.2 * radius, l )
+                    );
+
+                    return center + dir * len;
+                }
+
+                void main() {
+                    vec3 pos = position;
+
+                    pos = push( pos, uCenter0, uRadius0 );
+                    pos = push( pos, uCenter1, uRadius1 );
+                    pos = push( pos, uCenter2, uRadius2 );
+
+                    gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4( pos, 1.0 );
+                    vNormal = normalize( normalMatrix * normal );
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+
+                void main() {
+                    gl_FragColor = vec4(
+                        mix(
+                            vec3( 0.3, 0.2, 0.0 ),
+                            vec3( 0.6, 0.5, 0.0 ),
+                            max( 0.0, ( vNormal.z - 0.7 ) / 0.3 )
+                        ),
+                        1.0
+                    );
+                }
+            `,
+            blending: THREE.AdditiveBlending, transparent: true
+        });
+
+    };
+
 
 
 
     return {
+        makeFire,
         makeParticles,
         randomDisplayName,
         randomString,
