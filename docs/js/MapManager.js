@@ -247,7 +247,33 @@ function MapManager() {
 
 	//
 
+	function getFileName() {
+		const origin = atlas.player.position.clone();
+		origin.y += 0.1;
+
+		const raycaster = new THREE.Raycaster();
+		raycaster.set( origin, new THREE.Vector3( 0, -1, 0 ) );
+
+		const intersects = raycaster.intersectObjects( scene.children, true );
+
+		for( let i = 0; i < intersects.length; i++ ) {
+			let object = intersects[ i ].object;
+			while( object.name.indexOf( 'file ' ) < 0 ) {
+				if( object.parent === scene ) {
+					continue;
+				}
+				object = object.parent;
+			}
+			return object.name.substr( 5 );
+		}
+
+		return '🤷';
+	};
+
+	//
+
 	return {
+		getFileName,
 		switchMap,
 		params
 	};
