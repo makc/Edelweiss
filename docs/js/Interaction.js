@@ -1113,6 +1113,14 @@ function Interaction() {
 		input.params.isTouchScreen ? 'the thumbstick' : 'arrow buttons'
 	}</span>`
 
+	var crystalsIntro = `These crystals are packed with the energy that helps your muscles work more efficiently.`;
+	var crystalsIntroOnce = () => {
+		const afterStory = dialogues[ 'npc-dash-after' ].story;
+		if ( afterStory[ 0 ].m === crystalsIntro ) {
+			afterStory.shift();
+		}
+	};
+
 	var dialogues = {
 
 		///// TUTORIALS
@@ -1188,7 +1196,7 @@ function Interaction() {
 		'npc-dash' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `These crystals are packed with the energy that helps your muscles work more efficiently.` },
+				{ m: crystalsIntro, onCall: crystalsIntroOnce },
 				{ m: `Just swallow one, and you will feel more agile in no time!` }
 			]
 		},
@@ -1196,7 +1204,8 @@ function Interaction() {
 		'npc-dash-after' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `You can dash on a wall by holding ${actionButton} while climbing.` },
+				{ m: crystalsIntro, onCall: crystalsIntroOnce },
+				{ m: `You could dash on a wall by holding ${actionButton} while climbing.` },
 				{ m: `When you gathered enough energy, point in the direction you want to dash using ${arrowButtons}, then release ${actionButton}.` },
 			]
 		},
@@ -1287,16 +1296,17 @@ function Interaction() {
 		},
 
 		'npc-respawn-3' : {
+			name: 'Baelin',
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Hi ! Do you want to save your progression ?', answers: [
-					{ m: 'Yes', next: 'yes' },
-					{ m: 'No', next: 'no' }
+				{ question: 'Good morning! Nice day for fishing, ain&rsquo;t it?', answers: [
+					{ m: 'It sure is!', next: 'yes' },
+					{ m: 'I hate fishing', next: 'no' }
 				] },
-				{ label: 'yes', m: 'Your progression is saved, see you soon !', onCall: ()=> {
+				{ label: 'yes', m: 'Hu-hah!', onCall: ()=> {
 					gameState.setSavedPosition( 3 );
 				}, end: true },
-				{ label: 'no', m: 'Ho ? OK...', end: true  }
+				{ label: 'no', m: '🤨', end: true  }
 			]
 		},
 
