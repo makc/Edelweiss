@@ -108,6 +108,8 @@ function MapManager() {
 
 							child.material = materials[key] || new THREE.MeshPhongMaterial({
 								shininess: 0, specular: 0, dithering: true,
+								transparent: child.material.transparent,
+								opacity: child.material.opacity,
 								map: child.material.map,
 								side: THREE.FrontSide
 							});
