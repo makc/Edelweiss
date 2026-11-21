@@ -240,7 +240,7 @@ function Interaction() {
 				break;
 
 			case 'npc-wall-medium' :
-				startDialogue( 'npc-wall-medium' );
+				startDialogue( stamina.params.stamina < 4 ? 'npc-wall-medium' : 'npc-wall-medium-after' );
 				break;
 
 			case 'npc-dash' :
@@ -1215,7 +1215,15 @@ function Interaction() {
 			story: [
 				{ m: `Some rock walls can be climbed, like the one on your left.` },
 				{ m: `However, climbing them takes more stamina than climbing roots and branches.` },
-				{ m: `If you don't have enough stamina, consider going back to find another edelweiss, to have at least 4 stamina bars.` }
+				{ m: `If you don&rsquo;t have at least <span class="controls">4 stamina bars</span>, consider going back to find another edelweiss.` }
+			]
+		},
+
+		'npc-wall-medium-after' : {
+			char: dialogueChars.lady,
+			story: [
+				{ m: `Have you been in that cave before?` },
+				{ m: `Those paintings must be a sham. I&rsquo;ve never seen anything larger than a sheep here in my whole damn life.` }
 			]
 		},
 
