@@ -132,6 +132,23 @@ function CameraControl( player, camera ) {
 
 		testRay.origin.copy( cameraTarget );
 
+		// code below this hack makes the camera behave erratically
+		// when the player gets too close to a wall that is between
+		// the player and the camera; let's avoid this problem then
+
+		testRay.direction.set( 0, 0, 1 );
+		let hack = atlas.intersectRay( testRay, [
+			Math.floor( player.position.y ),
+			Math.floor( player.position.y ) + 1
+		], false );
+		if ( hack.closestTile?.isXAligned ) {
+			cameraTarget.z = Math.min(
+				cameraTarget.z,
+				hack.closestTile.points[ 0 ].z - 0.5
+			);
+			testRay.origin.copy( cameraTarget );
+		}
+
 		// get the scene graph stages to check
 		let stages = [
 			Math.floor( player.position.y ),
