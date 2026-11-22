@@ -482,7 +482,6 @@ function CameraControl( player, camera ) {
 	function resetCameraPos() {
 
 		camera.position.copy( CAMERA_DIRECTION );
-		camera.position.multiplyScalar( DEFAULT_CAMERA_DISTANCE );
 		camera.position.add( player.position );
 
 	};
