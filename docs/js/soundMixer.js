@@ -42,6 +42,13 @@ function SoundMixer() {
 	var MUSIC_TIMES = [ 0, 0, 0, 0, 0, 0 ];
 
 	const SFX_PARAMS = {
+		epic_npc_man: {
+			volume: 0.4,
+			distance: 1.5,
+			maxDistance: 4,
+			music: true,
+			url: MUSIC_URL + 'Brandon+Fiechter+-+Cobblestone+Village.ogg'
+		},
 		faint_waves: {
 			volume: 1.2,
 			distance: 1,
@@ -102,6 +109,8 @@ function SoundMixer() {
 
 	var sfxs = [];
 	var sfxCanPlay = true ;
+
+	var sfxMusicSupressors = [/* PositionalAudio-s */] ;
 
 	var listener;
 	var audioLoader = new THREE.AudioLoader();
@@ -175,7 +184,8 @@ function SoundMixer() {
 		var sound = new THREE.PositionalAudio( listener );
 
 		// load a sound and set it as the PositionalAudio object's buffer
-		audioLoader.load( SFXURL + sfxName + '.ogg' , function( buffer ) {
+		var url = SFX_PARAMS[ sfxName ].url ?? SFXURL + sfxName + '.ogg';
+		audioLoader.load( url, function( buffer ) {
 
 			sound.setBuffer( buffer );
 
@@ -201,6 +211,12 @@ function SoundMixer() {
 			sfxs.push( sound );
 
 		});
+
+		if ( SFX_PARAMS[ sfxName ].music ) {
+
+			sfxMusicSupressors.push( sound );
+
+		};
 
     };
 
@@ -247,7 +263,25 @@ function SoundMixer() {
 
 		};
 
-		domMusic.volume = musicVolume ;
+		// check if any of sfx is suppressing the main music
+		let correctedMusicVolume = musicVolume;
+		for ( const sound of sfxMusicSupressors ) {
+
+			const distance = sound.position.distanceTo( camera.position );
+			if ( distance < sound.maxDistance ) {
+
+				const suppressorVolume = THREE.Math.clamp(
+					( sound.maxDistance - distance ) / ( sound.maxDistance - sound.getRefDistance() ),
+					0, 1
+				);
+
+				correctedMusicVolume *= 1 - 0.8 * suppressorVolume;
+
+			};
+
+		};
+
+		domMusic.volume = correctedMusicVolume;
 
 		if ( mustCheck && sfxCanPlay ) {
 

@@ -1291,7 +1291,7 @@ function Interaction() {
 		'npc-respawn-2' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ m: 'Remember, the higher you climb, the harder you&rsquo;ll fall!'},
+				{ m: 'Remember, the higher you climb, the harder you&rsquo;ll fall!' },
 				{ question: 'Would you like to recover in my tent when that happens?', answers: [
 					{ m: 'Umm... yes?', next: 'yes' },
 					{ m: 'Nope, I&rsquo;m good', next: 'no' }
@@ -1321,14 +1321,15 @@ function Interaction() {
 		'npc-respawn-4' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Hi ! Do you want to save your progression ?', answers: [
-					{ m: 'Yes', next: 'yes' },
-					{ m: 'No', next: 'no' }
+				{ m: 'Oh hey... Can&rsquo;t talk right now, I&rsquo;m busy painting that tree over there.'},
+				{ question: 'Would you like to come see it when I&rsquo;m done?', answers: [
+					{ m: 'Absolutely!', next: 'yes' },
+					{ m: 'Nah, I&rsquo;ll pass', next: 'no' }
 				] },
-				{ label: 'yes', m: 'Your progression is saved, see you soon !', onCall: ()=> {
+				{ label: 'yes', m: 'Wonderful! I do hope you&rsquo;ll like it!', onCall: ()=> {
 					gameState.setSavedPosition( 4 );
 				}, end: true },
-				{ label: 'no', m: 'Ho ? OK...', end: true  }
+				{ label: 'no', m: '😔', end: true  }
 			]
 		},
 

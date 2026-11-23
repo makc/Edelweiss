@@ -499,6 +499,7 @@ function AssetManager() {
 					map: obj.material.map,
 					side: obj.material.side,
 					skinning: obj.material.skinning,
+					vertexColors: obj.material.vertexColors,
 					emissive: lightEmissive ? 0x191919 : (
 						obj.material.emissive?.getHex() ?? 0
 					)
