@@ -248,7 +248,7 @@ function Interaction() {
 				break;
 
 			case 'npc-glide' :
-				startDialogue( 'npc-glide' );
+				startDialogue( controler.permission.gliding ? 'npc-glide-after' : 'npc-glide' );
 				break;
 
 			case 'npc-wall-hard' :
@@ -617,7 +617,7 @@ function Interaction() {
 
 			},
 
-			message : 'You found the Gliding Ability ! <br>You can now glide in the air !'
+			message : 'Your hands just got stronger! <br>You should now be able to glide in the air.'
 
 		},
 
@@ -806,6 +806,8 @@ function Interaction() {
 	function endDialogue() {
 
 		hideDialogueUI();
+
+		dialogues[ currentDialogue ].onEnd?.();
 
 		currentDialogue = undefined ;
 		currentLine = undefined ;
@@ -1121,6 +1123,14 @@ function Interaction() {
 		}
 	};
 
+	var gliderIntro = `With enough grip strength you can can turn any large piece of cloth into a paraglider.`;
+	var gliderIntroOnce = () => {
+		const afterStory = dialogues[ 'npc-glide-after' ].story;
+		if ( afterStory[ 0 ].m === gliderIntro ) {
+			afterStory.shift();
+		}
+	};
+
 	var dialogues = {
 
 		///// TUTORIALS
@@ -1196,18 +1206,20 @@ function Interaction() {
 		'npc-dash' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: crystalsIntro, onCall: crystalsIntroOnce },
+				{ m: crystalsIntro },
 				{ m: `Just swallow one, and you will feel more agile in no time!` }
-			]
+			],
+			onEnd: crystalsIntroOnce
 		},
 
 		'npc-dash-after' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: crystalsIntro, onCall: crystalsIntroOnce },
+				{ m: crystalsIntro },
 				{ m: `You could dash on a wall by holding ${actionButton} while climbing.` },
 				{ m: `When you gathered enough energy, point in the direction you want to dash using ${arrowButtons}, then release ${actionButton}.` },
-			]
+			],
+			onEnd: crystalsIntroOnce
 		},
 
 		'npc-wall-medium' : {
@@ -1230,9 +1242,19 @@ function Interaction() {
 		'npc-glide' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `Do you have a the Gliding Ability ?` },
-				{ m: `You can glide in the air by holding ${actionButton} while in the air, after a jump for instance.` },
-			]
+				{ m: gliderIntro },
+				{ m: `Maybe take that large energy crystal and give it a try.` },
+			],
+			onEnd: gliderIntroOnce
+		},
+
+		'npc-glide-after' : {
+			char: dialogueChars.lady,
+			story: [
+				{ m: gliderIntro },
+				{ m: `You can glide by holding ${actionButton} while in the air, after a jump for instance.` },
+			],
+			onEnd: gliderIntroOnce
 		},
 
 		'npc-double-jump' : {
@@ -1336,14 +1358,16 @@ function Interaction() {
 		'npc-respawn-5' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Hi ! Do you want to save your progression ?', answers: [
-					{ m: 'Yes', next: 'yes' },
-					{ m: 'No', next: 'no' }
+				{ m: 'One of those daredevils who fly off the cliffs, are you?' },
+				{ m: 'Always remember that you are not a bird, you can just glide for a bit, that&rsquo;s all.' },
+				{ question: 'But, should you ever have a nasty landing, I&rsquo;ll patch you up!', answers: [
+					{ m: 'Thanks!', next: 'yes' },
+					{ m: 'Don&rsquo;t bother', next: 'no' }
 				] },
-				{ label: 'yes', m: 'Your progression is saved, see you soon !', onCall: ()=> {
+				{ label: 'yes', m: 'You&rsquo;re welcome, go have some fun!', onCall: ()=> {
 					gameState.setSavedPosition( 5 );
 				}, end: true },
-				{ label: 'no', m: 'Ho ? OK...', end: true  }
+				{ label: 'no', m: 'Overconfidence is a dangerous thing.', end: true  }
 			]
 		},
 
@@ -1477,7 +1501,7 @@ function Interaction() {
 			char: dialogueChars.lady,
 			story: [
 				{ m: "Are you wondering how to get down this cliff?" },
-				{ m: "You just have to climb down the roots just in front of me." },
+				{ m: "You will have to climb down the roots just in front of me." },
 				{ m: "I did that a lot, back in the days..." }
 			]
 		},
