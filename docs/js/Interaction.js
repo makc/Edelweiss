@@ -873,18 +873,16 @@ function Interaction() {
 
 		if ( currentDialogue && currentLine != undefined ) {
 
-			let size = '1em' ;
+			let size = '' ;
 			let line = dialogues[ currentDialogue ].story[ currentLine ] ;
 
 			// If the requested line is a question, special
 			// behavior is requered for the dialogue.
 			if ( line.question ) {
 
-				if ( window.innerWidth < 600 ) {
-					size = '0.8em' ;
-					if ( line.question.length > 80 ) {
-						size = '0.7em' ;
-					}
+				size = 'small' ;
+				if ( line.question.length > 80 ) {
+					size = 'smaller' ;
 				}
 
 				setupQuestion( line );
@@ -893,17 +891,20 @@ function Interaction() {
 
 			} else {
 
-				if ( window.innerWidth < 600 ) {
-					if ( line.m.length > 80 ) {
-						size = '0.8em' ;
-					}
+				if ( line.m.length > 80 ) {
+					size = 'small' ;
 				}
 
 				executeLine( line );
 
 			};
 
-			domTalkContainer.style.fontSize = size ;
+			domTalkContainer.classList.remove( 'small-font' );
+			domTalkContainer.classList.remove( 'smaller-font' );
+
+			if ( size ) {
+				domTalkContainer.classList.add( size + '-font' );
+			}
 
 		};
 
