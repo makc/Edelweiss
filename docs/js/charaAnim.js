@@ -158,6 +158,9 @@ function CharaAnim( player ) {
         }
     });
 
+    var zapper = createBranches( group, dashMaterial );
+    zapper.group.position.y = 0.3; // this is... umm... her dantian
+
     /*
     Direction pointer animation, to tell the player where
     they are going to dash toward
@@ -210,6 +213,7 @@ function CharaAnim( player ) {
 
             if ( charge.group.visible ) {
                 charge.update();
+                zapper.update( delta );
             }
 
             pointerContainer.visible = false ;
@@ -247,6 +251,7 @@ function CharaAnim( player ) {
 
         } else {
 
+            zapper.stop();
             charge.group.visible = false ;
             pointerContainer.visible = false ;
 
@@ -849,7 +854,10 @@ function CharaAnim( player ) {
 
     function jump( showCharge ) {
         setState('jumping');
-        charge.group.visible = !!showCharge;
+        if( showCharge ) {
+            zapper.start();
+            charge.group.visible = true;
+        }
     };
 
     function fall() {
@@ -890,6 +898,148 @@ function CharaAnim( player ) {
 
     function respawn() {
         setState( 'respawn' );
+    };
+
+    // some ai slop lol
+
+    /**
+     * Creates the lightning effect, hidden until start() is called.
+     * @param {THREE.Object3D} parent - object the effect is added to
+     * @returns {{ start: () => void, stop: () => void, update: (deltaTime: number) => void }}
+     */
+    function createBranches( parent, branchMaterial ) {
+
+        const mod = ( a, n ) => ( ( a % n ) + n ) % n;
+
+        /**
+         * Creates a thin 3-sided branch of constant thickness, growing from the origin
+         * of `parent` along +X, drooping downwards (-Y) towards its outer end,
+         * with a small random wobble in Y and Z.
+         * @param {THREE.Object3D} parent
+         * @returns {THREE.Mesh}
+         */
+        function createBranch( parent ) {
+
+            // radiusTop, radiusBottom, height, radialSegments, heightSegments
+            const geometry = new THREE.CylinderBufferGeometry( 0.005, 0.005, 1.5, 3, 10 );
+
+            // cylinder is centered on the origin, shift it so its base sits at the origin and it grows along +Y
+            geometry.translate( 0, 0.75, 0 );
+
+            // turn the branch from growing along +Y to growing along +X, baked into the geometry
+            // so the mesh's own rotation stays free for animation
+            geometry.rotateZ( - Math.PI / 2 );
+
+            // one offset per ring, so all vertices at the same distance along the branch move together
+            const ringOffsets = [];
+
+            for ( let s = 0; s <= 10; s ++ ) {
+
+            // droop: strictly vertical, smooth downward curve (quadratic, so the base stays level)
+            const droopY = - 0.0105 * s * s;
+
+            // wobble: small random offset on both Y and Z, none at the base
+            const wobbleY = s === 0 ? 0 : ( Math.random() - 0.5 ) * 0.15;
+            const wobbleZ = s === 0 ? 0 : ( Math.random() - 0.5 ) * 0.15;
+
+            ringOffsets.push( { y: droopY + wobbleY, z: wobbleZ } );
+
+            }
+
+            const pos = geometry.attributes.position;
+
+            for ( let i = 0; i < pos.count; i ++ ) {
+
+            // which ring does this vertex belong to? (derived from its distance along X)
+            const o = ringOffsets[ Math.round( pos.getX( i ) / 0.15 ) ];
+
+            pos.setY( i, pos.getY( i ) + o.y );
+            pos.setZ( i, pos.getZ( i ) + o.z );
+
+            }
+
+            pos.needsUpdate = true;
+            geometry.computeVertexNormals();
+
+            const mesh = new THREE.Mesh( geometry, branchMaterial );
+
+            parent.add( mesh );
+            return mesh;
+
+        }
+
+        const group = new THREE.Group();
+        group.visible = false;
+        parent.add( group );
+
+        const branches = [];
+
+        for ( let i = 0; i < 15; i ++ ) {
+
+            // intermediate parent: spreads the branches evenly around the Y axis
+            const pivot = new THREE.Group();
+            pivot.rotation.y = i * Math.PI * 2 / 15;
+            group.add( pivot );
+
+            branches.push( createBranch( pivot ) );
+
+        }
+
+        // static permutation of branch indices 0..branches.length-1, shuffled once at init (Fisher-Yates)
+        const order = [ ...branches.keys() ];
+
+        for ( let i = order.length - 1; i > 0; i -- ) {
+
+            const j = Math.floor( Math.random() * ( i + 1 ) );
+            [ order[ i ], order[ j ] ] = [ order[ j ], order[ i ] ];
+
+        }
+
+        let elapsed = 0; // ms of animation time, only advances while the group is visible
+
+        function start() {
+
+            group.visible = true;
+
+        }
+
+        function stop() {
+
+            group.visible = false;
+
+        }
+
+        /** @param {number} deltaTime - seconds since the previous update() call */
+        function update( deltaTime ) {
+
+            if ( ! group.visible ) return;
+
+            elapsed += deltaTime * 1000;
+
+            // a new branch starts every 200 / 3 ms; "slot" counts those starts
+            const slot = Math.floor( elapsed * 0.015 );
+
+            for ( const branch of branches ) branch.visible = false;
+
+            // the last 3 started branches are still alive (each lives for 200 ms)
+            for ( let j = 0; j < 3; j ++ ) {
+
+                const startSlot = slot - j;
+                const branch = branches[ order[ mod( startSlot, order.length ) ] ];
+
+                const progress = elapsed / 200 - startSlot / 3; // 0..1 over this branch's lifetime
+
+                branch.visible = true;
+                branch.rotation.z = progress * 0.8 - 0.2;
+
+            }
+
+            group.rotation.y = elapsed / 4000; // slow spin so the 3D shape is readable
+
+        }
+
+        return { group, start, stop, update };
+
     };
 
     //
