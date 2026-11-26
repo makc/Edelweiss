@@ -195,7 +195,7 @@ function Input() {
 
     // request next line if the touch action was not for scrolling
 
-    domCharContainer.addEventListener( 'touchend', (e)=> {
+    domCharContainer.addEventListener( 'click', (e)=> {
 
         if ( !interaction.questionTree.isQuestionAsked &&
              interaction.isInDialogue() ) {
@@ -206,7 +206,7 @@ function Input() {
 
     });
 
-    domTalkContainer.addEventListener( 'touchend', (e)=> {
+    domTalkContainer.addEventListener( 'click', (e)=> {
 
         if ( !interaction.questionTree.isQuestionAsked &&
              interaction.isInDialogue() ) {

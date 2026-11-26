@@ -1048,7 +1048,7 @@ function Interaction() {
 			questionTree.answers[ i ].dom = div ;
 
 			// Add event to select this answer with a touchscreen
-			div.addEventListener( 'touchend', ()=> {
+			div.addEventListener( 'click', ()=> {
 
 				questionTree.currentChoice = i ;
 
