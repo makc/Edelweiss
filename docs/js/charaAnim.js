@@ -1034,8 +1034,6 @@ function CharaAnim( player ) {
 
             }
 
-            group.rotation.y = elapsed / 4000; // slow spin so the 3D shape is readable
-
         }
 
         return { group, start, stop, update };
