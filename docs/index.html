@@ -4,7 +4,7 @@
 
 	<title>Edelweiss</title>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, shrink-to-fit=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
 
 
     <style>
@@ -320,9 +320,16 @@
             }
         }
 
-
-
-
+        @media screen and ( min-height: 760px ) and ( min-width: 760px ) {
+            #joystick-container {
+                transform: scale(1.7067);
+                transform-origin: -45px 25px;
+            }
+            #action-button {
+                transform: scale(1.7067);
+                transform-origin: 84px 63px;
+            }
+        }
 
 
 

@@ -868,6 +868,16 @@ function Interaction() {
 
 	};
 
+	function setFontSize( size ) {
+
+		domTalkContainer.classList.remove( 'small-font' );
+		domTalkContainer.classList.remove( 'smaller-font' );
+
+		if ( size ) {
+			domTalkContainer.classList.add( size + '-font' );
+		}
+	};
+
 	// print next statement OR question
 	function executeDialogue() {
 
@@ -899,12 +909,7 @@ function Interaction() {
 
 			};
 
-			domTalkContainer.classList.remove( 'small-font' );
-			domTalkContainer.classList.remove( 'smaller-font' );
-
-			if ( size ) {
-				domTalkContainer.classList.add( size + '-font' );
-			}
+			setFontSize( size );
 
 		};
 
@@ -913,6 +918,8 @@ function Interaction() {
 	// Print the line's message and execute any onCall
 	// function in the line's parameters
 	function executeLine( line ) {
+
+		setFontSize();
 
 		domTextContainer.innerHTML = line.m ;
 
