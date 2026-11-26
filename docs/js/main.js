@@ -39,14 +39,5 @@ window.addEventListener( 'resize', ()=> {
 
         fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( world.clientWidth * pixelRatio );
         fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( world.clientHeight * pixelRatio );
-
-        //
-
-        if ( input && input.joystick ) {
-
-            setTimeout( function () {
-                input.joystick.resize();
-            }, 123 );
-        };
     };
 });

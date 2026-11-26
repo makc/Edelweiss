@@ -4,9 +4,6 @@ var VirtualJoystick	= function(opts)
 	opts			= opts			|| {};
 	this._container		= opts.container	|| document.body;
 	this._containerPos  = this._container.getBoundingClientRect();
-	this.resize = (function () {
-		this._containerPos = this._container.getBoundingClientRect();
-	}).bind(this);
 	this._strokeStyle	= opts.strokeStyle	|| 'cyan';
 	this._stickEl		= opts.stickElement	|| this._buildJoystickStick();
 	this._baseEl		= opts.baseElement	|| this._buildJoystickBase();
@@ -205,6 +202,7 @@ VirtualJoystick.prototype._onMouseUp	= function(event)
 VirtualJoystick.prototype._onMouseDown	= function(event)
 {
 	event.preventDefault();
+	this._containerPos = this._container.getBoundingClientRect();
 	var x	= event.clientX - this._containerPos.x;
 	var y	= event.clientY - this._containerPos.y;
 	return this._onDown(x, y);
@@ -240,6 +238,7 @@ VirtualJoystick.prototype._onTouchStart	= function(event)
 	this._touchIdx	= touch.identifier;
 
 	// forward the action
+	this._containerPos = this._container.getBoundingClientRect();
 	var x		= touch.clientX - this._containerPos.x;
 	var y		= touch.clientY - this._containerPos.y;
 	return this._onDown(x, y)
