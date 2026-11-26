@@ -1772,7 +1772,7 @@ function Controler( player ) {
             };
 
             // Animate the jump
-            charaAnim.jump();
+            charaAnim.jump( hasDoubledJumped );
 
             // Take the price in stamina
             stamina.reduceStamina( JUMPPRICE, true );

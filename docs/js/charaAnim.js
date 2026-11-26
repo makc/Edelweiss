@@ -206,6 +206,16 @@ function CharaAnim( player ) {
 
         // update the dash charging animation
 
+        if ( currentState == 'jumping' ) {
+
+            if ( charge.group.visible ) {
+                charge.update();
+            }
+
+            pointerContainer.visible = false ;
+
+        } else
+
         if ( currentState == 'chargingDash' ) {
 
             charge.group.visible = true ;
@@ -837,8 +847,9 @@ function CharaAnim( player ) {
         setState('chargingDash');
     };
 
-    function jump() {
+    function jump( showCharge ) {
         setState('jumping');
+        charge.group.visible = !!showCharge;
     };
 
     function fall() {
