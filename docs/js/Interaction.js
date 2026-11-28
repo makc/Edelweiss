@@ -256,7 +256,7 @@ function Interaction() {
 				break;
 
 			case 'npc-double-jump' :
-				startDialogue( 'npc-double-jump' );
+				startDialogue( controler.permission.infinityJump ? 'npc-double-jump-after' : 'npc-double-jump' );
 				break;
 
 			case 'npc-boat' :
@@ -633,7 +633,7 @@ function Interaction() {
 
 			},
 
-			message : 'You found the Double-Jump Ability ! <br>You can now jump once in the air !'
+			message : 'You&rsquo;ve absorbed enough crystals to defy gravity!'
 
 		}
 
@@ -1260,7 +1260,7 @@ function Interaction() {
 			char: dialogueChars.lady,
 			story: [
 				{ m: gliderIntro },
-				{ m: `You can glide by holding ${actionButton} while in the air, after a jump for instance.` },
+				{ m: `Glide by holding ${actionButton} while in the air, after a jump for instance.` },
 			],
 			onEnd: gliderIntroOnce
 		},
@@ -1268,17 +1268,24 @@ function Interaction() {
 		'npc-double-jump' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `Do you have the Double-Jump ability ?` },
-				{ m: `With it you can jump in the air once, by pressing ${actionButton} while in the air.` },
+				{ m: `You won&rsquo;t get very far up there without a boost.` },
+				{ m: `Better take that crystal before you continue!` },
+			]
+		},
+
+		'npc-double-jump-after' : {
+			char: dialogueChars.lady,
+			story: [
+				{ m: `You&rsquo;ve got some extra energy in those legs now!` },
+				{ m: `Try jumping again by pressing ${actionButton} while you&rsquo;re still in the air.` },
 			]
 		},
 
 		'npc-wall-hard' : {
 			char: dialogueChars.lady,
 			story: [
-				{ m: `This wall of ice can be climbed.` },
-				{ m: `However, climbing it takes a lot of stamina.` },
-				{ m: `If you don't have enough stamina, consider going back to find an edelweiss.` }
+				{ m: `This wall of ice can be climbed, but it takes a lot of stamina.` },
+				{ m: `If you don&rsquo;t have enough stamina, consider going back to find another edelweiss.` }
 			]
 		},
 
@@ -1337,7 +1344,7 @@ function Interaction() {
 			name: 'Baelin',
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Good morning! Nice day for fishing, ain&rsquo;t it?', answers: [
+				{ question: 'Morning! Nice day for fishing, ain&rsquo;t it?', answers: [
 					{ m: 'It sure is!', next: 'yes' },
 					{ m: 'I hate fishing', next: 'no' }
 				] },
@@ -1396,14 +1403,17 @@ function Interaction() {
 		'npc-respawn-7' : {
 			char: dialogueChars.alpinist,
 			story: [
-				{ question: 'Hi ! Do you want to save your progression ?', answers: [
-					{ m: 'Yes', next: 'yes' },
-					{ m: 'No', next: 'no' }
+				{ m: `Going up there too? You&rsquo;re braver than me!` },
+				{ m: `I&rsquo;m not risking my neck for a view.` },
+				{ m: `I&rsquo;m staying right here, with some good stuff to keep the cold away.`},
+				{ question: 'Care to stop by when I open another bottle?', answers: [
+					{ m: 'I might!', next: 'yes' },
+					{ m: 'I can&rsquo;t', next: 'no' }
 				] },
-				{ label: 'yes', m: 'Your progression is saved, see you soon !', onCall: ()=> {
+				{ label: 'yes', m: 'Good! I&rsquo;ll find you some chocolate milk.', onCall: ()=> {
 					gameState.setSavedPosition( 7 );
 				}, end: true },
-				{ label: 'no', m: 'Ho ? OK...', end: true  }
+				{ label: 'no', m: 'Oh well, all the more for me then.', end: true  }
 			]
 		},
 

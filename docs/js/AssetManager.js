@@ -478,6 +478,18 @@ function AssetManager() {
 			if ( logicCube.tag == 'npc-respawn-3' ) {
 				model.rotation.y = -0.8;
 			}
+
+			// this terrible hack animates alcoholic npc 🥴
+			if ( logicCube.tag == 'npc-respawn-7' ) {
+				model.updateMatrixWorld();
+				model.matrixAutoUpdate = false;
+				Object.defineProperty( model.matrix.elements, 5, { get() {
+					return 0.05 * ( 1 + Math.cos( model.matrix.elements[6] * 20 ) );
+				} } );
+				Object.defineProperty( model.matrix.elements, 6, { get() {
+					return 0.02 * Math.sin( 2 * Math.PI * ( Date.now() % 4000 ) / 4000 );
+				} } );
+			}
 		});
 
 	};

@@ -42,6 +42,12 @@ function SoundMixer() {
 	var MUSIC_TIMES = [ 0, 0, 0, 0, 0, 0 ];
 
 	const SFX_PARAMS = {
+		alcoholic: {
+			volume: 1,
+			distance: 1.5,
+			maxDistance: 2.5,
+			playSpeedVarying: 0.2
+		},
 		epic_npc_man: {
 			volume: 0.4,
 			distance: 1.5,
